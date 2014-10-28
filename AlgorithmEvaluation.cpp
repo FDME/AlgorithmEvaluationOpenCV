@@ -20,13 +20,50 @@ struct GraphPixel{
 GraphPixel g[MAXWIDTH][MAXHEIGHT];
 
 int w, h;
-Mat imageOriginal, imageGray, imageCanny, imageOutput, imageLabel;
+Mat imageOriginal, imageGray, imageCanny, imageOutput, imageLabel, imageForeground;
 Mat mask;
 vector<Vec2f> lines;
 vector<vector<Point>> contours;
 
 
 #pragma region Qian Zifei
+
+class WatershedSegment{
+private:
+	Mat markers;
+public:
+	void setMarkers(Mat& markerImage){
+		markerImage.convertTo(markers,CV_32S);
+	}
+	Mat process(Mat& image){
+		watershed(image,markers);
+		markers.convertTo(markers,CV_8U);
+		return markers;
+	}
+};
+
+void ForegroundSeparation(){
+	Mat markers(binary.size(),CV_8U,Scalar(0));
+	for(int i = 0; i != markers.rows; i++)
+		for(int j = 0; j < markers.cols/4; j++)
+			markers.at<uchar>(i,j) = 255;
+	for(int i = 0; i != markers.rows; i++)
+		for(int j = markers.cols/4; j < markers.cols*3/4; j++)
+			markers.at<uchar>(i,j) = 0;
+	for(int i = 0; i != markers.rows; i++)
+		for(int j = markers.cols*3/4; j < markers.cols; j++)
+			markers.at<uchar>(i,j) = 128;
+
+	WatershedSegment segmenter;
+	segmenter.setMarkers(markers);
+
+	Mat result = segmenter.process(imageOriginal);
+	convertScaleAbs(result,result);
+	// imshow("hi",result);
+	threshold(result,result,254,255,THRESH_BINARY);
+	// imshow("byebye~",result);
+	bitwise_and(imageOriginal,imageOriginal,imageForeground,result);
+}
 
 #pragma endregion
 
@@ -288,7 +325,10 @@ int main(){
 
 	} else
 	if (user == "qzf"){
-		//put your test code here :>
+		LoadImage("/Users/zoe/Documents/Undergraduate/lab/HUAWEI/pictures/1.jpg");
+		Preprocess();
+		ForegroundSeparation();
+
 	} else
 	if (user == "qyz"){
 		//put your test code here :>
