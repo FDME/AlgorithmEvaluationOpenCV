@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
 #include <opencv2/opencv_modules.hpp>
-#include "GCO\GCoptimization.h"
+#include "GCO/GCoptimization.h"
 
 
 using namespace cv;
@@ -42,33 +42,142 @@ public:
 	}
 };
 
-void ForegroundSeparation(){
-	Mat markers(binary.size(),CV_8U,Scalar(0));
-	for(int i = 0; i != markers.rows; i++)
-		for(int j = 0; j < markers.cols/4; j++)
-			markers.at<uchar>(i,j) = 255;
-	for(int i = 0; i != markers.rows; i++)
-		for(int j = markers.cols/4; j < markers.cols*3/4; j++)
-			markers.at<uchar>(i,j) = 0;
-	for(int i = 0; i != markers.rows; i++)
-		for(int j = markers.cols*3/4; j < markers.cols; j++)
-			markers.at<uchar>(i,j) = 128;
-
-	WatershedSegment segmenter;
-	segmenter.setMarkers(markers);
-
-	Mat result = segmenter.process(imageOriginal);
-	convertScaleAbs(result,result);
-	// imshow("hi",result);
-	threshold(result,result,254,255,THRESH_BINARY);
-	// imshow("byebye~",result);
-	bitwise_and(imageOriginal,imageOriginal,imageForeground,result);
-}
+//void ForegroundSeparation(){
+//	Mat markers(binary.size(),CV_8U,Scalar(0));
+//	for(int i = 0; i != markers.rows; i++)
+//		for(int j = 0; j < markers.cols/4; j++)
+//			markers.at<uchar>(i,j) = 255;
+//	for(int i = 0; i != markers.rows; i++)
+//		for(int j = markers.cols/4; j < markers.cols*3/4; j++)
+//			markers.at<uchar>(i,j) = 0;
+//	for(int i = 0; i != markers.rows; i++)
+//		for(int j = markers.cols*3/4; j < markers.cols; j++)
+//			markers.at<uchar>(i,j) = 128;
+//
+//	WatershedSegment segmenter;
+//	segmenter.setMarkers(markers);
+//
+//	Mat result = segmenter.process(imageOriginal);
+//	convertScaleAbs(result,result);
+//	// imshow("hi",result);
+//	threshold(result,result,254,255,THRESH_BINARY);
+//	// imshow("byebye~",result);
+//	bitwise_and(imageOriginal,imageOriginal,imageForeground,result);
+//}
 
 #pragma endregion
 
 #pragma region Qu Yingze
+Mat imageRetinex, imageContour, imageChecked;
+void retinex();
+int R, C;
+void AdaptiveFindThreshold(const Mat* image, double *low, double *high, int aperture_size = 3);
+double Otsu(IplImage* src);
+vector<int> edgeIndex; //the indexes of detected rectangles in contours
 
+void ShowImage(Mat, string);
+void OptimizeCanny();
+
+void detectEdges() //采用自适应阈值的canny
+{
+	
+	double low = 0.0, high = 0.0; //Thresholds for Canny edge detection
+
+	cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
+	//equalizeHist(imageGray, imageEqualHist);//灰度图象直方图均衡化
+	double cannyThreshold = Otsu(&(IplImage)imageOriginal);
+	AdaptiveFindThreshold(&imageGray, &low, &high);
+	cout << "Low: " << low << endl << "High: " << high << endl;
+	//Canny(imageGray, imageCanny, low, high);
+	Canny(imageGray, imageCanny, cannyThreshold, cannyThreshold * 2);
+	ShowImage(imageCanny, "canny1");
+
+	OptimizeCanny();
+	cannyThreshold = Otsu(&(IplImage)imageCanny);
+	Canny(imageCanny, imageCanny, cannyThreshold, cannyThreshold * 2);
+	ShowImage(imageCanny, "canny2");
+	findContours(imageCanny, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+	//findContours(imageCanny, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+	imageContour = imageOriginal;
+	for (int i = 0; i < contours.size(); i++){
+		if (contours[i].size() < C) continue;
+		if (contourArea(contours[i]) < R * C / 2 / 10) continue;
+		RotatedRect rect = minAreaRect(contours[i]);
+		if (rect.size.area() > contourArea(contours[i]) * 1.3) continue;
+		drawContours(imageContour, contours, i, Scalar(255, 0, 255), 2);
+		edgeIndex.push_back(i);  //record the current index
+	}
+	ShowImage(imageOriginal, "contours");
+}
+
+void checkEdges()
+{
+	int counter = 0;
+	uchar globalRef, rectRef;
+	if (contours.size() == 0)  //未检测到矩形
+		return;
+	else
+	{
+		//取灰度图平均值为参考值（待改进！）
+
+		globalRef = 0;
+		counter = 0;
+		for (int i = 0; i<imageGray.rows; i++)
+		{
+			uchar* data = imageGray.ptr<uchar>(i);
+			for (int j = 0; j<imageGray.cols; j++)
+			{
+
+				globalRef += ((data[j] - globalRef) / ++counter);
+			}
+		}
+		printf("%x\n", globalRef);
+
+		//逐一判断各矩形
+		int k = 0;
+		while (k < edgeIndex.size())
+		{
+			//计算矩形内平均亮度
+
+			//找到x,y最值
+			int minx, maxx, miny, maxy;
+			minx = maxx = contours[edgeIndex[k]][0].x;
+			miny = maxy = contours[edgeIndex[k]][0].y;
+			for (int j = 1; j < contours[edgeIndex[k]].size(); j++)
+			{
+				if (contours[edgeIndex[k]][j].x < minx) minx = contours[edgeIndex[k]][j].x;
+				else if (contours[edgeIndex[k]][j].x > maxx) maxx = contours[edgeIndex[k]][j].x;
+				if (contours[edgeIndex[k]][j].y < miny) miny = contours[edgeIndex[k]][j].y;
+				else if (contours[edgeIndex[k]][j].y > maxy) maxy = contours[edgeIndex[k]][j].y;
+			}
+			////计算轮廓内亮度均值
+			counter = 0;
+			rectRef = 0;
+			for (int x = minx; x <= maxx; x++)
+			for (int y = miny; y <= maxy; y++)
+			{
+				if (pointPolygonTest(contours[edgeIndex[k]], Point(x, y), true) >= 0) //当前点在轮廓内或轮廓上
+					rectRef += ((imageGray.at<uchar>(y, x) - rectRef) / ++counter);
+			}
+
+			cout << edgeIndex[k] << ": ";
+			printf("%x\n", rectRef);
+			//比较：若轮廓内亮度高于等于全图参考值，则判断此轮廓非空闲区域
+			if (rectRef >= globalRef)
+				edgeIndex.erase(edgeIndex.begin() + k);
+			else
+				k++;
+		}
+	}
+
+	for (int i = 0; i < edgeIndex.size(); i++)
+	{
+		cout << edgeIndex[i] << endl;
+		drawContours(imageChecked, contours, edgeIndex[i], Scalar(255, 0, 255), 2);
+	}
+
+	ShowImage(imageChecked, "imageChecked");
+}
 #pragma endregion
 
 /*
@@ -307,7 +416,7 @@ void MultiLabelGraphCut(){
 #pragma endregion
 
 int main(){
-	string user = "yzy";
+	string user = "qyz";
 
 	if (user == "yzy")
 	{
@@ -323,15 +432,28 @@ int main(){
 		waitKey();
 		destroyAllWindows();
 
-	} else
+	}
+	else
 	if (user == "qzf"){
 		LoadImage("/Users/zoe/Documents/Undergraduate/lab/HUAWEI/pictures/1.jpg");
 		Preprocess();
-		ForegroundSeparation();
+		//ForegroundSeparation();
 
-	} else
-	if (user == "qyz"){
-		//put your test code here :>
 	}
-	return 0;
+	else
+	if (user == "qyz"){
+		string filename = "..\\..\\u_60_2.jpg";
+		imageOriginal = imread(filename);	//载入图片
+		R = imageOriginal.rows;
+		C = imageOriginal.cols;
+
+		ShowImage(imageOriginal, "imageOriginal");
+		retinex();
+		ShowImage(imageRetinex, "Retinex");
+
+		detectEdges();
+		//detectLines();
+		checkEdges();
+		waitKey();
+	}
 }
