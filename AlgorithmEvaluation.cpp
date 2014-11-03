@@ -42,28 +42,28 @@ public:
 	}
 };
 
-//void ForegroundSeparation(){
-//	Mat markers(binary.size(),CV_8U,Scalar(0));
-//	for(int i = 0; i != markers.rows; i++)
-//		for(int j = 0; j < markers.cols/4; j++)
-//			markers.at<uchar>(i,j) = 255;
-//	for(int i = 0; i != markers.rows; i++)
-//		for(int j = markers.cols/4; j < markers.cols*3/4; j++)
-//			markers.at<uchar>(i,j) = 0;
-//	for(int i = 0; i != markers.rows; i++)
-//		for(int j = markers.cols*3/4; j < markers.cols; j++)
-//			markers.at<uchar>(i,j) = 128;
-//
-//	WatershedSegment segmenter;
-//	segmenter.setMarkers(markers);
-//
-//	Mat result = segmenter.process(imageOriginal);
-//	convertScaleAbs(result,result);
-//	// imshow("hi",result);
-//	threshold(result,result,254,255,THRESH_BINARY);
-//	// imshow("byebye~",result);
-//	bitwise_and(imageOriginal,imageOriginal,imageForeground,result);
-//}
+void ForegroundSeparation(){
+	Mat markers(imageOriginal.size(), CV_8U, Scalar(0));
+	for(int i = 0; i != markers.rows; i++)
+		for(int j = 0; j < markers.cols/4; j++)
+			markers.at<uchar>(i,j) = 255;
+	for(int i = 0; i != markers.rows; i++)
+		for(int j = markers.cols/4; j < markers.cols*3/4; j++)
+			markers.at<uchar>(i,j) = 0;
+	for(int i = 0; i != markers.rows; i++)
+		for(int j = markers.cols*3/4; j < markers.cols; j++)
+			markers.at<uchar>(i,j) = 128;
+
+	WatershedSegment segmenter;
+	segmenter.setMarkers(markers);
+
+	Mat result = segmenter.process(imageOriginal);
+	convertScaleAbs(result,result);
+	// imshow("hi",result);
+	threshold(result,result,254,255,THRESH_BINARY);
+	// imshow("byebye~",result);
+	bitwise_and(imageOriginal,imageOriginal,imageForeground,result);
+}
 
 #pragma endregion
 
@@ -78,7 +78,7 @@ vector<int> edgeIndex; //the indexes of detected rectangles in contours
 void ShowImage(Mat, string);
 void OptimizeCanny();
 
-void detectEdges() //采用自适应阈值的canny
+void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
 {
 	
 	double low = 0.0, high = 0.0; //Thresholds for Canny edge detection
@@ -93,7 +93,6 @@ void detectEdges() //采用自适应阈值的canny
 	ShowImage(imageCanny, "canny1");
 
 	OptimizeCanny();
-	cannyThreshold = Otsu(&(IplImage)imageCanny);
 	Canny(imageCanny, imageCanny, cannyThreshold, cannyThreshold * 2);
 	ShowImage(imageCanny, "canny2");
 	findContours(imageCanny, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
@@ -107,11 +106,12 @@ void detectEdges() //采用自适应阈值的canny
 		drawContours(imageContour, contours, i, Scalar(255, 0, 255), 2);
 		edgeIndex.push_back(i);  //record the current index
 	}
-	ShowImage(imageOriginal, "contours");
+	ShowImage(imageContour, "contours");
 }
 
 void checkEdges()
 {
+	imageChecked = imageOriginal;
 	int counter = 0;
 	uchar globalRef, rectRef;
 	if (contours.size() == 0)  //未检测到矩形
@@ -131,7 +131,7 @@ void checkEdges()
 				globalRef += ((data[j] - globalRef) / ++counter);
 			}
 		}
-		printf("%x\n", globalRef);
+		printf("Global reference = %x\n", globalRef);
 
 		//逐一判断各矩形
 		int k = 0;
@@ -416,14 +416,14 @@ void MultiLabelGraphCut(){
 #pragma endregion
 
 int main(){
-	string user = "qyz";
+	string user = "yzy";
 
 	if (user == "yzy")
 	{
 		LoadImage();
 		Preprocess();
 		DetectContours();
-		//DetectLines();
+		//detectlines();
 
 		ImageOutput();
 		MultiLabelGraphCut();
@@ -448,10 +448,17 @@ int main(){
 		C = imageOriginal.cols;
 
 		ShowImage(imageOriginal, "imageOriginal");
-		retinex();
-		ShowImage(imageRetinex, "Retinex");
-
-		detectEdges();
+		cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
+		double avgGray = cvAvg(&(IplImage)imageGray).val[0];
+		cout << "avgGray =" << avgGray<< endl;
+		if (avgGray > 110.0) //获取平均亮度
+		{
+			retinex();
+			ShowImage(imageRetinex, "Retinex");
+			detectEdges(imageRetinex);
+		}
+		else
+			detectEdges(imageOriginal);
 		//detectLines();
 		checkEdges();
 		waitKey();
