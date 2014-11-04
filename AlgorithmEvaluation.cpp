@@ -78,6 +78,35 @@ vector<int> edgeIndex; //the indexes of detected rectangles in contours
 void ShowImage(Mat, string);
 void OptimizeCanny();
 
+bool checkLine(Point start, Point end)
+{
+	/*double area = contourArea(contour);
+	if (area < (R * C / 100)) return false;
+	RotatedRect rect = minAreaRect(contour);
+	if (rect.size.area() > area * 1.5) return false;*/
+
+	double k;
+	k = (end.y - start.y) / (end.x - start.x);
+	if (k > 0 && k < 1)
+		return true;
+	else
+		return false;
+}
+
+bool collinear(Point start, Point end, Point mid)
+{
+	double k1, k2; 
+	//cout << "P1 x = " << start.x << " y = " << start.y << endl;
+	//cout << "P2 x = " << mid.x << " y = " << mid.y << endl;
+	//cout << "P3 x = " << end.x << " y = " << end.y << endl;
+	k1 = double((end.y - start.y)) / (end.x - start.x);
+	k2 = double((mid.y - start.y)) / (mid.x - start.x);
+	if (k1 == k2)
+		return true;
+	else
+		return false;
+}
+
 void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
 {
 	
@@ -86,6 +115,7 @@ void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
 	cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
 	//equalizeHist(imageGray, imageEqualHist);//灰度图象直方图均衡化
 	double cannyThreshold = Otsu(&(IplImage)imageOriginal);
+	//cannyThreshold = 100;
 	AdaptiveFindThreshold(&imageGray, &low, &high);
 	cout << "Low: " << low << endl << "High: " << high << endl;
 	//Canny(imageGray, imageCanny, low, high);
@@ -96,17 +126,61 @@ void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
 	Canny(imageCanny, imageCanny, cannyThreshold, cannyThreshold * 2);
 	ShowImage(imageCanny, "canny2");
 	findContours(imageCanny, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+	
+	//RotatedRect rect; 
 	//findContours(imageCanny, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+	Point start, end;
+	int size;
 	imageContour = imageOriginal;
+	Mat imageLines = imageOriginal.clone();
 	for (int i = 0; i < contours.size(); i++){
-		if (contours[i].size() < C) continue;
-		if (contourArea(contours[i]) < R * C / 2 / 10) continue;
-		RotatedRect rect = minAreaRect(contours[i]);
-		if (rect.size.area() > contourArea(contours[i]) * 1.3) continue;
-		drawContours(imageContour, contours, i, Scalar(255, 0, 255), 2);
-		edgeIndex.push_back(i);  //record the current index
+		/*rect = minAreaRect(contours[i]);
+		if (rect.size.area() > R*C / 100)
+		{
+			Point2f vertices[4];
+			rect.points(vertices);
+			for (int i = 0; i < 4; i++)
+				line(imageContour, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
+		}
+		*/
+		size = contours[i].size();
+		if (size < 50) continue;
+		drawContours(imageContour, contours, i, Scalar(0, 255, 0), 2);
+		
+		Point temp;
+		bool flag = false;
+		double length;
+		start = end = contours[i][0];
+		for (int j = 2; j < size; j = j + 1)
+		{
+			if (collinear(contours[i][j - 2], contours[i][j - 1], contours[i][j]))
+			{
+				if (flag = false)
+				{
+					start = contours[i][j - 2];
+					flag = true;
+				}
+				end = contours[i][j];
+			}
+			else
+			{
+				flag = false;
+				length = sqrt((start.x - end.x) * (start.x - end.x) + (start.y - end.y) * (start.y - end.y));
+				//cout << "length: " << length << endl;
+				if (length > 30)
+					line(imageLines, start, end, Scalar(255, 0, 0), 2);
+			}
+		}
+
+		//start = contours[i][0];
+		
+		//end = contours[i][size - 1];
+		//if (checkLine(start, end))
+		//line(imageContour, start, end, Scalar(255,0, 0),2);
 	}
 	ShowImage(imageContour, "contours");
+	ShowImage(imageLines, "Lines");
+	
 }
 
 void checkEdges()
@@ -131,7 +205,7 @@ void checkEdges()
 				globalRef += ((data[j] - globalRef) / ++counter);
 			}
 		}
-		printf("Global reference = %x\n", globalRef);
+		//printf("Global reference = %x\n", globalRef);
 
 		//逐一判断各矩形
 		int k = 0;
@@ -160,8 +234,8 @@ void checkEdges()
 					rectRef += ((imageGray.at<uchar>(y, x) - rectRef) / ++counter);
 			}
 
-			cout << edgeIndex[k] << ": ";
-			printf("%x\n", rectRef);
+			//cout << edgeIndex[k] << ": ";
+			//printf("%x\n", rectRef);
 			//比较：若轮廓内亮度高于等于全图参考值，则判断此轮廓非空闲区域
 			if (rectRef >= globalRef)
 				edgeIndex.erase(edgeIndex.begin() + k);
@@ -460,7 +534,7 @@ int main(){
 		else
 			detectEdges(imageOriginal);
 		//detectLines();
-		checkEdges();
+		//checkEdges();
 		waitKey();
 	}
 }
