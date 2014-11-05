@@ -3,14 +3,14 @@
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
 #include <opencv2/opencv_modules.hpp>
-#include "GCO/GCoptimization.h"
+#include "GCO\GCoptimization.h"
 
 
 using namespace cv;
 using namespace std;
 
-#define MAXWIDTH  640
-#define MAXHEIGHT 480
+#define MAXWIDTH  480
+#define MAXHEIGHT 640
 
 struct GraphPixel{
 	int r, g, b;
@@ -18,13 +18,22 @@ struct GraphPixel{
 };
 
 GraphPixel g[MAXWIDTH][MAXHEIGHT];
+int img[MAXHEIGHT][MAXWIDTH] = {};
+int tmp[MAXHEIGHT][MAXWIDTH] = {};
+int label[MAXHEIGHT][MAXWIDTH] = {};
+int numLabels = 4;
+
+#define MAXBLOCKS 100
+int numBlocks;
+int block[MAXHEIGHT][MAXWIDTH];
+bool isVisited[MAXHEIGHT][MAXWIDTH];
+int blockCount[MAXHEIGHT][MAXBLOCKS];
 
 int w, h;
 Mat imageOriginal, imageGray, imageCanny, imageOutput, imageLabel, imageForeground;
-Mat mask;
+Mat mask, makers;
 vector<Vec2f> lines;
 vector<vector<Point>> contours;
-
 
 #pragma region Qian Zifei
 
@@ -33,231 +42,46 @@ private:
 	Mat markers;
 public:
 	void setMarkers(Mat& markerImage){
-		markerImage.convertTo(markers,CV_32S);
+		markerImage.convertTo(markers, CV_32S);
 	}
 	Mat process(Mat& image){
-		watershed(image,markers);
-		markers.convertTo(markers,CV_8U);
+		watershed(image, markers);
+		markers.convertTo(markers, CV_8U);
 		return markers;
 	}
 };
 
 void ForegroundSeparation(){
 	Mat markers(imageOriginal.size(), CV_8U, Scalar(0));
-	for(int i = 0; i != markers.rows; i++)
-		for(int j = 0; j < markers.cols/4; j++)
-			markers.at<uchar>(i,j) = 255;
-	for(int i = 0; i != markers.rows; i++)
-		for(int j = markers.cols/4; j < markers.cols*3/4; j++)
-			markers.at<uchar>(i,j) = 0;
-	for(int i = 0; i != markers.rows; i++)
-		for(int j = markers.cols*3/4; j < markers.cols; j++)
-			markers.at<uchar>(i,j) = 128;
+	for (int i = 0; i != markers.rows; i++)
+	for (int j = 0; j < markers.cols / 4; j++)
+		markers.at<uchar>(i, j) = 255;
+	for (int i = 0; i != markers.rows; i++)
+	for (int j = markers.cols / 4; j < markers.cols * 3 / 4; j++)
+		markers.at<uchar>(i, j) = 0;
+	for (int i = 0; i != markers.rows; i++)
+	for (int j = markers.cols * 3 / 4; j < markers.cols; j++)
+		markers.at<uchar>(i, j) = 128;
 
 	WatershedSegment segmenter;
 	segmenter.setMarkers(markers);
 
 	Mat result = segmenter.process(imageOriginal);
-	convertScaleAbs(result,result);
-	// imshow("hi",result);
-	threshold(result,result,254,255,THRESH_BINARY);
-	// imshow("byebye~",result);
-	bitwise_and(imageOriginal,imageOriginal,imageForeground,result);
+	convertScaleAbs(result, result);
+	imshow("hi",result);
+	waitKey();
+	threshold(result, result, 254, 255, THRESH_BINARY);
+	imshow("byebye~",result);
+	waitKey();
+	bitwise_and(imageOriginal, imageOriginal, imageForeground, result);
+	imshow("byebye~", imageOriginal);
+	waitKey();
 }
 
 #pragma endregion
 
 #pragma region Qu Yingze
-Mat imageRetinex, imageContour, imageChecked;
-void retinex();
-int R, C;
-void AdaptiveFindThreshold(const Mat* image, double *low, double *high, int aperture_size = 3);
-double Otsu(IplImage* src);
-vector<int> edgeIndex; //the indexes of detected rectangles in contours
 
-void ShowImage(Mat, string);
-void OptimizeCanny();
-
-bool checkLine(Point start, Point end)
-{
-	/*double area = contourArea(contour);
-	if (area < (R * C / 100)) return false;
-	RotatedRect rect = minAreaRect(contour);
-	if (rect.size.area() > area * 1.5) return false;*/
-
-	double k;
-	k = (end.y - start.y) / (end.x - start.x);
-	if (k > 0 && k < 1)
-		return true;
-	else
-		return false;
-}
-
-bool collinear(Point start, Point end, Point mid)
-{
-	double k1, k2; 
-	//cout << "P1 x = " << start.x << " y = " << start.y << endl;
-	//cout << "P2 x = " << mid.x << " y = " << mid.y << endl;
-	//cout << "P3 x = " << end.x << " y = " << end.y << endl;
-	k1 = double((end.y - start.y)) / (end.x - start.x);
-	k2 = double((mid.y - start.y)) / (mid.x - start.x);
-	if (k1 == k2)
-		return true;
-	else
-		return false;
-}
-/*
-	直线检测可以这样：
-	1、首先两个double不要直接通过 “==” 比较大小，可以设定一个小量eps，例如eps = 0.01，然后如果abs(a - b) < eps就认为a、b相等
-	2、还有直线检测最好不要用相邻三个，最好有一定间隔，比如可以判断p[i], p[i + 10], p[i + 20]是否共线~
-	3、如果要用你自己写的直线检测的话，就不要用CV_CHAIN_APPROX_SIMPLE这个优化啦~要保留所有的边界点才能检测~
-	
-*/
-void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
-{
-	
-	double low = 0.0, high = 0.0; //Thresholds for Canny edge detection
-
-	cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
-	//equalizeHist(imageGray, imageEqualHist);//灰度图象直方图均衡化
-	double cannyThreshold = Otsu(&(IplImage)imageOriginal);
-	//cannyThreshold = 100;
-	AdaptiveFindThreshold(&imageGray, &low, &high);
-	cout << "Low: " << low << endl << "High: " << high << endl;
-	//Canny(imageGray, imageCanny, low, high);
-	Canny(imageGray, imageCanny, cannyThreshold, cannyThreshold * 2);
-	ShowImage(imageCanny, "canny1");
-
-	OptimizeCanny();
-	Canny(imageCanny, imageCanny, cannyThreshold, cannyThreshold * 2);
-	ShowImage(imageCanny, "canny2");
-	findContours(imageCanny, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
-	
-	//RotatedRect rect; 
-	//findContours(imageCanny, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
-	Point start, end;
-	int size;
-	imageContour = imageOriginal;
-	Mat imageLines = imageOriginal.clone();
-	for (int i = 0; i < contours.size(); i++){
-		/*rect = minAreaRect(contours[i]);
-		if (rect.size.area() > R*C / 100)
-		{
-			Point2f vertices[4];
-			rect.points(vertices);
-			for (int i = 0; i < 4; i++)
-				line(imageContour, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
-		}
-		*/
-		size = contours[i].size();
-		if (size < 50) continue;
-		drawContours(imageContour, contours, i, Scalar(0, 255, 0), 2);
-		
-		Point temp;
-		bool flag = false;
-		double length;
-		start = end = contours[i][0];
-		for (int j = 2; j < size; j = j + 1)
-		{
-			if (collinear(contours[i][j - 2], contours[i][j - 1], contours[i][j]))
-			{
-				if (flag = false)
-				{
-					start = contours[i][j - 2];
-					flag = true;
-				}
-				end = contours[i][j];
-			}
-			else
-			{
-				flag = false;
-				length = sqrt((start.x - end.x) * (start.x - end.x) + (start.y - end.y) * (start.y - end.y));
-				//cout << "length: " << length << endl;
-				if (length > 30)
-					line(imageLines, start, end, Scalar(255, 0, 0), 2);
-			}
-		}
-
-		//start = contours[i][0];
-		
-		//end = contours[i][size - 1];
-		//if (checkLine(start, end))
-		//line(imageContour, start, end, Scalar(255,0, 0),2);
-	}
-	ShowImage(imageContour, "contours");
-	ShowImage(imageLines, "Lines");
-	
-}
-
-void checkEdges()
-{
-	imageChecked = imageOriginal;
-	int counter = 0;
-	uchar globalRef, rectRef;
-	if (contours.size() == 0)  //未检测到矩形
-		return;
-	else
-	{
-		//取灰度图平均值为参考值（待改进！）
-
-		globalRef = 0;
-		counter = 0;
-		for (int i = 0; i<imageGray.rows; i++)
-		{
-			uchar* data = imageGray.ptr<uchar>(i);
-			for (int j = 0; j<imageGray.cols; j++)
-			{
-
-				globalRef += ((data[j] - globalRef) / ++counter);
-			}
-		}
-		//printf("Global reference = %x\n", globalRef);
-
-		//逐一判断各矩形
-		int k = 0;
-		while (k < edgeIndex.size())
-		{
-			//计算矩形内平均亮度
-
-			//找到x,y最值
-			int minx, maxx, miny, maxy;
-			minx = maxx = contours[edgeIndex[k]][0].x;
-			miny = maxy = contours[edgeIndex[k]][0].y;
-			for (int j = 1; j < contours[edgeIndex[k]].size(); j++)
-			{
-				if (contours[edgeIndex[k]][j].x < minx) minx = contours[edgeIndex[k]][j].x;
-				else if (contours[edgeIndex[k]][j].x > maxx) maxx = contours[edgeIndex[k]][j].x;
-				if (contours[edgeIndex[k]][j].y < miny) miny = contours[edgeIndex[k]][j].y;
-				else if (contours[edgeIndex[k]][j].y > maxy) maxy = contours[edgeIndex[k]][j].y;
-			}
-			////计算轮廓内亮度均值
-			counter = 0;
-			rectRef = 0;
-			for (int x = minx; x <= maxx; x++)
-			for (int y = miny; y <= maxy; y++)
-			{
-				if (pointPolygonTest(contours[edgeIndex[k]], Point(x, y), true) >= 0) //当前点在轮廓内或轮廓上
-					rectRef += ((imageGray.at<uchar>(y, x) - rectRef) / ++counter);
-			}
-
-			//cout << edgeIndex[k] << ": ";
-			//printf("%x\n", rectRef);
-			//比较：若轮廓内亮度高于等于全图参考值，则判断此轮廓非空闲区域
-			if (rectRef >= globalRef)
-				edgeIndex.erase(edgeIndex.begin() + k);
-			else
-				k++;
-		}
-	}
-
-	for (int i = 0; i < edgeIndex.size(); i++)
-	{
-		cout << edgeIndex[i] << endl;
-		drawContours(imageChecked, contours, edgeIndex[i], Scalar(255, 0, 255), 2);
-	}
-
-	ShowImage(imageChecked, "imageChecked");
-}
 #pragma endregion
 
 /*
@@ -269,7 +93,6 @@ void checkEdges()
 	OptimizationCanny()		Canny优化（腐蚀膨胀）
 	DetectLines()			直线检测
 	CheckContour()			边缘验证（面积、形状）
-	ImageOutput()			图像输出，用于MFR Graph Cut
 */
 #pragma region ZheyunYao
 
@@ -279,16 +102,18 @@ void ShowImage(Mat image, string windowName){
 	waitKey();
 }
 
-void LoadImage(string path = "C:\\HuaWeiImage\\华为拍照_校正\\华为拍照_校正\\正常光照\\u_90.jpg"){
+void LoadImage(string path = "C:\\HuaWeiImage\\华为拍照_校正\\华为拍照_校正\\正常光照带假面板_2\\u_60.jpg"){
 	imageOriginal = imread(path);
 	ShowImage(imageOriginal, "Original");
-	printf("%dx%d\n", w, h);
+	h = imageOriginal.rows;
+	w = imageOriginal.cols;
+	printf("%dx%d\n", h, w);
 
 }
 
 void Preprocess(){
 	cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
-	ShowImage(imageGray, "Gray");
+	//ShowImage(imageGray, "Gray");
 	//亮度调整~
 
 }
@@ -310,7 +135,7 @@ void OptimizeCanny(){
 	ShowImage(imageTemp2, "Erode");
 	//Canny(imageTemp2, imageCanny, 100, 200);
 	imageCanny = imageTemp2.clone();
-	ShowImage(imageCanny, "Optimized Canny");
+	//ShowImage(imageCanny, "Optimized Canny");
 }
 
 void DetectContours(double thresh = 100){
@@ -342,75 +167,72 @@ void DetectLines(){
 	ShowImage(imageOutput, "Lines");
 }
 
-void ImageOutput(){
-	FILE *fp;
-	fopen_s(&fp, "ImageOutput.txt", "w");
-	fprintf(fp, "%d %d\n", imageOriginal.rows, imageOriginal.cols);
+void Image2Array(){
+	int i = 0; 
+	int j = 0;
 	for (MatIterator_<Vec3b> it = imageOriginal.begin<Vec3b>(); it != imageOriginal.end<Vec3b>(); it++){
-		fprintf(fp, "%d %d %d\n", (*it)[0], (*it)[1], (*it)[2]);
+		g[i][j].b = (*it)[0];
+		g[i][j].g = (*it)[1];
+		g[i][j].r = (*it)[2];
+		j++;
+		if (j == w){
+			j = 0;
+			i++;
+		}
 	}
+	i = 0;
+	j = 0;
 	for (MatIterator_<uchar> it = imageCanny.begin<uchar>(); it != imageCanny.end<uchar>(); it++){
-		fprintf(fp, "%d\n", (*it)? 1 : 0);
+		g[i][j].edge = (*it);
+		j++;
+		if (j == w){
+			j = 0;
+			i++;
+		}
 	}
-	fclose(fp);
 }
 
 void ImageLabelInput(){
-	FILE *fp;
-	fopen_s(&fp, "ImageLabel.txt", "r");
 	imageLabel = imageOriginal.clone();
-	for (MatIterator_<Vec3b> it = imageLabel.begin<Vec3b>(); it != imageLabel.end<Vec3b>(); it++){
-		int label;
-		fscanf_s(fp, "%d", &label);
-		if (label == 0){
+	MatIterator_<Vec3b> it = imageLabel.begin<Vec3b>();
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++){
+		if (label[i][j] == 0){
 			(*it)[0] = 0;
 			(*it)[1] = 0;
 			(*it)[2] = 0;
 		}
-		else if (label == 1)
+		else if (label[i][j] == 1)
 		{
 			(*it)[0] = 255;
 			(*it)[1] = 255;
 			(*it)[2] = 255;
 		}
-		else if (label == 2)
+		else if (label[i][j] == 2)
 		{
 			(*it)[0] = 0;
 			(*it)[1] = 255;
 			(*it)[2] = 0;
 
 		}
-		else if (label == 3)
+		else if (label[i][j] == 3)
 		{
 			(*it)[0] = 0;
 			(*it)[1] = 255;
 			(*it)[2] = 0;
 		}
+		else {
+			(*it)[0] = 255;
+			(*it)[1] = 0;
+			(*it)[2] = 0;
+		}
+		it++;
 	}
-	fclose(fp);
 	ShowImage(imageLabel, "Label");
 }
 
 int Rgb2Gray(GraphPixel p){
 	return (int)(p.r * 0.299 + p.g * 0.587 + p.b * 0.114);
-}
-
-void ReadImage(){
-	FILE *fp;
-
-	fopen_s(&fp, "ImageOutput.txt", "r");
-
-	fscanf_s(fp, "%d %d", &h, &w);
-	for (int i = 0; i < h; i++)
-	for (int j = 0; j < w; j++){
-		fscanf_s(fp, "%d %d %d", &g[i][j].r, &g[i][j].g, &g[i][j].b);
-	}
-	for (int i = 0; i < h; i++)
-	for (int j = 0; j < w; j++){
-		fscanf_s(fp, "%d", &g[i][j].edge);
-	}
-
-	fclose(fp);
 }
 
 int max(int x, int y, int z){
@@ -434,21 +256,20 @@ int ComputeCost(int i, int j, int l){
 	}
 	else
 	if (l == 3){
-		cost = p.edge ? 0 : 300;
+		cost = (p.edge > 0) ? 0 : 300;
 	}
 	else
 	{
 		cost = 0;
 	}
-	return cost;
+	return cost * 2;
 }
 
 void MultiLabelGraphCut(){
-	ReadImage();
+	Image2Array();
 	int width = w;
 	int height = h;
 	int numPixels = w * h;
-	int numLabels = 4;
 
 	int *result = new int[numPixels];
 
@@ -458,42 +279,136 @@ void MultiLabelGraphCut(){
 	for (int j = 0; j < width; j++){
 		gc->setDataCost(i * width + j, l, ComputeCost(i, j, l));
 	}
-	int varity = 2;
-	gc->setSmoothCost(0, 1, 100 / varity);
-	gc->setSmoothCost(1, 0, 100 / varity);
-	gc->setSmoothCost(0, 2, 100 / varity);
-	gc->setSmoothCost(2, 0, 100 / varity);
-	gc->setSmoothCost(1, 2, 10 / varity);
-	gc->setSmoothCost(2, 1, 10 / varity);
+	int varity = 12;
+	gc->setSmoothCost(0, 1, 600 / varity);
+	gc->setSmoothCost(1, 0, 600 / varity);
+	gc->setSmoothCost(0, 2, 600 / varity);
+	gc->setSmoothCost(2, 0, 600 / varity);
+	gc->setSmoothCost(1, 2, 600 / varity);
+	gc->setSmoothCost(2, 1, 600 / varity);
 
-	gc->setSmoothCost(0, 3, 100 / varity);
-	gc->setSmoothCost(3, 0, 100 / varity);
-	gc->setSmoothCost(1, 3, 100 / varity);
-	gc->setSmoothCost(3, 1, 100 / varity);
-	gc->setSmoothCost(2, 3, 6 / varity);
-	gc->setSmoothCost(3, 2, 6 / varity);
-
+	gc->setSmoothCost(0, 3, 600 / varity);
+	gc->setSmoothCost(3, 0, 600 / varity);
+	gc->setSmoothCost(1, 3, 600 / varity);
+	gc->setSmoothCost(3, 1, 600 / varity);
+	gc->setSmoothCost(2, 3, 12 / varity);
+	gc->setSmoothCost(3, 2, 12 / varity);
 
 	//gc->setLabelCost(0);
 	printf("before: %d\n", gc->compute_energy());
 	gc->swap();
 	printf("after: %d\n", gc->compute_energy());
-	FILE *fout;
-	fopen_s(&fout, "ImageLabel.txt", "w");
 	for (int i = 0; i < numPixels; i++){
 		result[i] = gc->whatLabel(i);
-		fprintf_s(fout, "%d\n", result[i]);
+		//printf("(%d, %d)\n", i / w, i % w);
+		label[i / w][i % w] = result[i];
 	}
-	fclose(fout);
-
+	
 	delete[] result;
 }
 
+void Dilate(int l, int ver, int hor){
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) {
+		bool flag = false;
+		for (int ii = -ver; ii <= ver; ii++) if ((i + ii >= 0) && (i + ii < h))
+		for (int jj = -hor; jj <= hor; jj++) if ((j + jj >= 0) && (j + jj < w)){
+			//printf("(%d, %d)\n", i + ii, j + jj);
+			if (img[i + ii][j + jj] == l) flag = true;
+		}
+		if (flag) tmp[i][j] = l; else tmp[i][j] = img[i][j];
+	}
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) img[i][j] = tmp[i][j];
+}
+
+void Erode(int l, int ver, int hor){
+	int labelCount[10];
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) if (img[i][j] == l){
+		bool flag = true;
+		for (int t = 0; t < numLabels; t++) labelCount[t] = 0;
+		for (int ii = -ver; ii <= ver; ii++) if ((i + ii >= 0) && (i + ii < h))
+		for (int jj = -hor; jj <= hor; jj++) if ((j + jj >= 0) && (j + jj < w)){
+			//printf("(%d, %d)\n", i + ii, j + jj);
+			if (img[i + ii][j + jj] != l) {
+				flag = false;
+				labelCount[img[i + ii][j + jj]]++;
+			}
+		}
+		if (flag) tmp[i][j] = l; else {
+			int majorLabel = l;
+			for (int t = 0; t < numLabels; t++) if (labelCount[t] > labelCount[majorLabel]) majorLabel = t;
+			tmp[i][j] = majorLabel;
+		}
+	}
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) img[i][j] = tmp[i][j];
+
+}
+void DetectSpace_0(){		//label优化
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) if (label[i][j] == 3) label[i][j] = 2;
+	numLabels = 3;
+	 
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) img[i][j] = label[i][j];
+
+	Dilate(2, 4, 5);
+	Erode(2, 2, 10);
+
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) label[i][j] = img[i][j];
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) if (makers.at<int>(i, j) == 2) label[i][j] = 255;
+
+}
+
+void DetectSpace_1(){  //分水岭分割前背景
+	makers = Mat(imageOriginal.size(), CV_32SC1, Scalar(0));
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w / 4; j++) makers.at<int>(i, j) = 1;
+
+	for (int i = 0; i < h; i++)
+	for (int j = 4 * w / 5; j < w; j++) makers.at<int>(i, j) = 2;
+
+	watershed(imageOriginal, makers);
+}
+
+int dir[4][2] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } };
 
 
+void dfs(int i, int j, int l){
+	if ((i < 0) || (i >= h) || (j < 0) || (j >= w)) return;
+	if (isVisited[i][j]) return;
+	if (label[i][j] != l) return;
+	block[i][j] = numBlocks;
+	//printf("%d, %d = %d\n", i, j, numBlocks);
+	isVisited[i][j] = true;
+	for (int d = 0; d < 4; d++) dfs(i + dir[d][0], j + dir[d][1], label[i][j]);
+}
 
+void DetectSpace_2(){ //限制连通域的联通宽度，这个部分放在视角扭正之后效果更佳~！
+	numBlocks = 0;
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) isVisited[i][j] = false;
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) if (!isVisited[i][j]){
+		dfs(i, j, label[i][j]);
+		numBlocks++;
+	}
+	printf("blocks: %d\n", numBlocks);
+	for (int i = 0; i < h; i++)
+	{
+		for (int l = 0; l < numBlocks; l++) blockCount[i][l] = 0;
+		for (int j = 0; j < w; j++) blockCount[i][block[i][j]]++;
+		for (int j = 0; j < w; j++) if (blockCount[i][block[i][j]] < w / 8) label[i][j] = 3;
+	}
+
+}
 
 #pragma endregion
+
 
 int main(){
 	string user = "yzy";
@@ -502,45 +417,27 @@ int main(){
 	{
 		LoadImage();
 		Preprocess();
+		DetectSpace_1();
 		DetectContours();
-		//detectlines();
-
-		ImageOutput();
+		//DetectLines();
 		MultiLabelGraphCut();
+		DetectSpace_0();
+		ImageLabelInput();
+		DetectSpace_2();
 		ImageLabelInput();
 
 		waitKey();
 		destroyAllWindows();
 
-	}
-	else
+	} else
 	if (user == "qzf"){
-		LoadImage("/Users/zoe/Documents/Undergraduate/lab/HUAWEI/pictures/1.jpg");
+
+		LoadImage();
 		Preprocess();
-		//ForegroundSeparation();
-
-	}
-	else
+		ForegroundSeparation();
+	} else
 	if (user == "qyz"){
-		string filename = "..\\..\\u_60_2.jpg";
-		imageOriginal = imread(filename);	//载入图片
-		R = imageOriginal.rows;
-		C = imageOriginal.cols;
-
-		ShowImage(imageOriginal, "imageOriginal");
-		cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
-		double avgGray = cvAvg(&(IplImage)imageGray).val[0];
-		cout << "avgGray =" << avgGray<< endl;
-		if (avgGray > 110.0) //获取平均亮度
-		{
-			retinex();
-			ShowImage(imageRetinex, "Retinex");
-			detectEdges(imageRetinex);
-		}
-		else
-			detectEdges(imageOriginal);
-		//detectLines();
-		//checkEdges();
-		waitKey();
+		//put your test code here :>s
 	}
+	return 0;
 }
