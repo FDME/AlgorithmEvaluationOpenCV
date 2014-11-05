@@ -106,7 +106,13 @@ bool collinear(Point start, Point end, Point mid)
 	else
 		return false;
 }
-
+/*
+	直线检测可以这样：
+	1、首先两个double不要直接通过 “==” 比较大小，可以设定一个小量eps，例如eps = 0.01，然后如果abs(a - b) < eps就认为a、b相等
+	2、还有直线检测最好不要用相邻三个，最好有一定间隔，比如可以判断p[i], p[i + 10], p[i + 20]是否共线~
+	3、如果要用你自己写的直线检测的话，就不要用CV_CHAIN_APPROX_SIMPLE这个优化啦~要保留所有的边界点才能检测~
+	
+*/
 void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
 {
 	
