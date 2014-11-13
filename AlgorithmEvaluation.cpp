@@ -81,7 +81,275 @@ void ForegroundSeparation(){
 #pragma endregion
 
 #pragma region Qu Yingze
+Mat imageRetinex, imageContour, imageChecked;
+void retinex();
+int R, C;
+void AdaptiveFindThreshold(const Mat* image, double *low, double *high, int aperture_size = 3);
+double Otsu(IplImage* src);
+vector<int> edgeIndex; //the indexes of detected rectangles in contours
+vector<double> Lines_K;//拟合直线方程参数
+vector<double> Lines_B;//拟合直线方程参数
+void ShowImage(Mat, string);
+void OptimizeCanny();
 
+bool checkLine(Point start, Point end)
+{
+	/*double area = contourArea(contour);
+	if (area < (R * C / 100)) return false;
+	RotatedRect rect = minAreaRect(contour);
+	if (rect.size.area() > area * 1.5) return false;*/
+
+	double k;
+	k = (end.y - start.y) / (end.x - start.x);
+	if (k > 0 && k < 1)
+		return true;
+	else
+		return false;
+}
+//三点判断是否为直线
+bool collinear(Point start, Point end, Point mid)
+{
+	double k1, k2;
+	double eps = 0.00001;
+	//cout << "P1 x = " << start.x << " y = " << start.y << endl;
+	//cout << "P2 x = " << mid.x << " y = " << mid.y << endl;
+	//cout << "P3 x = " << end.x << " y = " << end.y << endl;
+	k1 = double((end.y - start.y)) / (end.x - start.x);
+	k2 = double((mid.y - start.y)) / (mid.x - start.x);
+	if (abs(k1 - k2) < eps)
+		return true;
+	else
+		return false;
+}
+//最小二乘法拟合优度判断是否为直线
+bool least_squares(Point* points, int n)
+{
+	double r = 0;
+	int xy_sum = 0, x_sum = 0, y_sum = 0, x_square_sum = 0, y_square_sum = 0;
+	for (int i = 0; i < n; i++)
+	{
+		//xy_sum += points[i].x * points[i].y;
+		x_sum += points[i].x;
+		y_sum += points[i].y;
+		//x_square_sum += points[i].x * points[i].x;
+		//y_square_sum += points[i].y * points[i].y;
+	}
+	double x_mean = (double)x_sum / n;
+	double y_mean = (double)y_sum / n;
+	double x_temp = 0, y_temp = 0;
+	for (int i = 0; i < n; i++)
+	{
+		x_temp += (points[i].x - x_mean) *(points[i].x - x_mean);
+		y_temp += (points[i].y - y_mean) * (points[i].y - y_mean);
+	}
+	double x_stdev = sqrt(x_temp / n);
+	double y_stdev = sqrt(y_temp / n);
+	//r = (double)(xy_sum - n*(x_sum / n)*(y_sum / n)) / sqrt((x_square_sum - n *(x_sum / n)*(x_sum / n))*(y_square_sum - n*(y_sum / n)*(y_sum / n)));
+	for (int i = 0; i < n; i++)
+		r += ((points[i].x - x_mean) / x_stdev)*((points[i].y - y_mean) / y_stdev);
+	r /= n;
+	//cout << "r =" <<r << endl;
+	if (abs(r) > 0.95)
+		return true;
+	else
+		return false;
+}
+
+void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
+{
+
+	double low = 0.0, high = 0.0; //Thresholds for Canny edge detection
+
+	cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
+	//equalizeHist(imageGray, imageEqualHist);//灰度图象直方图均衡化
+	double cannyThreshold = Otsu(&(IplImage)imageOriginal);
+	//cannyThreshold = 100;
+	AdaptiveFindThreshold(&imageGray, &low, &high);
+	cout << "Low: " << low << endl << "High: " << high << endl;
+	//Canny(imageGray, imageCanny, low, high);
+	Canny(imageGray, imageCanny, cannyThreshold, cannyThreshold * 2);
+	ShowImage(imageCanny, "canny1");
+
+	Mat imageLines = imageOriginal.clone();
+	Mat LeastSq = imageOriginal.clone();
+	OptimizeCanny();
+	Canny(imageCanny, imageCanny, cannyThreshold, cannyThreshold * 2);
+	ShowImage(imageCanny, "canny2");
+	findContours(imageCanny, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+	
+	int start, end;
+	int size;
+	imageContour = imageOriginal;
+
+	for (int i = 0; i < contours.size(); i++)
+	{
+		size = contours[i].size();
+		if (size < 50) continue;
+		drawContours(imageContour, contours, i, Scalar(0, 255, 0), 1);
+
+		Point temp;
+		bool flag = false;
+		double length;
+		start = end = 0;
+		double k;
+		double b;
+	
+		vector<int> lines_index;
+		//根据三点共线法检测直线，结果含非直线
+		//for (int j = 20; j < size; j = j + 10)
+		//{
+		//	if (collinear(contours[i][j - 20], contours[i][j], contours[i][j - 10]))
+		//	{
+		//		if (flag = false)
+		//		{
+		//			start = j - 20;
+		//			flag = true;
+		//		}
+		//		end = j;
+		//	}
+		//	else
+		//	{
+		//		flag = false;
+		//		length = sqrt((contours[i][start].x - contours[i][end].x) * (contours[i][start].x - contours[i][end].x) + (contours[i][start].y - contours[i][end].y) * (contours[i][start].y - contours[i][end].y));
+		//		//cout << "length: " << length << endl;
+		//		double k = (double)(contours[i][end].y - contours[i][start].y) / (contours[i][end].x - contours[i][start].x);
+		//		if (length > 30 && k < 0.5 && k >-0.5)
+		//		for (int m = start; m <= end; m++)
+		//			line(imageLines, contours[i][m], contours[i][m], Scalar(255, 0, 0), 2);
+		//	}
+		//}
+
+		//用最小二乘法检测曲线
+		for (int j = 0; j < contours[i].size() - 50; j += 10)
+		{
+			if (least_squares(&contours[i][j], 50))
+			{ 
+				if (flag = false)
+				{
+					start = j;
+					flag = true;
+				}
+				end = j + 50;
+			}
+			else
+			{
+				flag = false;
+				length = sqrt((contours[i][start].x - contours[i][end].x) * (contours[i][start].x - contours[i][end].x) \
+							+ (contours[i][start].y - contours[i][end].y) * (contours[i][start].y - contours[i][end].y));
+				double k = (double)(contours[i][end].y - contours[i][start].y) / (contours[i][end].x - contours[i][start].x);
+				if (length > 50 && k < 0.7 && k > -0.7)
+				{
+					for (int m = start; m <= end; m++)
+						line(imageLines, contours[i][m], contours[i][m], Scalar(255, 0, 0), 2);
+					
+					//用最小二乘法计算方程
+					long x_sum = 0;
+					long y_sum = 0;
+					long xy_sum = 0;
+					long x_square_sum = 0;
+					long n = end - start +1;
+					for (int m = start; m <= end; m++)
+					{
+						x_sum += contours[i][m].x;
+						y_sum += contours[i][m].y;
+						xy_sum += contours[i][m].x * contours[i][m].y;
+						x_square_sum += contours[i][m].x*contours[i][m].x;
+					}
+					
+					k = (double)(n * xy_sum - x_sum * y_sum) / (double)(n*x_square_sum - x_sum* x_sum);
+					b = (double)y_sum / n - k * x_sum / n;
+					
+					Lines_K.push_back(k);
+					Lines_B.push_back(b);
+					
+					//画出函数图
+					for (int m = start; m <= end; m++)
+					{
+						Point p(contours[i][m].x, (int)(k*contours[i][m].x + b));
+						line(LeastSq, p, p, Scalar(255, 0, 0), 2);
+					}
+						
+				}
+				start = j;
+			}
+		}
+	}
+	//for (int i = 0; i < Lines_K.size(); i++)
+	//	cout << "k = " << Lines_K[i] << ", b =" << Lines_B[i]<<endl;
+	ShowImage(imageContour, "contours");
+	ShowImage(imageLines, "Lines");
+	ShowImage(LeastSq, "LeastSq");
+}
+
+void checkEdges()
+{
+	imageChecked = imageOriginal;
+	int counter = 0;
+	uchar globalRef, rectRef;
+	if (contours.size() == 0)  //未检测到矩形
+		return;
+	else
+	{
+		//取灰度图平均值为参考值（待改进！）
+
+		globalRef = 0;
+		counter = 0;
+		for (int i = 0; i<imageGray.rows; i++)
+		{
+			uchar* data = imageGray.ptr<uchar>(i);
+			for (int j = 0; j<imageGray.cols; j++)
+			{
+
+				globalRef += ((data[j] - globalRef) / ++counter);
+			}
+		}
+		//printf("Global reference = %x\n", globalRef);
+
+		//逐一判断各矩形
+		int k = 0;
+		while (k < edgeIndex.size())
+		{
+			//计算矩形内平均亮度
+
+			//找到x,y最值
+			int minx, maxx, miny, maxy;
+			minx = maxx = contours[edgeIndex[k]][0].x;
+			miny = maxy = contours[edgeIndex[k]][0].y;
+			for (int j = 1; j < contours[edgeIndex[k]].size(); j++)
+			{
+				if (contours[edgeIndex[k]][j].x < minx) minx = contours[edgeIndex[k]][j].x;
+				else if (contours[edgeIndex[k]][j].x > maxx) maxx = contours[edgeIndex[k]][j].x;
+				if (contours[edgeIndex[k]][j].y < miny) miny = contours[edgeIndex[k]][j].y;
+				else if (contours[edgeIndex[k]][j].y > maxy) maxy = contours[edgeIndex[k]][j].y;
+			}
+			////计算轮廓内亮度均值
+			counter = 0;
+			rectRef = 0;
+			for (int x = minx; x <= maxx; x++)
+			for (int y = miny; y <= maxy; y++)
+			{
+				if (pointPolygonTest(contours[edgeIndex[k]], Point(x, y), true) >= 0) //当前点在轮廓内或轮廓上
+					rectRef += ((imageGray.at<uchar>(y, x) - rectRef) / ++counter);
+			}
+
+			//cout << edgeIndex[k] << ": ";
+			//printf("%x\n", rectRef);
+			//比较：若轮廓内亮度高于等于全图参考值，则判断此轮廓非空闲区域
+			if (rectRef >= globalRef)
+				edgeIndex.erase(edgeIndex.begin() + k);
+			else
+				k++;
+		}
+	}
+
+	for (int i = 0; i < edgeIndex.size(); i++)
+	{
+		cout << edgeIndex[i] << endl;
+		drawContours(imageChecked, contours, edgeIndex[i], Scalar(255, 0, 255), 2);
+	}
+
+	ShowImage(imageChecked, "imageChecked");
+}
 #pragma endregion
 
 /*
@@ -437,7 +705,26 @@ int main(){
 		ForegroundSeparation();
 	} else
 	if (user == "qyz"){
-		//put your test code here :>s
+		string filename = "..\\..\\u_60_5.jpg";
+		imageOriginal = imread(filename);	//载入图片
+		R = imageOriginal.rows;
+		C = imageOriginal.cols;
+
+		ShowImage(imageOriginal, "imageOriginal");
+		cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
+		double avgGray = cvAvg(&(IplImage)imageGray).val[0];
+		cout << "avgGray =" << avgGray << endl;
+		if (avgGray > 110.0) //获取平均亮度
+		{
+			retinex();
+			ShowImage(imageRetinex, "Retinex");
+			detectEdges(imageRetinex);
+		}
+		else
+			detectEdges(imageOriginal);
+		//detectLines();
+		//checkEdges();
+		waitKey();
 	}
 	return 0;
 }
