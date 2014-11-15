@@ -30,6 +30,11 @@ bool isVisited[MAXHEIGHT][MAXWIDTH];
 int blockCount[MAXHEIGHT][MAXBLOCKS];
 
 int w, h;
+
+double cam[] = {386.951, 0, 233.539, 0, 384.132, 352.891, 0, 0, 1};
+double dis[] = {-0.44601, 0.266848, -0.00143158, 0.000143152, -0.103006};
+
+Mat camMat(3,3,CV_64F,cam), distCoeffs(1,5,CV_64F,dis);
 Mat imageOriginal, imageGray, imageCanny, imageOutput, imageLabel, imageForeground;
 Mat mask, makers;
 vector<Vec2f> lines;
@@ -74,8 +79,112 @@ void ForegroundSeparation(){
 	imshow("byebye~",result);
 	waitKey();
 	bitwise_and(imageOriginal, imageOriginal, imageForeground, result);
-	imshow("byebye~", imageOriginal);
+	imshow("byebye~", imageForeground);
 	waitKey();
+}
+
+void cali()
+{
+    Mat image;
+    vector< vector<Point2f> > image_points;
+    vector< vector<Point3f> > object_points;
+    vector<Point2f> tmp;
+    vector<Point3f> chessboard;
+    Size boardSize(6,9);
+    int brdnum = 8;
+
+    for(int i = 0; i != 9; i++)
+        for(int j = 0; j != 6; j++)
+            chessboard.push_back(Point3i(i,j,0));
+
+    
+    // bool found = findChessboardCorners(image,boardSize,tmp,CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
+    // if(found)
+    // drawChessboardCorners(image,boardSize,Mat(tmp),found);
+    // imshow("hello~",image);
+    for(int i = 0; i != brdnum; i++){
+        string num;
+        stringstream ss;
+        ss << i+1;
+        ss >> num;
+        image = imread("C:\\Users\\ZoeQIAN\\Documents\\Visual Studio 2012\\Projects\\calibration\\"+num+".jpg");
+	//	copyMakeBorder(image,image,image.rows/5,image.rows/5,image.cols/5,image.cols/5,BORDER_CONSTANT,Scalar(255));
+        bool found = findChessboardCorners(image,boardSize,tmp,CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
+        if(found){
+            image_points.push_back(tmp);
+            object_points.push_back(chessboard);
+            drawChessboardCorners(image,boardSize,Mat(tmp),found);
+            //imshow("hello~",image);
+           // waitKey();
+        }
+    }
+    Mat camMat_est;
+    Mat distCoeffs_est;
+    vector<Mat> rvecs, tvecs;
+    cout << "Calibrating...";
+    calibrateCamera(object_points, image_points, Size(image.rows,image.cols), camMat_est, distCoeffs_est, rvecs, tvecs);
+		for(int i = 0; i != camMat.rows; i++){
+			for(int j = 0; j != camMat.cols; j++)
+				cout << camMat.at<double>(i,j) << "   " << flush;
+			cout << endl;
+		}
+		for(int i = 0; i != distCoeffs.rows; i++){
+			for(int j = 0; j != distCoeffs.cols; j++)
+				cout << distCoeffs.at<double>(i,j) << "   " << flush;
+			cout << endl;
+		}
+		for(int i = 0; i != camMat.rows; i++){
+			for(int j = 0; j != camMat.cols; j++)
+				cout << camMat_est.at<double>(i,j) << "   " << flush;
+			cout << endl;
+		}
+		for(int i = 0; i != distCoeffs.rows; i++){
+			for(int j = 0; j != distCoeffs.cols; j++)
+				cout << distCoeffs_est.at<double>(i,j) << "   " << flush;
+			cout << endl;
+		}
+
+    cout << "Done" << endl;
+    cout << "Undistort..." << endl;
+    string name;
+    string type;
+    //cout << "Enter the type:" << endl;
+    //cin >> type;
+    while(1){
+        cout << "Please enter the image name, q for exit:" << endl;
+        cin >> name;
+        if(name == "q")
+            break;
+        image = imread("C:\\Users\\ZoeQIAN\\Pictures\\huawei\\"+name+".jpg");
+		Mat timg;
+        imshow("Original",image);
+		waitKey();
+		//¸øÍ¼Æ¬¼Ó±ß
+       /*  copyMakeBorder(image,timg,image.rows/5,image.rows/5,image.cols/5,image.cols/5,BORDER_CONSTANT,Scalar(255));
+         imshow("nani",timg);*/
+		 //imshow("ale",image);
+		 Mat undis(timg.size(),CV_8U,Scalar(255));
+        //Mat undis;
+        undistort(image,undis,camMat_est,distCoeffs_est);
+		for(int i = 0; i != camMat_est.rows; i++){
+			for(int j = 0; j != camMat_est.cols; j++)
+				cout << camMat_est.at<double>(i,j) << "   " << flush;
+			cout << endl;
+		}
+		for(int i = 0; i != distCoeffs_est.rows; i++){
+			for(int j = 0; j != distCoeffs_est.cols; j++)
+				cout << distCoeffs_est.at<double>(i,j) << "   " << flush;
+			cout << endl;
+		}
+        cout << "Done" << endl;
+        imshow("Undistort",undis);
+        waitKey();
+        char tmp;
+        cin >> tmp;
+        destroyWindow("Undistort");
+    }
+    destroyWindow("Undistort");
+    // waitKey();
 }
 
 #pragma endregion
@@ -371,11 +480,22 @@ void ShowImage(Mat image, string windowName){
 }
 
 void LoadImage(string path = "C:\\HuaWeiImage\\»ªÎªÅÄÕÕ_Ð£Õý\\»ªÎªÅÄÕÕ_Ð£Õý\\Õý³£¹âÕÕ´ø¼ÙÃæ°å_2\\u_60.jpg"){
-	imageOriginal = imread(path);
-	ShowImage(imageOriginal, "Original");
-	h = imageOriginal.rows;
-	w = imageOriginal.cols;
+	Mat image = imread(path);
+	ShowImage(image, "Original");
+	h = image.rows;
+	w = image.cols;
 	printf("%dx%d\n", h, w);
+	//Mat newCamMat = getOptimalNewCameraMatrix(camMat,distCoeffs,image.size(),-1);
+	undistort(image,imageOriginal,camMat,distCoeffs);
+	//Mat R;
+	//Mat map1,map2;
+	// initUndistortRectifyMap(camMat, distCoeffs, Mat(),
+	//	 getOptimalNewCameraMatrix(camMat, distCoeffs, image.size(), 1, image.size(), 0),
+	//	 Size(2*image.cols,2*image.rows), CV_16SC2, map1, map2);
+
+//	initUndistortRectifyMap(camMat,distCoeffs,R, camMat,Size(2*image.cols,2*image.rows),CV_32FC1,map1,map2);
+	//remap(image,imageOriginal,map1,map2,INTER_LINEAR);
+	ShowImage(imageOriginal,"undistort");
 
 }
 
@@ -679,7 +799,7 @@ void DetectSpace_2(){ //ÏÞÖÆÁ¬Í¨ÓòµÄÁªÍ¨¿í¶È£¬Õâ¸ö²¿·Ö·ÅÔÚÊÓ½ÇÅ¤ÕýÖ®ºóÐ§¹û¸ü¼Ñ~£
 
 
 int main(){
-	string user = "yzy";
+	string user = "qzf";
 
 	if (user == "yzy")
 	{
@@ -700,7 +820,8 @@ int main(){
 	} else
 	if (user == "qzf"){
 
-		LoadImage();
+		LoadImage("C:\\Users\\ZoeQIAN\\Pictures\\»ªÎªÅÄÕÕ\\Õý³£¹âÕÕ\\60.jpg");
+		//cali();
 		Preprocess();
 		ForegroundSeparation();
 	} else
