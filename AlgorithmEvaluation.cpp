@@ -73,13 +73,13 @@ void ForegroundSeparation(){
 
 	Mat result = segmenter.process(imageOriginal);
 	convertScaleAbs(result, result);
-	imshow("hi",result);
-	waitKey();
+	//imshow("hi",result);
+	//waitKey();
 	threshold(result, result, 254, 255, THRESH_BINARY);
-	imshow("byebye~",result);
-	waitKey();
+	//imshow("byebye~",result);
+	//waitKey();
 	bitwise_and(imageOriginal, imageOriginal, imageForeground, result);
-	imshow("byebye~", imageForeground);
+	imshow("Foreground", imageForeground);
 	waitKey();
 }
 
@@ -799,7 +799,7 @@ void DetectSpace_2(){ //ÏŞÖÆÁ¬Í¨ÓòµÄÁªÍ¨¿í¶È£¬Õâ¸ö²¿·Ö·ÅÔÚÊÓ½ÇÅ¤ÕıÖ®ºóĞ§¹û¸ü¼Ñ~£
 
 
 int main(){
-	string user = "qzf";
+	string user = "qyz";
 
 	if (user == "yzy")
 	{
@@ -826,13 +826,13 @@ int main(){
 		ForegroundSeparation();
 	} else
 	if (user == "qyz"){
-		string filename = "..\\..\\u_60_5.jpg";
-		imageOriginal = imread(filename);	//ÔØÈëÍ¼Æ¬
+		string filename = "E:\\VS2013_pro\\2014_9_12\\Õı³£¹âÕÕ\\60.jpg";
+		LoadImage(filename);
 		R = imageOriginal.rows;
 		C = imageOriginal.cols;
-
-		ShowImage(imageOriginal, "imageOriginal");
-		cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
+		ForegroundSeparation();
+		//ShowImage(imageOriginal, "imageOriginal");
+		cvtColor(imageForeground, imageGray, CV_BGR2GRAY);
 		double avgGray = cvAvg(&(IplImage)imageGray).val[0];
 		cout << "avgGray =" << avgGray << endl;
 		if (avgGray > 110.0) //»ñÈ¡Æ½¾ùÁÁ¶È
@@ -842,7 +842,7 @@ int main(){
 			detectEdges(imageRetinex);
 		}
 		else
-			detectEdges(imageOriginal);
+			detectEdges(imageForeground);
 		//detectLines();
 		//checkEdges();
 		waitKey();
