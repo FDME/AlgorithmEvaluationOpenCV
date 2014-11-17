@@ -967,25 +967,24 @@ int main(){
 	if (user == "yzy")
 	{
 		//LoadImage("C:\\HuaWeiImage\\华为拍照\\正常光照带假面板\\jpeg_20140912_150217.jpg");
-		LoadImage("C:\\HuaWeiImage\\华为拍照\\正常光照部分拆除\\jpeg_20140912_152658.jpg");
-		Preprocess();
-		DetectContours();
-		DetectLines();
-		perspectiveTransfrom();
-		imageOriginal = imageOriginalT.clone();
-		DetectSpace_1();
-		DetectContours();
-		MultiLabelGraphCut();
-		ImageLabelInput();
-		DetectSpace_0();
-		ImageLabelInput();
-		DetectSpace_2();
-		ImageLabelInput();
-		DetectSpace_3();
+		LoadImage("C:\\HuaWeiImage\\华为拍照\\正常光照部分拆除\\jpeg_20140912_152658.jpg");	//载入图片，鱼眼矫正
+		Preprocess();							//预处理，暂时没什么用，可加入光照调整
+		DetectContours();						//边界检测，主要包括canny和findContours
+		DetectLines();							//从contours中提取直线
+		perspectiveTransfrom();					//视角变换
+		imageOriginal = imageOriginalT.clone();	//将视角变换后的图替代原图
+		DetectSpace_1();						//前背景分割
+		DetectContours();						//重新进行canny，用于图像分割
+		MultiLabelGraphCut();					//图像分割
+		ImageLabelInput();						//label图象显示
+		DetectSpace_0();						//杂物过滤（横向腐蚀）
+		ImageLabelInput();						//label图象显示
+		DetectSpace_2();						//联通度优化
+		ImageLabelInput();						//label图象显示
+		DetectSpace_3();						//空余空间校验，结果显示
 
 		waitKey();
 		destroyAllWindows();
-
 	}
 	else
 	if (user == "qzf"){
