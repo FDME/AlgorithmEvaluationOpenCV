@@ -822,15 +822,15 @@ Vec3d CalcLine(vector<Point> points){
 }
 
 bool checkLine(Vec3d line){
-	if (line[0] < -0.3) return false;
-	if (line[0] > 0.3) return false;
-	if (line[1] > h * 19 / 20) return false;
-	if (line[1] < h / 20) return false;
+	if (line[0] < -0.4) return false;
+	if (line[0] > 0.4) return false;
+	//if (line[1] > h * 19 / 20) return false;
+	//if (line[1] < h / 20) return false;
 	return true;
 }
 
 void DetectLines(){
-	int lengthLimit = 120;
+	int lengthLimit = 90;
 	int split = 30;
 	vector<Point> points;
 	vector<Point> pointsTemp;
@@ -847,40 +847,101 @@ void DetectLines(){
 			for (int i = 0; i < split; i++) points.push_back(contour[t + i]);
 			for (int i = 0; i < split; i++) pointsTemp.push_back(contour[t + i]);
 			
-			if ((abs(CalcLine(points)[2]) < 0.95) || (abs(CalcLine(pointsTemp)[2]) < 0.97)){
+			if ((abs(CalcLine(points)[2]) < 0.90) || (abs(CalcLine(pointsTemp)[2]) < 0.93)){
 				for (int i = 0; i < split; i++) points.pop_back();
 				if (points.size() >=  lengthLimit){
-					for (int i = 0; i < points.size(); i++) line(imageOutput, points[i], points[i], Scalar(0, 255, 0), 1.5);
 					result = CalcLine(points);
-					printf("k = %lf, b = %lf\n", result[0], result[1]);
 					if (checkLine(result)) lines.push_back(result);
+					for (int i = 0; i < points.size(); i++) line(imageOutput, points[i], points[i], Scalar(0, 255, 0), 1.5);
+					printf("k = %lf, b = %lf\n", result[0], result[1]);
+					//ShowImage(imageOutput, "line");
 				}
 				points.clear();
 			}
 		}
 		if (points.size() > lengthLimit){
-			for (int i = 0; i < points.size(); i++) line(imageOutput, points[i], points[i], Scalar(0, 255, 0), 1.5);
 			result = CalcLine(points);
 			if (checkLine(result)) lines.push_back(result);
+			for (int i = 0; i < points.size(); i++) line(imageOutput, points[i], points[i], Scalar(0, 255, 0), 1.5);
+			printf("k = %lf, b = %lf\n", result[0], result[1]);
+			//ShowImage(imageOutput, "line");
 		}
 	}
+	ShowImage(imageOutput, "line");
+}
+
+void LineSort(){
+	int n = lines.size();
+	for (int i = 0; i < n; i++)
+	for (int j = i + 1; j < n; j++){
+		if (lines[i][1] > lines[j][1]){
+			Vec3d temp = lines[i];
+			lines[i] = lines[j];
+			lines[j] = temp;
+		}
+	}
+	vector<int> f;
+	vector<int> v;
+	f.clear();
+	v.clear();
+	for (int i = 0; i < n; i++){
+		f.push_back(0);
+		v.push_back(-1);
+		for (int j = 0; j < i; j++) if((lines[i][0] < lines[j][0]) && (lines[i][0] * w + lines[i][1] > lines[j][0] * w + lines[j][1])) 
+		if (f[j] + 1 > f[i]){
+			f[i] = f[j] + 1;
+			v[i] = j;
+		}
+		if (f[i] == 0) f[i] = 1;
+		printf("k = %lf, b = %lf, bb = %lf, f = %d, v = %d\n", lines[i][0], lines[i][1], lines[i][0] * w + lines[i][1], f[i], v[i]);
+	}
+	int max = 0;
+	int l = 0;
+	for (int i = 0; i < n; i++) if (f[i] > max){
+		max = f[i];
+		l = i;
+	}
+	printf("max: %d\n", max);
+	vector<Vec3d> linesSorted;
+	linesSorted.clear();
+	while (l != -1){
+		linesSorted.push_back(lines[l]);
+		l = v[l];
+	}
+	lines = linesSorted;
+	imageOutput = imageOriginal.clone();
 	for (int i = 0; i < lines.size(); i++){
 		double k = lines[i][0];
 		double b = lines[i][1];
 		Point st = Point(0, b);
 		Point en = Point(w, b + w * k);
 		line(imageOutput, st, en, Scalar(255, 0, 0), 1.5);
+		printf("k = %lf, b = %lf\n", k, b);
 	}
-	ShowImage(imageOutput, "line");
+	ShowImage(imageOutput, "lineSorted");
 }
-
-void perspectiveTransfrom(){
+void PerspectiveTransfrom(){
+	LineSort();
 	int boundary = w - 1;
 	int n = lines.size();
-	double k1 = lines[0][0];
-	double b1 = lines[0][1];
-	double k2 = lines[n - 2][0];
-	double b2 = lines[n - 2][1];
+	int ul = 0;
+	int dl = n - 1;
+	bool flag = true;
+	while (flag){
+		flag = false;
+		if ((dl - ul > 1) && (lines[dl][1] - lines[ul + 1][1] > h / 8)){
+			ul++;
+			flag = true;
+		}
+		if ((dl - ul > 1) && (lines[dl - 1][1] - lines[ul][1] > h / 8)){
+			dl--;
+			flag = true;
+		}
+	}
+	double k1 = lines[ul][0];
+	double b1 = lines[ul][1];
+	double k2 = lines[dl][0];
+	double b2 = lines[dl][1];
 	double t1 = -b1 / b2;
 	double t2 = -(b1 - h) / (b2 - h);
 	vector<Point2f> corners(4);
@@ -967,11 +1028,12 @@ int main(){
 	if (user == "yzy")
 	{
 		//LoadImage("C:\\HuaWeiImage\\华为拍照\\正常光照带假面板\\jpeg_20140912_150217.jpg");
-		LoadImage("C:\\HuaWeiImage\\华为拍照\\正常光照部分拆除\\jpeg_20140912_152658.jpg");	//载入图片，鱼眼矫正
+		LoadImage("C:\\HuaWeiImage\\华为拍照\\正常光照部分拆除\\jpeg_20140912_152723.jpg");	//载入图片，鱼眼矫正
 		Preprocess();							//预处理，暂时没什么用，可加入光照调整
+		
 		DetectContours();						//边界检测，主要包括canny和findContours
 		DetectLines();							//从contours中提取直线
-		perspectiveTransfrom();					//视角变换
+		PerspectiveTransfrom();					//视角变换
 		imageOriginal = imageOriginalT.clone();	//将视角变换后的图替代原图
 		DetectSpace_1();						//前背景分割
 		DetectContours();						//重新进行canny，用于图像分割
