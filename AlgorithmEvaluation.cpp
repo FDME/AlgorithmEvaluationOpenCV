@@ -1058,23 +1058,25 @@ int main(){
 	}
 	else
 	if (user == "qyz"){
-		string filename = "C:\\HuaWeiImage\\华为拍照\\正常光照\\60.jpg"; 
+		//string filename = "E:\\VS2013_pro\\2014_9_12\\正常光照\\60.jpg";
+		string filename = "..\\..\\60_1.jpg";
 		LoadImage(filename);
 		R = imageOriginal.rows;
 		C = imageOriginal.cols;
-		ForegroundSeparation();
+		
 		//ShowImage(imageOriginal, "imageOriginal");
-		cvtColor(imageForeground, imageGray, CV_BGR2GRAY);
+		cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
 		double avgGray = cvAvg(&(IplImage)imageGray).val[0];
 		cout << "avgGray =" << avgGray << endl;
+		
 		if (avgGray > 110.0) //获取平均亮度
 		{
 			retinex();
-			ShowImage(imageRetinex, "Retinex");
-			detectEdges(imageRetinex);
+			ShowImage(imageOriginal, "Retinex");
+			//detectEdges(imageRetinex);
 		}
-		else
-			detectEdges(imageForeground);
+		ForegroundSeparation();
+		detectEdges(imageForeground);
 		//detectLines();
 		//checkEdges();
 		waitKey();

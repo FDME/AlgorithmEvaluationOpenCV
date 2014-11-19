@@ -7,7 +7,7 @@
 using namespace std;
 using namespace cv;
 extern Mat imageOriginal;
-extern Mat imageRetinex;
+//extern Mat imageRetinex;
 /********************************************************************************
 单尺度Retinex图像增强程序
 src为待处理图像
@@ -63,8 +63,8 @@ void SSR(IplImage* src, int sigma, int scale)
 
 void retinex() 
 {
-	imageOriginal.copyTo(imageRetinex);
-	IplImage* src = (&(IplImage)imageRetinex);
+	//imageOriginal.copyTo(imageRetinex);
+	IplImage* src = (&(IplImage)imageOriginal);
 	//IplImage* frog1 = cvCreateImage(cvGetSize(frog), IPL_DEPTH_32F, frog->nChannels);
 	//cvConvertScale(frog, frog1, 1.0 / 255, 0);
 	SSR(src, 30, 2);
