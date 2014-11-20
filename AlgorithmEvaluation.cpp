@@ -30,7 +30,7 @@ bool isVisited[MAXHEIGHT][MAXWIDTH];
 int blockCount[MAXHEIGHT][MAXBLOCKS];
 
 int w, h;
-
+int leftBoundary;
 double cam[] = { 386.951, 0, 233.539, 0, 384.132, 352.891, 0, 0, 1 };
 double dis[] = { -0.44601, 0.266848, -0.00143158, 0.000143152, -0.103006 };
 
@@ -527,8 +527,22 @@ void OptimizeCanny(){
 	//ShowImage(imageCanny, "Optimized Canny");
 }
 
+void AdaptiveCanny(){
+	double low = 0.0, high = 0.0; //Thresholds for Canny edge detection
+	cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
+	//equalizeHist(imageGray, imageEqualHist);//»Ò¶ÈÍ¼ÏóÖ±·½Í¼¾ùºâ»¯
+	double cannyThreshold = Otsu(&(IplImage)imageOriginal);
+	//cannyThreshold = 100;
+	AdaptiveFindThreshold(&imageGray, &low, &high);
+	cout << "Low: " << low << endl << "High: " << high << endl;
+	//Canny(imageGray, imageCanny, low, high);
+	Canny(imageGray, imageCanny, cannyThreshold, cannyThreshold * 2);
+	//ShowImage(imageCanny, "canny1");
+	//OptimizeCanny();
+}
+
 void DetectContours(double thresh = 100){
-	Canny(imageOriginal, imageCanny, thresh, thresh * 2);
+	AdaptiveCanny();
 	line(imageCanny, Point(0, 0), Point(0, h), Scalar(255, 255, 255), 1);
 	ShowImage(imageCanny, "Canny");
 	//OptimizeCanny();
@@ -748,6 +762,15 @@ void DetectSpace_1(){  //·ÖË®Áë·Ö¸îÇ°±³¾°
 	for (int j = 4 * w / 5; j < w; j++) makers.at<int>(i, j) = 2;
 
 	watershed(imageOriginal, makers);
+
+	for (int j = 0; j < w; j++){
+		int count = 0;
+		for (int i = 0; i < h; i++) if (makers.at<int>(i, j) == 2) count++;
+		if (count > h / 2) {
+			leftBoundary = j;
+			break;
+		}
+	}
 }
 
 int dir[4][2] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } };
@@ -781,8 +804,6 @@ void DetectSpace_2(){ //ÏŞÖÆÁ¬Í¨ÓòµÄÁªÍ¨¿í¶È£¬Õâ¸ö²¿·Ö·ÅÔÚÊÓ½ÇÅ¤ÕıÖ®ºóĞ§¹û¸ü¼Ñ~£
 	}
 
 }
-
-#pragma endregion
 
 Vec3d CalcLine(vector<Point> points){
 	int n = points.size();
@@ -822,13 +843,18 @@ Vec3d CalcLine(vector<Point> points){
 }
 
 bool checkLine(Vec3d line){
-	if (line[0] < -0.4) return false;
-	if (line[0] > 0.4) return false;
+	if (line[0] < -1) return false;
+	if (line[0] > 0.5) return false;
 	//if (line[1] > h * 19 / 20) return false;
 	//if (line[1] < h / 20) return false;
 	return true;
 }
 
+bool OutOfBox(vector<Point> contour){
+	int x_sum = 0;
+	for (int i = 0; i < contour.size(); i++) x_sum += contour[i].x;
+	if (x_sum < leftBoundary * contour.size()) return false; else return true;
+}
 void DetectLines(){
 	int lengthLimit = 90;
 	int split = 30;
@@ -841,6 +867,7 @@ void DetectLines(){
 	for each (vector<Point> contour in contours)
 	{
 		if (contour.size() < lengthLimit) continue;
+		if (OutOfBox(contour)) continue;
 		points.clear();
 		for (int t = 0; t + split - 1 < contour.size(); t += split){
 			pointsTemp.clear();
@@ -867,6 +894,14 @@ void DetectLines(){
 			//ShowImage(imageOutput, "line");
 		}
 	}
+	for (int i = 0; i < lines.size(); i++){
+		double k = lines[i][0];
+		double b = lines[i][1];
+		Point st = Point(0, b);
+		Point en = Point(w, b + w * k);
+		line(imageOutput, st, en, Scalar(255, 0, 0), 1.5);
+		printf("k = %lf, b = %lf\n", k, b);
+	}
 	ShowImage(imageOutput, "line");
 }
 
@@ -887,13 +922,13 @@ void LineSort(){
 	for (int i = 0; i < n; i++){
 		f.push_back(0);
 		v.push_back(-1);
-		for (int j = 0; j < i; j++) if((lines[i][0] < lines[j][0]) && (lines[i][0] * w + lines[i][1] > lines[j][0] * w + lines[j][1])) 
+		for (int j = 0; j < i; j++) if((lines[i][0] < lines[j][0]) && (lines[i][0] * w / 2 + lines[i][1] > lines[j][0] * w / 2 + lines[j][1])) 
 		if (f[j] + 1 > f[i]){
 			f[i] = f[j] + 1;
 			v[i] = j;
 		}
 		if (f[i] == 0) f[i] = 1;
-		printf("k = %lf, b = %lf, bb = %lf, f = %d, v = %d\n", lines[i][0], lines[i][1], lines[i][0] * w + lines[i][1], f[i], v[i]);
+		printf("k = %lf, b = %lf, bb = %lf, f = %d, v = %d\n", lines[i][0], lines[i][1], lines[i][0] * w / 2 + lines[i][1], f[i], v[i]);
 	}
 	int max = 0;
 	int l = 0;
@@ -922,7 +957,7 @@ void LineSort(){
 }
 void PerspectiveTransfrom(){
 	LineSort();
-	int boundary = w - 1;
+	int boundary = leftBoundary;
 	int n = lines.size();
 	int ul = 0;
 	int dl = n - 1;
@@ -1022,15 +1057,20 @@ void DetectSpace_3(){
 	ShowImage(imageOutput, "result");
 }
 
+#pragma endregion
+
+
 int main(){
 	string user = "yzy";
 
 	if (user == "yzy")
 	{
 		//LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õı³£¹âÕÕ´ø¼ÙÃæ°å\\jpeg_20140912_150217.jpg");
-		LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õı³£¹âÕÕ²¿·Ö²ğ³ı\\jpeg_20140912_152723.jpg");	//ÔØÈëÍ¼Æ¬£¬ÓãÑÛ½ÃÕı
+		LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õı³£¹âÕÕ²¿·Ö²ğ³ı\\jpeg_20140912_152553.jpg");	//ÔØÈëÍ¼Æ¬£¬ÓãÑÛ½ÃÕı
+		//return 0;
+
 		Preprocess();							//Ô¤´¦Àí£¬ÔİÊ±Ã»Ê²Ã´ÓÃ£¬¿É¼ÓÈë¹âÕÕµ÷Õû
-		
+		DetectSpace_1();
 		DetectContours();						//±ß½ç¼ì²â£¬Ö÷Òª°üÀ¨cannyºÍfindContours
 		DetectLines();							//´ÓcontoursÖĞÌáÈ¡Ö±Ïß
 		PerspectiveTransfrom();					//ÊÓ½Ç±ä»»
