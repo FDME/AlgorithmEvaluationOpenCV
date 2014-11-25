@@ -42,7 +42,10 @@ vector<Vec3d> lines;
 vector<vector<Point>> contours;
 
 #pragma region Qian Zifei
-
+string fname("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照\\");
+string results("C:\\Users\\ZoeQIAN\\Pictures\\Test\\");
+string type("正常光照\\");
+string num("6");
 class WatershedSegment{
 private:
 	Mat markers;
@@ -477,6 +480,7 @@ CheckContour()			边缘验证（面积、形状）
 void ShowImage(Mat image, string windowName){
 	namedWindow(windowName, CV_WINDOW_AUTOSIZE);
 	imshow(windowName, image);
+	//imwrite(results+type+num+"\\"+windowName+".jpg",image);
 	waitKey();
 }
 
@@ -1061,7 +1065,7 @@ void DetectSpace_3(){
 
 
 int main(){
-	string user = "yzy";
+	string user = "qzf";
 
 	if (user == "yzy")
 	{
@@ -1091,10 +1095,29 @@ int main(){
 	else
 	if (user == "qzf"){
 
-		LoadImage("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照\\正常光照\\60.jpg");
-		//cali();
-		Preprocess();
-		ForegroundSeparation();
+		//LoadImage("C:\\HuaWeiImage\\华为拍照\\正常光照带假面板\\jpeg_20140912_150217.jpg");
+
+
+		LoadImage(fname+type+num+".jpg");		//载入图片，鱼眼矫正
+
+		Preprocess();							//预处理，暂时没什么用，可加入光照调整
+		DetectSpace_1();
+		DetectContours();						//边界检测，主要包括canny和findContours
+		DetectLines();							//从contours中提取直线
+		PerspectiveTransfrom();					//视角变换
+		imageOriginal = imageOriginalT.clone();	//将视角变换后的图替代原图
+		DetectSpace_1();						//前背景分割
+		DetectContours();						//重新进行canny，用于图像分割
+		MultiLabelGraphCut();					//图像分割
+		ImageLabelInput();						//label图象显示
+		DetectSpace_0();						//杂物过滤（横向腐蚀）
+		ImageLabelInput();						//label图象显示
+		DetectSpace_2();						//联通度优化
+		ImageLabelInput();						//label图象显示
+		DetectSpace_3();						//空余空间校验，结果显示
+
+		waitKey();
+		destroyAllWindows();
 	}
 	else
 	if (user == "qyz"){
