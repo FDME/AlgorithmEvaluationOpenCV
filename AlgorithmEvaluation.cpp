@@ -31,8 +31,12 @@ int blockCount[MAXHEIGHT][MAXBLOCKS];
 
 int w, h;
 int leftBoundary;
-double cam[] = { 386.951, 0, 233.539, 0, 384.132, 352.891, 0, 0, 1 };
-double dis[] = { -0.44601, 0.266848, -0.00143158, 0.000143152, -0.103006 };
+//double cam[] = { 386.951, 0, 233.539, 0, 384.132, 352.891, 0, 0, 1 };
+//double dis[] = { -0.44601, 0.266848, -0.00143158, 0.000143152, -0.103006 };
+//以上是之前的参数
+
+double cam[] = { 283.561, 0, 246, 0, 285.903, 334.103, 0, 0, 1 };
+double dis[] = { -0.313793, 0.122695, 0.00123624, -0.000849487, -0.0250905 };
 
 Mat camMat(3, 3, CV_64F, cam), distCoeffs(1, 5, CV_64F, dis);
 Mat imageOriginal, imageGray, imageCanny, imageOutput, imageLabel, imageForeground;
@@ -42,10 +46,10 @@ vector<Vec3d> lines;
 vector<vector<Point>> contours;
 
 #pragma region Qian Zifei
-string fname("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照\\");
+string fname("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照-20141128\\");
 string results("C:\\Users\\ZoeQIAN\\Pictures\\Test\\");
-string type("正常光照\\");
-string num("6");
+string type("机柜A-中心下移\\");
+string num("3");
 class WatershedSegment{
 private:
 	Mat markers;
@@ -111,7 +115,8 @@ void cali()
 		stringstream ss;
 		ss << i + 1;
 		ss >> num;
-		image = imread("C:\\Users\\ZoeQIAN\\Documents\\Visual Studio 2012\\Projects\\calibration\\" + num + ".jpg");
+		image = imread("C:\\Users\\ZoeQIAN\\Pictures\\chessboard\\" + num + ".jpg");
+		//imshow("yi",image);
 		//	copyMakeBorder(image,image,image.rows/5,image.rows/5,image.cols/5,image.cols/5,BORDER_CONSTANT,Scalar(255));
 		bool found = findChessboardCorners(image, boardSize, tmp, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
 		if (found){
@@ -119,24 +124,25 @@ void cali()
 			object_points.push_back(chessboard);
 			drawChessboardCorners(image, boardSize, Mat(tmp), found);
 			//imshow("hello~",image);
-			// waitKey();
+			 //waitKey();
 		}
+		//waitKey();
 	}
 	Mat camMat_est;
 	Mat distCoeffs_est;
 	vector<Mat> rvecs, tvecs;
 	cout << "Calibrating...";
 	calibrateCamera(object_points, image_points, Size(image.rows, image.cols), camMat_est, distCoeffs_est, rvecs, tvecs);
-	for (int i = 0; i != camMat.rows; i++){
-		for (int j = 0; j != camMat.cols; j++)
-			cout << camMat.at<double>(i, j) << "   " << flush;
-		cout << endl;
-	}
-	for (int i = 0; i != distCoeffs.rows; i++){
-		for (int j = 0; j != distCoeffs.cols; j++)
-			cout << distCoeffs.at<double>(i, j) << "   " << flush;
-		cout << endl;
-	}
+	//for (int i = 0; i != camMat.rows; i++){
+	//	for (int j = 0; j != camMat.cols; j++)
+	//		cout << camMat.at<double>(i, j) << "   " << flush;
+	//	cout << endl;
+	//}
+	//for (int i = 0; i != distCoeffs.rows; i++){
+	//	for (int j = 0; j != distCoeffs.cols; j++)
+	//		cout << distCoeffs.at<double>(i, j) << "   " << flush;
+	//	cout << endl;
+	//}
 	for (int i = 0; i != camMat.rows; i++){
 		for (int j = 0; j != camMat.cols; j++)
 			cout << camMat_est.at<double>(i, j) << "   " << flush;
@@ -147,46 +153,36 @@ void cali()
 			cout << distCoeffs_est.at<double>(i, j) << "   " << flush;
 		cout << endl;
 	}
-
+	system("PAUSE");
 	cout << "Done" << endl;
 	cout << "Undistort..." << endl;
 	string name;
 	string type;
 	//cout << "Enter the type:" << endl;
 	//cin >> type;
-	while (1){
-		cout << "Please enter the image name, q for exit:" << endl;
-		cin >> name;
-		if (name == "q")
-			break;
-		image = imread("C:\\Users\\ZoeQIAN\\Pictures\\huawei\\" + name + ".jpg");
-		Mat timg;
-		imshow("Original", image);
-		waitKey();
-		//给图片加边
-		/*  copyMakeBorder(image,timg,image.rows/5,image.rows/5,image.cols/5,image.cols/5,BORDER_CONSTANT,Scalar(255));
-		imshow("nani",timg);*/
-		//imshow("ale",image);
-		Mat undis(timg.size(), CV_8U, Scalar(255));
-		//Mat undis;
-		undistort(image, undis, camMat_est, distCoeffs_est);
-		for (int i = 0; i != camMat_est.rows; i++){
-			for (int j = 0; j != camMat_est.cols; j++)
-				cout << camMat_est.at<double>(i, j) << "   " << flush;
-			cout << endl;
-		}
-		for (int i = 0; i != distCoeffs_est.rows; i++){
-			for (int j = 0; j != distCoeffs_est.cols; j++)
-				cout << distCoeffs_est.at<double>(i, j) << "   " << flush;
-			cout << endl;
-		}
-		cout << "Done" << endl;
-		imshow("Undistort", undis);
-		waitKey();
-		char tmp;
-		cin >> tmp;
-		destroyWindow("Undistort");
-	}
+	//while (1){
+	//	cout << "Please enter the image name, q for exit:" << endl;
+	//	cin >> name;
+	//	if (name == "q")
+	//		break;
+	//	image = imread("C:\\Users\\ZoeQIAN\\Pictures\\huawei\\" + name + ".jpg");
+	//	Mat timg;
+	//	imshow("Original", image);
+	//	waitKey();
+	//	//给图片加边
+	//	/*  copyMakeBorder(image,timg,image.rows/5,image.rows/5,image.cols/5,image.cols/5,BORDER_CONSTANT,Scalar(255));
+	//	imshow("nani",timg);*/
+	//	//imshow("ale",image);
+	//	Mat undis(image.size(), CV_8U, Scalar(255));
+	//	//Mat undis;
+	//	undistort(image, undis, camMat_est, distCoeffs_est);
+	//	cout << "Done" << endl;
+	//	imshow("Undistort", undis);
+	//	waitKey();
+	//	char tmp;
+	//	cin >> tmp;
+	//	destroyWindow("Undistort");
+	//}
 	destroyWindow("Undistort");
 	// waitKey();
 }
@@ -487,6 +483,7 @@ void ShowImage(Mat image, string windowName){
 void LoadImage(string path = "C:\\HuaWeiImage\\华为拍照\\正常光照\\60~90.jpg"){
 	Mat image = imread(path);
 	ShowImage(image, "Original");
+	imwrite("C:\\Users\\ZoeQIAN\\Desktop\\image.tif",image);
 	//Mat newCamMat = getOptimalNewCameraMatrix(camMat,distCoeffs,image.size(),-1);
 	undistort(image, imageOriginal, camMat, distCoeffs);
 	h = imageOriginal.rows;
@@ -1073,12 +1070,10 @@ int main(){
 		LoadImage("C:\\HuaWeiImage\\华为拍照\\正常光照部分拆除\\jpeg_20140912_152553.jpg");	//载入图片，鱼眼矫正
 		//return 0;
 
-		Preprocess();							//预处理，暂时没什么用，可加入光照调整
+		Preprocess();		 					//预处理，暂时没什么用，可加入光照调整
 		DetectSpace_1();
 		DetectContours();						//边界检测，主要包括canny和findContours
 		DetectLines();							//从contours中提取直线
-		PerspectiveTransfrom();					//视角变换
-		imageOriginal = imageOriginalT.clone();	//将视角变换后的图替代原图
 		DetectSpace_1();						//前背景分割
 		DetectContours();						//重新进行canny，用于图像分割
 		MultiLabelGraphCut();					//图像分割
@@ -1097,7 +1092,7 @@ int main(){
 
 		//LoadImage("C:\\HuaWeiImage\\华为拍照\\正常光照带假面板\\jpeg_20140912_150217.jpg");
 
-
+		//cali();
 		LoadImage(fname+type+num+".jpg");		//载入图片，鱼眼矫正
 
 		Preprocess();							//预处理，暂时没什么用，可加入光照调整
