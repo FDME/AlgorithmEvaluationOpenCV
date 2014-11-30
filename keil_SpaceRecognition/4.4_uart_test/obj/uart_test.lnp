@@ -1,0 +1,16 @@
+--cpu ARM920T
+".\obj\s3c2410a.o"
+".\obj\main.o"
+".\obj\camera_control.o"
+".\obj\jidctflt.o"
+".\obj\loadjpeg.o"
+".\obj\tinyjpeg.o"
+".\obj\imageoriginal_b.o"
+".\obj\imageoriginal_g.o"
+".\obj\imageoriginal_r.o"
+".\obj\2410lib.o"
+".\obj\sys_init.o"
+--strict --scatter "..\common\RuninRAM.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\list\uart_test.map" -o .\obj\uart_test.axf

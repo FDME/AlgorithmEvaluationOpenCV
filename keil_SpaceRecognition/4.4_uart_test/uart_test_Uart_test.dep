@@ -1,0 +1,77 @@
+Dependencies for Project 'uart_test', Target 'Uart_test': (DO NOT MODIFY !)
+F (..\common\src\S3C2410A.s)(0x53C78B60)(--cpu ARM920T -g --apcs=interwork -I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Samsung--list .\list\s3c2410a.lst --xref -o .\obj\s3c2410a.o --depend .\obj\s3c2410a.d)
+F (.\main.c)(0x547ACCAA)(-c --cpu ARM920T -g -O0 --apcs=interwork -I..\common\inc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Samsung-o .\obj\main.o --omf_browse .\obj\main.crf --depend .\obj\main.d)
+I (..\common\inc\2410lib.h)(0x47CC9F38)
+I (..\common\inc\def.h)(0x47CB5EF2)
+I (..\common\inc\memcfg.h)(0x471868B6)
+I (..\common\inc\option.h)(0x471868B6)
+I (..\common\inc\register.h)(0x471868B6)
+I (..\common\inc\2410addr.h)(0x47CB639A)
+F (.\src\camera_control.c)(0x547AA8B3)(-c --cpu ARM920T -g -O0 --apcs=interwork -I..\common\inc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Samsung-o .\obj\camera_control.o --omf_browse .\obj\camera_control.crf --depend .\obj\camera_control.d)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\2410lib.h)(0x47CC9F38)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\def.h)(0x47CB5EF2)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\memcfg.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\option.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\register.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\2410addr.h)(0x47CB639A)
+I (C:\Keil\ARM\ARMCC\include\string.h)(0x51C7B744)
+F (.\src\decoder\jidctflt.c)(0x53D5F144)(-c --cpu ARM920T -g -O0 --apcs=interwork -I..\common\inc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Samsung-o .\obj\jidctflt.o --omf_browse .\obj\jidctflt.crf --depend .\obj\jidctflt.d)
+I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C7B744)
+I (D:\PJ_yzqu\keil\camera_test_old\4.4_uart_test\src\decoder\tinyjpeg-internal.h)(0x53D7348A)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\def.h)(0x47CB5EF2)
+I (C:\Keil\ARM\ARMCC\include\setjmp.h)(0x51C7B744)
+F (.\src\decoder\loadjpeg.c)(0x53D85548)(-c --cpu ARM920T -g -O0 --apcs=interwork -I..\common\inc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Samsung-o .\obj\loadjpeg.o --omf_browse .\obj\loadjpeg.crf --depend .\obj\loadjpeg.d)
+I (D:\PJ_yzqu\keil\camera_test_old\4.4_uart_test\src\decoder\tinyjpeg.h)(0x53D7348A)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\2410lib.h)(0x47CC9F38)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\def.h)(0x47CB5EF2)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\memcfg.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\option.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\register.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\2410addr.h)(0x47CB639A)
+I (C:\Keil\ARM\ARMCC\include\stdio.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\stdlib.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\string.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\time.h)(0x51C7B744)
+I (D:\PJ_yzqu\keil\camera_test_old\4.4_uart_test\src\decoder\tinyjpeg-internal.h)(0x53D7348A)
+I (C:\Keil\ARM\ARMCC\include\setjmp.h)(0x51C7B744)
+F (.\src\decoder\tinyjpeg.c)(0x53D7348A)(-c --cpu ARM920T -g -O0 --apcs=interwork -I..\common\inc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Samsung-o .\obj\tinyjpeg.o --omf_browse .\obj\tinyjpeg.crf --depend .\obj\tinyjpeg.d)
+I (C:\Keil\ARM\ARMCC\include\stdio.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\stdlib.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\string.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\errno.h)(0x51C7B744)
+I (D:\PJ_yzqu\keil\camera_test_old\4.4_uart_test\src\decoder\tinyjpeg.h)(0x53D7348A)
+I (D:\PJ_yzqu\keil\camera_test_old\4.4_uart_test\src\decoder\tinyjpeg-internal.h)(0x53D7348A)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\def.h)(0x47CB5EF2)
+I (C:\Keil\ARM\ARMCC\include\setjmp.h)(0x51C7B744)
+F (.\src\imageOriginal_B.c)(0x547AC7BC)()
+F (.\src\imageOriginal_G.c)(0x547AC7BC)()
+F (.\src\imageOriginal_R.c)(0x547AC7BC)()
+F (..\common\src\2410lib.c)(0x54741720)(-c --cpu ARM920T -g -O0 --apcs=interwork -I..\common\inc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Samsung-o .\obj\2410lib.o --omf_browse .\obj\2410lib.crf --depend .\obj\2410lib.d)
+I (C:\Keil\ARM\ARMCC\include\stdarg.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\string.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\stdio.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\ctype.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\stdlib.h)(0x51C7B744)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\2410lib.h)(0x47CC9F38)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\def.h)(0x47CB5EF2)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\memcfg.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\option.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\register.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\2410addr.h)(0x47CB639A)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\2410slib.h)(0x471868B4)
+F (..\common\src\sys_init.c)(0x53D0D744)(-c --cpu ARM920T -g -O0 --apcs=interwork -I..\common\inc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Samsung-o .\obj\sys_init.o --omf_browse .\obj\sys_init.crf --depend .\obj\sys_init.d)
+I (C:\Keil\ARM\ARMCC\include\stdarg.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\string.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\stdio.h)(0x51C7B744)
+I (C:\Keil\ARM\ARMCC\include\ctype.h)(0x51C7B744)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\2410lib.h)(0x47CC9F38)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\def.h)(0x47CB5EF2)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\memcfg.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\option.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\register.h)(0x471868B6)
+I (D:\PJ_yzqu\keil\camera_test_old\common\inc\2410addr.h)(0x47CB639A)
+F (..\common\RuninFlash.sct)(0x471868BC)()
+F (..\common\RuninRAM.sct)(0x53C78D30)()
+F (..\common\DebugInRam.ini)(0x53C78E54)()
+F (.\readme.txt)(0x47CCB666)()

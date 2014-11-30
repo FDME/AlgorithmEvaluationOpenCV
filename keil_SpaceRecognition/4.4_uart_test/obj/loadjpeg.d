@@ -1,0 +1,14 @@
+.\obj\loadjpeg.o: src\decoder\loadjpeg.c
+.\obj\loadjpeg.o: src\decoder\tinyjpeg.h
+.\obj\loadjpeg.o: ..\common\inc\2410lib.h
+.\obj\loadjpeg.o: ..\common\inc\def.h
+.\obj\loadjpeg.o: ..\common\inc\memcfg.h
+.\obj\loadjpeg.o: ..\common\inc\option.h
+.\obj\loadjpeg.o: ..\common\inc\register.h
+.\obj\loadjpeg.o: ..\common\inc\2410addr.h
+.\obj\loadjpeg.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\obj\loadjpeg.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\obj\loadjpeg.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\obj\loadjpeg.o: C:\Keil\ARM\ARMCC\bin\..\include\time.h
+.\obj\loadjpeg.o: src\decoder\tinyjpeg-internal.h
+.\obj\loadjpeg.o: C:\Keil\ARM\ARMCC\bin\..\include\setjmp.h

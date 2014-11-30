@@ -201,6 +201,57 @@ vector<double> Lines_B;//拟合直线方程参数
 void ShowImage(Mat, string);
 void OptimizeCanny();
 
+void generate_RGB_files()
+{
+	//取RGB值存储
+	FILE* Rfp, *Gfp, *Bfp;
+	Rfp = fopen("imageOriginal_R.c", "w+");
+	Gfp = fopen("imageOriginal_G.c", "w+");
+	Bfp = fopen("imageOriginal_B.c", "w+");
+
+	fprintf(Rfp, "#include \"2410lib.h\"\nUINT8T imageOriginal_R[%d][%d] = {\n", R, C);
+	fprintf(Gfp, "#include \"2410lib.h\"\nUINT8T imageOriginal_G[%d][%d] = {\n", R, C);
+	fprintf(Bfp, "#include \"2410lib.h\"\nUINT8T imageOriginal_B[%d][%d] = {\n", R, C);
+	CvScalar s;
+	for (int i = 0; i < R; i++)
+	{
+		fprintf(Rfp, "{ ");
+		fprintf(Gfp, "{ ");
+		fprintf(Bfp, "{ ");
+		for (int j = 0; j < C; j++)
+		{
+			s = cvGet2D(&(IplImage)imageOriginal, i, j);
+			fprintf(Bfp, "%d", (int)s.val[0]);//B
+			fprintf(Gfp, "%d", (int)s.val[1]);//G
+			fprintf(Rfp, "%d", (int)s.val[2]);//R
+			if (j != C - 1){
+				fprintf(Bfp, ", ");
+				fprintf(Gfp, ", ");
+				fprintf(Rfp, ", ");
+			}
+
+			if (j % 20 == 0&& j !=0)
+			{
+				fprintf(Bfp, "\n ");
+				fprintf(Gfp, "\n ");
+				fprintf(Rfp, "\n ");
+			}
+		}
+		fprintf(Rfp, "},\n");
+		fprintf(Gfp, "},\n");
+		fprintf(Bfp, "},\n");
+	}
+	fseek(Rfp, -3, SEEK_CUR);
+	fseek(Gfp, -3, SEEK_CUR);
+	fseek(Bfp, -3, SEEK_CUR);
+	fprintf(Rfp, "};");
+	fprintf(Gfp, "};");
+	fprintf(Bfp, "};");
+	fclose(Rfp);
+	fclose(Gfp);
+	fclose(Bfp);
+}
+
 bool checkLine(Point start, Point end)
 {
 	/*double area = contourArea(contour);
@@ -285,7 +336,7 @@ void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
 	Canny(imageCanny, imageCanny, cannyThreshold, cannyThreshold * 2);
 	ShowImage(imageCanny, "canny2");
 	findContours(imageCanny, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
-
+	
 	int start, end;
 	int size;
 	imageContour = imageOriginal;
@@ -302,7 +353,7 @@ void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
 		start = end = 0;
 		double k;
 		double b;
-
+	
 		vector<int> lines_index;
 		//根据三点共线法检测直线，结果含非直线
 		//for (int j = 20; j < size; j = j + 10)
@@ -332,7 +383,7 @@ void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
 		for (int j = 0; j < contours[i].size() - 50; j += 10)
 		{
 			if (least_squares(&contours[i][j], 50))
-			{
+			{ 
 				if (flag = false)
 				{
 					start = j;
@@ -344,19 +395,19 @@ void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
 			{
 				flag = false;
 				length = sqrt((contours[i][start].x - contours[i][end].x) * (contours[i][start].x - contours[i][end].x) \
-					+ (contours[i][start].y - contours[i][end].y) * (contours[i][start].y - contours[i][end].y));
+							+ (contours[i][start].y - contours[i][end].y) * (contours[i][start].y - contours[i][end].y));
 				double k = (double)(contours[i][end].y - contours[i][start].y) / (contours[i][end].x - contours[i][start].x);
 				if (length > 50 && k < 0.7 && k > -0.7)
 				{
 					for (int m = start; m <= end; m++)
 						line(imageLines, contours[i][m], contours[i][m], Scalar(255, 0, 0), 2);
-
+					
 					//用最小二乘法计算方程
 					long x_sum = 0;
 					long y_sum = 0;
 					long xy_sum = 0;
 					long x_square_sum = 0;
-					long n = end - start + 1;
+					long n = end - start +1;
 					for (int m = start; m <= end; m++)
 					{
 						x_sum += contours[i][m].x;
@@ -364,20 +415,20 @@ void detectEdges(Mat& imageOriginal) //采用自适应阈值的canny
 						xy_sum += contours[i][m].x * contours[i][m].y;
 						x_square_sum += contours[i][m].x*contours[i][m].x;
 					}
-
+					
 					k = (double)(n * xy_sum - x_sum * y_sum) / (double)(n*x_square_sum - x_sum* x_sum);
 					b = (double)y_sum / n - k * x_sum / n;
-
+					
 					Lines_K.push_back(k);
 					Lines_B.push_back(b);
-
+					
 					//画出函数图
 					for (int m = start; m <= end; m++)
 					{
 						Point p(contours[i][m].x, (int)(k*contours[i][m].x + b));
 						line(LeastSq, p, p, Scalar(255, 0, 0), 2);
 					}
-
+						
 				}
 				start = j;
 			}

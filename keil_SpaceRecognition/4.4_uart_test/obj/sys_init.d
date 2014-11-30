@@ -1,0 +1,11 @@
+.\obj\sys_init.o: ..\common\src\sys_init.c
+.\obj\sys_init.o: C:\Keil\ARM\ARMCC\bin\..\include\stdarg.h
+.\obj\sys_init.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\obj\sys_init.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\obj\sys_init.o: C:\Keil\ARM\ARMCC\bin\..\include\ctype.h
+.\obj\sys_init.o: ..\common\inc\2410lib.h
+.\obj\sys_init.o: ..\common\inc\def.h
+.\obj\sys_init.o: ..\common\inc\memcfg.h
+.\obj\sys_init.o: ..\common\inc\option.h
+.\obj\sys_init.o: ..\common\inc\register.h
+.\obj\sys_init.o: ..\common\inc\2410addr.h

@@ -1,0 +1,13 @@
+.\obj\2410lib.o: ..\common\src\2410lib.c
+.\obj\2410lib.o: C:\Keil\ARM\ARMCC\bin\..\include\stdarg.h
+.\obj\2410lib.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\obj\2410lib.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\obj\2410lib.o: C:\Keil\ARM\ARMCC\bin\..\include\ctype.h
+.\obj\2410lib.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\obj\2410lib.o: ..\common\inc\2410lib.h
+.\obj\2410lib.o: ..\common\inc\def.h
+.\obj\2410lib.o: ..\common\inc\memcfg.h
+.\obj\2410lib.o: ..\common\inc\option.h
+.\obj\2410lib.o: ..\common\inc\register.h
+.\obj\2410lib.o: ..\common\inc\2410addr.h
+.\obj\2410lib.o: ..\common\inc\2410slib.h

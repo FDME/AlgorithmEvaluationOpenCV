@@ -1,0 +1,10 @@
+.\obj\tinyjpeg.o: src\decoder\tinyjpeg.c
+.\obj\tinyjpeg.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\obj\tinyjpeg.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\obj\tinyjpeg.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\obj\tinyjpeg.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\obj\tinyjpeg.o: C:\Keil\ARM\ARMCC\bin\..\include\errno.h
+.\obj\tinyjpeg.o: src\decoder\tinyjpeg.h
+.\obj\tinyjpeg.o: src\decoder\tinyjpeg-internal.h
+.\obj\tinyjpeg.o: ..\common\inc\def.h
+.\obj\tinyjpeg.o: C:\Keil\ARM\ARMCC\bin\..\include\setjmp.h
