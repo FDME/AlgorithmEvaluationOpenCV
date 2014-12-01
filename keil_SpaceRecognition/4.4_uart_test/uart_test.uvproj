@@ -403,11 +403,6 @@
           <GroupName>Source</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\main.c</FilePath>
-            </File>
-            <File>
               <FileName>camera_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\camera_control.c</FilePath>
@@ -441,6 +436,16 @@
               <FileName>imageOriginal_R.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\imageOriginal_R.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>yuv2rgb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\yuv2rgb.c</FilePath>
             </File>
           </Files>
         </Group>

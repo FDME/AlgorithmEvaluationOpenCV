@@ -1,4 +1,5 @@
-.\obj\main.o: main.c
+.\obj\main.o: src\main.c
+.\obj\main.o: src\header.h
 .\obj\main.o: ..\common\inc\2410lib.h
 .\obj\main.o: ..\common\inc\def.h
 .\obj\main.o: ..\common\inc\memcfg.h

@@ -1,6 +1,5 @@
 --cpu ARM920T
 ".\obj\s3c2410a.o"
-".\obj\main.o"
 ".\obj\camera_control.o"
 ".\obj\jidctflt.o"
 ".\obj\loadjpeg.o"
@@ -8,6 +7,8 @@
 ".\obj\imageoriginal_b.o"
 ".\obj\imageoriginal_g.o"
 ".\obj\imageoriginal_r.o"
+".\obj\main.o"
+".\obj\yuv2rgb.o"
 ".\obj\2410lib.o"
 ".\obj\sys_init.o"
 --strict --scatter "..\common\RuninRAM.sct"
