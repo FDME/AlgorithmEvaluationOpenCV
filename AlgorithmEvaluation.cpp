@@ -21,7 +21,7 @@ GraphPixel g[MAXWIDTH][MAXHEIGHT];
 int img[MAXHEIGHT][MAXWIDTH] = {};
 int tmp[MAXHEIGHT][MAXWIDTH] = {};
 int label[MAXHEIGHT][MAXWIDTH] = {};
-int numLabels = 4;
+int numLabels = 3;
 
 #define MAXBLOCKS 100
 int numBlocks;
@@ -31,25 +31,25 @@ int blockCount[MAXHEIGHT][MAXBLOCKS];
 
 int w, h;
 int leftBoundary;
-//double cam[] = { 386.951, 0, 233.539, 0, 384.132, 352.891, 0, 0, 1 };
-//double dis[] = { -0.44601, 0.266848, -0.00143158, 0.000143152, -0.103006 };
+double cam[] = { 386.951, 0, 233.539, 0, 384.132, 352.891, 0, 0, 1 };
+double dis[] = { -0.44601, 0.266848, -0.00143158, 0.000143152, -0.103006 };
 //ÒÔÉÏÊÇÖ®Ç°µÄ²ÎÊı
 
-double cam[] = { 283.561, 0, 246, 0, 285.903, 334.103, 0, 0, 1 };
-double dis[] = { -0.313793, 0.122695, 0.00123624, -0.000849487, -0.0250905 };
+//double cam[] = { 283.561, 0, 246, 0, 285.903, 334.103, 0, 0, 1 };
+//double dis[] = { -0.313793, 0.122695, 0.00123624, -0.000849487, -0.0250905 };
 
 Mat camMat(3, 3, CV_64F, cam), distCoeffs(1, 5, CV_64F, dis);
 Mat imageOriginal, imageGray, imageCanny, imageOutput, imageLabel, imageForeground;
+Mat imageResult;
 Mat imageOriginalT, imageCannyT, imageLabelT;
 Mat mask, makers;
 vector<Vec3d> lines;
 vector<vector<Point>> contours;
 
+int dir[4][2] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } };
+
 #pragma region Qian Zifei
-string fname("C:\\Users\\ZoeQIAN\\Pictures\\»ªÎªÅÄÕÕ-20141128\\");
-string results("C:\\Users\\ZoeQIAN\\Pictures\\Test\\");
-string type("»ú¹ñA-ÖĞĞÄÏÂÒÆ\\");
-string num("3");
+
 class WatershedSegment{
 private:
 	Mat markers;
@@ -64,32 +64,32 @@ public:
 	}
 };
 
-void ForegroundSeparation(){
-	Mat markers(imageOriginal.size(), CV_8U, Scalar(0));
-	for (int i = 0; i != markers.rows; i++)
-	for (int j = 0; j < markers.cols / 4; j++)
-		markers.at<uchar>(i, j) = 255;
-	for (int i = 0; i != markers.rows; i++)
-	for (int j = markers.cols / 4; j < markers.cols * 3 / 4; j++)
-		markers.at<uchar>(i, j) = 0;
-	for (int i = 0; i != markers.rows; i++)
-	for (int j = markers.cols * 3 / 4; j < markers.cols; j++)
-		markers.at<uchar>(i, j) = 128;
-
-	WatershedSegment segmenter;
-	segmenter.setMarkers(markers);
-
-	Mat result = segmenter.process(imageOriginal);
-	convertScaleAbs(result, result);
-	//imshow("hi",result);
-	//waitKey();
-	threshold(result, result, 254, 255, THRESH_BINARY);
-	//imshow("byebye~",result);
-	//waitKey();
-	bitwise_and(imageOriginal, imageOriginal, imageForeground, result);
-	imshow("Foreground", imageForeground);
-	waitKey();
-}
+//void ForegroundSeparation(){
+//	Mat markers(imageOriginal.size(), CV_8U, Scalar(0));
+//	for (int i = 0; i != markers.rows; i++)
+//	for (int j = 0; j < markers.cols / 4; j++)
+//		markers.at<uchar>(i, j) = 255;
+//	for (int i = 0; i != markers.rows; i++)
+//	for (int j = markers.cols / 4; j < markers.cols * 3 / 4; j++)
+//		markers.at<uchar>(i, j) = 0;
+//	for (int i = 0; i != markers.rows; i++)
+//	for (int j = markers.cols * 3 / 4; j < markers.cols; j++)
+//		markers.at<uchar>(i, j) = 128;
+//
+//	WatershedSegment segmenter;
+//	segmenter.setMarkers(markers);
+//
+//	Mat result = segmenter.process(imageOriginal);
+//	convertScaleAbs(result, result);
+//	//imshow("hi",result);
+//	//waitKey();
+//	threshold(result, result, 254, 255, THRESH_BINARY);
+//	//imshow("byebye~",result);
+//	//waitKey();
+//	bitwise_and(imageOriginal, imageOriginal, imageForeground, result);
+//	imshow("Foreground", imageForeground);
+//	waitKey();
+//}
 
 void cali()
 {
@@ -115,8 +115,7 @@ void cali()
 		stringstream ss;
 		ss << i + 1;
 		ss >> num;
-		image = imread("C:\\Users\\ZoeQIAN\\Pictures\\chessboard\\" + num + ".jpg");
-		//imshow("yi",image);
+		image = imread("C:\\Users\\ZoeQIAN\\Documents\\Visual Studio 2012\\Projects\\calibration\\" + num + ".jpg");
 		//	copyMakeBorder(image,image,image.rows/5,image.rows/5,image.cols/5,image.cols/5,BORDER_CONSTANT,Scalar(255));
 		bool found = findChessboardCorners(image, boardSize, tmp, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
 		if (found){
@@ -124,25 +123,24 @@ void cali()
 			object_points.push_back(chessboard);
 			drawChessboardCorners(image, boardSize, Mat(tmp), found);
 			//imshow("hello~",image);
-			 //waitKey();
+			// waitKey();
 		}
-		//waitKey();
 	}
 	Mat camMat_est;
 	Mat distCoeffs_est;
 	vector<Mat> rvecs, tvecs;
 	cout << "Calibrating...";
 	calibrateCamera(object_points, image_points, Size(image.rows, image.cols), camMat_est, distCoeffs_est, rvecs, tvecs);
-	//for (int i = 0; i != camMat.rows; i++){
-	//	for (int j = 0; j != camMat.cols; j++)
-	//		cout << camMat.at<double>(i, j) << "   " << flush;
-	//	cout << endl;
-	//}
-	//for (int i = 0; i != distCoeffs.rows; i++){
-	//	for (int j = 0; j != distCoeffs.cols; j++)
-	//		cout << distCoeffs.at<double>(i, j) << "   " << flush;
-	//	cout << endl;
-	//}
+	for (int i = 0; i != camMat.rows; i++){
+		for (int j = 0; j != camMat.cols; j++)
+			cout << camMat.at<double>(i, j) << "   " << flush;
+		cout << endl;
+	}
+	for (int i = 0; i != distCoeffs.rows; i++){
+		for (int j = 0; j != distCoeffs.cols; j++)
+			cout << distCoeffs.at<double>(i, j) << "   " << flush;
+		cout << endl;
+	}
 	for (int i = 0; i != camMat.rows; i++){
 		for (int j = 0; j != camMat.cols; j++)
 			cout << camMat_est.at<double>(i, j) << "   " << flush;
@@ -153,36 +151,46 @@ void cali()
 			cout << distCoeffs_est.at<double>(i, j) << "   " << flush;
 		cout << endl;
 	}
-	system("PAUSE");
+
 	cout << "Done" << endl;
 	cout << "Undistort..." << endl;
 	string name;
 	string type;
 	//cout << "Enter the type:" << endl;
 	//cin >> type;
-	//while (1){
-	//	cout << "Please enter the image name, q for exit:" << endl;
-	//	cin >> name;
-	//	if (name == "q")
-	//		break;
-	//	image = imread("C:\\Users\\ZoeQIAN\\Pictures\\huawei\\" + name + ".jpg");
-	//	Mat timg;
-	//	imshow("Original", image);
-	//	waitKey();
-	//	//¸øÍ¼Æ¬¼Ó±ß
-	//	/*  copyMakeBorder(image,timg,image.rows/5,image.rows/5,image.cols/5,image.cols/5,BORDER_CONSTANT,Scalar(255));
-	//	imshow("nani",timg);*/
-	//	//imshow("ale",image);
-	//	Mat undis(image.size(), CV_8U, Scalar(255));
-	//	//Mat undis;
-	//	undistort(image, undis, camMat_est, distCoeffs_est);
-	//	cout << "Done" << endl;
-	//	imshow("Undistort", undis);
-	//	waitKey();
-	//	char tmp;
-	//	cin >> tmp;
-	//	destroyWindow("Undistort");
-	//}
+	while (1){
+		cout << "Please enter the image name, q for exit:" << endl;
+		cin >> name;
+		if (name == "q")
+			break;
+		image = imread("C:\\Users\\ZoeQIAN\\Pictures\\huawei\\" + name + ".jpg");
+		Mat timg;
+		imshow("Original", image);
+		waitKey();
+		//¸øÍ¼Æ¬¼Ó±ß
+		/*  copyMakeBorder(image,timg,image.rows/5,image.rows/5,image.cols/5,image.cols/5,BORDER_CONSTANT,Scalar(255));
+		imshow("nani",timg);*/
+		//imshow("ale",image);
+		Mat undis(timg.size(), CV_8U, Scalar(255));
+		//Mat undis;
+		undistort(image, undis, camMat_est, distCoeffs_est);
+		for (int i = 0; i != camMat_est.rows; i++){
+			for (int j = 0; j != camMat_est.cols; j++)
+				cout << camMat_est.at<double>(i, j) << "   " << flush;
+			cout << endl;
+		}
+		for (int i = 0; i != distCoeffs_est.rows; i++){
+			for (int j = 0; j != distCoeffs_est.cols; j++)
+				cout << distCoeffs_est.at<double>(i, j) << "   " << flush;
+			cout << endl;
+		}
+		cout << "Done" << endl;
+		imshow("Undistort", undis);
+		waitKey();
+		char tmp;
+		cin >> tmp;
+		destroyWindow("Undistort");
+	}
 	destroyWindow("Undistort");
 	// waitKey();
 }
@@ -205,9 +213,9 @@ void generate_RGB_files()
 {
 	//È¡RGBÖµ´æ´¢
 	FILE* Rfp, *Gfp, *Bfp;
-	Rfp = fopen("imageOriginal_R.c", "w+");
-	Gfp = fopen("imageOriginal_G.c", "w+");
-	Bfp = fopen("imageOriginal_B.c", "w+");
+	fopen_s(&Rfp, "imageOriginal_R.c", "w+");
+	fopen_s(&Gfp, "imageOriginal_G.c", "w+");
+	fopen_s(&Bfp, "imageOriginal_B.c", "w+");
 
 	fprintf(Rfp, "#include \"2410lib.h\"\nUINT8T imageOriginal_R[%d][%d] = {\n", R, C);
 	fprintf(Gfp, "#include \"2410lib.h\"\nUINT8T imageOriginal_G[%d][%d] = {\n", R, C);
@@ -230,7 +238,7 @@ void generate_RGB_files()
 				fprintf(Rfp, ", ");
 			}
 
-			if (j % 20 == 0&& j !=0)
+			if (j % 20 == 0 && j != 0)
 			{
 				fprintf(Bfp, "\n ");
 				fprintf(Gfp, "\n ");
@@ -336,7 +344,7 @@ void detectEdges(Mat& imageOriginal) //²ÉÓÃ×ÔÊÊÓ¦ãĞÖµµÄcanny
 	Canny(imageCanny, imageCanny, cannyThreshold, cannyThreshold * 2);
 	ShowImage(imageCanny, "canny2");
 	findContours(imageCanny, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
-	
+
 	int start, end;
 	int size;
 	imageContour = imageOriginal;
@@ -353,7 +361,7 @@ void detectEdges(Mat& imageOriginal) //²ÉÓÃ×ÔÊÊÓ¦ãĞÖµµÄcanny
 		start = end = 0;
 		double k;
 		double b;
-	
+
 		vector<int> lines_index;
 		//¸ù¾İÈıµã¹²Ïß·¨¼ì²âÖ±Ïß£¬½á¹ûº¬·ÇÖ±Ïß
 		//for (int j = 20; j < size; j = j + 10)
@@ -383,7 +391,7 @@ void detectEdges(Mat& imageOriginal) //²ÉÓÃ×ÔÊÊÓ¦ãĞÖµµÄcanny
 		for (int j = 0; j < contours[i].size() - 50; j += 10)
 		{
 			if (least_squares(&contours[i][j], 50))
-			{ 
+			{
 				if (flag = false)
 				{
 					start = j;
@@ -395,19 +403,19 @@ void detectEdges(Mat& imageOriginal) //²ÉÓÃ×ÔÊÊÓ¦ãĞÖµµÄcanny
 			{
 				flag = false;
 				length = sqrt((contours[i][start].x - contours[i][end].x) * (contours[i][start].x - contours[i][end].x) \
-							+ (contours[i][start].y - contours[i][end].y) * (contours[i][start].y - contours[i][end].y));
+					+ (contours[i][start].y - contours[i][end].y) * (contours[i][start].y - contours[i][end].y));
 				double k = (double)(contours[i][end].y - contours[i][start].y) / (contours[i][end].x - contours[i][start].x);
 				if (length > 50 && k < 0.7 && k > -0.7)
 				{
 					for (int m = start; m <= end; m++)
 						line(imageLines, contours[i][m], contours[i][m], Scalar(255, 0, 0), 2);
-					
+
 					//ÓÃ×îĞ¡¶ş³Ë·¨¼ÆËã·½³Ì
 					long x_sum = 0;
 					long y_sum = 0;
 					long xy_sum = 0;
 					long x_square_sum = 0;
-					long n = end - start +1;
+					long n = end - start + 1;
 					for (int m = start; m <= end; m++)
 					{
 						x_sum += contours[i][m].x;
@@ -415,20 +423,20 @@ void detectEdges(Mat& imageOriginal) //²ÉÓÃ×ÔÊÊÓ¦ãĞÖµµÄcanny
 						xy_sum += contours[i][m].x * contours[i][m].y;
 						x_square_sum += contours[i][m].x*contours[i][m].x;
 					}
-					
+
 					k = (double)(n * xy_sum - x_sum * y_sum) / (double)(n*x_square_sum - x_sum* x_sum);
 					b = (double)y_sum / n - k * x_sum / n;
-					
+
 					Lines_K.push_back(k);
 					Lines_B.push_back(b);
-					
+
 					//»­³öº¯ÊıÍ¼
 					for (int m = start; m <= end; m++)
 					{
 						Point p(contours[i][m].x, (int)(k*contours[i][m].x + b));
 						line(LeastSq, p, p, Scalar(255, 0, 0), 2);
 					}
-						
+
 				}
 				start = j;
 			}
@@ -527,14 +535,12 @@ CheckContour()			±ßÔµÑéÖ¤£¨Ãæ»ı¡¢ĞÎ×´£©
 void ShowImage(Mat image, string windowName){
 	namedWindow(windowName, CV_WINDOW_AUTOSIZE);
 	imshow(windowName, image);
-	//imwrite(results+type+num+"\\"+windowName+".jpg",image);
 	waitKey();
 }
 
 void LoadImage(string path = "C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õı³£¹âÕÕ\\60~90.jpg"){
 	Mat image = imread(path);
 	ShowImage(image, "Original");
-	imwrite("C:\\Users\\ZoeQIAN\\Desktop\\image.tif",image);
 	//Mat newCamMat = getOptimalNewCameraMatrix(camMat,distCoeffs,image.size(),-1);
 	undistort(image, imageOriginal, camMat, distCoeffs);
 	h = imageOriginal.rows;
@@ -634,8 +640,8 @@ void Image2Array(){
 }
 
 void ImageLabelInput(){
-	imageLabel = imageOriginal.clone();
-	MatIterator_<Vec3b> it = imageLabel.begin<Vec3b>();
+	imageOutput = imageOriginal.clone();
+	MatIterator_<Vec3b> it = imageOutput.begin<Vec3b>();
 	for (int i = 0; i < h; i++)
 	for (int j = 0; j < w; j++){
 		if (label[i][j] == 0){
@@ -669,7 +675,7 @@ void ImageLabelInput(){
 		}
 		it++;
 	}
-	ShowImage(imageLabel, "Label");
+	ShowImage(imageOutput, "Label");
 }
 
 int Rgb2Gray(GraphPixel p){
@@ -693,17 +699,62 @@ int ComputeCost(int i, int j, int l){
 	}
 	else
 	if (l == 2){
-		cost = max(max(p.r, p.g, p.b), max(255 - p.r, 255 - p.g, 255 - p.b)) * 2 / 3;
-	}
-	else
-	if (l == 3){
-		cost = (p.edge > 0) ? 0 : 300;
+		if (p.edge > 0) cost = 1; else cost = max(max(p.r, p.g, p.b), max(255 - p.r, 255 - p.g, 255 - p.b)) * 3 / 4;
 	}
 	else
 	{
 		cost = 0;
 	}
 	return cost * 2;
+}
+
+int ComputeDataCost(int index, int l){
+	int cost = 0;
+	int i = index / w;
+	int j = index % w;
+	GraphPixel p = g[i][j];
+	int gray = Rgb2Gray(p);
+	if (l == 0){
+		cost = max(gray - 10, 0) + 80;
+	}
+	else
+	if (l == 1){
+		cost = max(210 - gray, 0) + 10;
+	}
+	else
+	if (l == 2){
+		if (p.edge > 0) cost = 1; else cost = max(max(p.r, p.g, p.b), max(255 - p.r, 255 - p.g, 255 - p.b)) * 7 / 10;
+	}
+	else
+	{
+		return 0;
+	}
+	return cost / 10 + 1;
+}
+
+int ComputeSmoothCost(int l1, int l2){
+	int varity = 10;
+	if (l1 == l2) return 0;
+	int temp;
+	if (l1 > l2){
+		temp = l1;
+		l1 = l2;
+		l2 = temp;
+	}
+	if (l1 == 0){
+		if (l2 == 1) return 60 / varity;
+		if (l2 == 2) return 30 / varity;
+		//if (l2 == 3) return 30 / varity;
+	} else 
+	if (l1 == 1){
+		if (l2 == 2) return 30 / varity;
+		//if (l2 == 3) return 30 / varity;
+	} else
+	if (l1 == 2){
+		//if (l2 == 3) return 10 / varity;
+	}
+	return 0;
+
 }
 
 void MultiLabelGraphCut(){
@@ -720,20 +771,13 @@ void MultiLabelGraphCut(){
 	for (int j = 0; j < width; j++){
 		gc->setDataCost(i * width + j, l, ComputeCost(i, j, l));
 	}
-	int varity = 12;
+	int varity = 120;
 	gc->setSmoothCost(0, 1, 600 / varity);
 	gc->setSmoothCost(1, 0, 600 / varity);
 	gc->setSmoothCost(0, 2, 300 / varity);
 	gc->setSmoothCost(2, 0, 300 / varity);
 	gc->setSmoothCost(1, 2, 300 / varity);
 	gc->setSmoothCost(2, 1, 300 / varity);
-
-	gc->setSmoothCost(0, 3, 600 / varity);
-	gc->setSmoothCost(3, 0, 600 / varity);
-	gc->setSmoothCost(1, 3, 600 / varity);
-	gc->setSmoothCost(3, 1, 600 / varity);
-	gc->setSmoothCost(2, 3, 12 / varity);
-	gc->setSmoothCost(3, 2, 12 / varity);
 
 	//gc->setLabelCost(0);
 	printf("before: %d\n", gc->compute_energy());
@@ -747,6 +791,258 @@ void MultiLabelGraphCut(){
 
 	delete[] result;
 }
+
+
+/*++++++++++++++++++++++++++++++++++++++++my alpha-beta swap algorithm+++++++++++++++++++++++++++++++++++++*/
+
+#define MAXPIXEL MAXWIDTH*MAXHEIGHT
+#define MAXNODE (MAXPIXEL+10)
+struct edge{
+	int x, y;
+	int cap;
+	int next;
+};
+
+int f[MAXNODE], pre[MAXNODE], level[MAXNODE], gap[MAXNODE], cur[MAXNODE];
+edge a[MAXNODE * 12];
+int tot;
+int N = MAXPIXEL + 2;
+int flow;
+int source, sink;
+int lb[MAXNODE], lbn[MAXNODE];
+int pixelEdgeS, pixelEdgeE;
+int sourceEdgeS, sourceEdgeE;
+int sinkEdgeS, sinkEdgeE;
+
+void InitMap(){
+	N = MAXPIXEL + 2;
+	for (int i = 0; i < N; i++) f[i] = -1;
+	tot = 0;
+}
+
+void AddEdge(int x, int y, int cap = 0, int revCap = 0){
+	a[tot].x = x;
+	a[tot].y = y;
+	a[tot].cap = cap;
+	a[tot].next = f[x];
+	f[x] = tot;
+	tot++;
+
+	a[tot].x = y;
+	a[tot].y = x;
+	a[tot].cap = revCap;
+	a[tot].next = f[y];
+	f[y] = tot;
+	tot++;
+}
+
+void BuildMap(){
+	source = MAXPIXEL;
+	sink = MAXPIXEL + 1;
+
+	sourceEdgeS = tot;
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++){
+		int index = i * w + j;
+		AddEdge(source, index, 0, 0);
+	} 
+	sourceEdgeE = tot;
+	
+	sinkEdgeS = tot;
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++){
+		int index = i * w + j;
+		AddEdge(index, sink, 0, 0);
+	}
+	sinkEdgeE = tot;
+	
+	pixelEdgeS = tot;
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++){
+		int index = i * w + j;
+		for (int d = 0; d < 4; d++){
+			int ii = i + dir[d][0];
+			int jj = j + dir[d][1];
+			if ((ii < 0) || (ii >= h)) continue;
+			if ((jj < 0) || (jj >= w)) continue;
+			int nIndex = ii * w + jj;
+			if (index < nIndex) AddEdge(index, nIndex, 0, 0);
+		}
+	}
+	pixelEdgeE = tot;
+	//printf("%d ~ %d\n%d ~ %d\n%d ~ %d\n", sourceEdgeS, sourceEdgeE, sinkEdgeS, sinkEdgeE, pixelEdgeS, pixelEdgeE);
+}
+
+int ComputeEnergy(){
+	int energy = 0;
+	for (int i = 0; i < MAXPIXEL; i++) energy += (int)ComputeDataCost(i, lb[i]);
+	printf("EEE1: %d\n", energy);
+	for (int t = pixelEdgeS; t < pixelEdgeE; t += 2) {
+		energy += ComputeSmoothCost(a[t].x, a[t].y);
+		//printf("EEE2: %d\n", ComputeSmoothCost(a[t].x, a[t].y));
+	}
+	printf("EEE2: %d\n", energy);
+	return energy;
+}
+
+
+void ModifyMap(int alpha, int beta){
+	for (int t = 0; t < tot; t++) a[t].cap = 0;
+	for (int t = sourceEdgeS; t < sourceEdgeE; t++){
+		if (a[t].x == source) {
+			if ((lb[a[t].y] == alpha) || (lb[a[t].y] == beta))  a[t].cap = ComputeDataCost(a[t].y, alpha);
+		}
+	}
+
+	for (int t = sinkEdgeS; t < sinkEdgeE; t++){
+		if (a[t].y == sink) {
+			if ((lb[a[t].x] == alpha) || (lb[a[t].x] == beta))  a[t].cap = ComputeDataCost(a[t].x, beta);
+		}
+	}
+
+	for (int t = pixelEdgeS; t < pixelEdgeE; t++){
+		if ((lb[a[t].x] == alpha) || (lb[a[t].x] == beta)){
+			if ((lb[a[t].y] == alpha) || (lb[a[t].y] == beta)){
+				a[t].cap = ComputeSmoothCost(alpha, beta);
+			}
+		}
+	}
+}
+
+void Maxflow(){
+	flow = 0;
+	for (int i = 0; i < N; i++) pre[i] = -1;
+	for (int i = 0; i < N; i++) level[i] = 1;
+	level[sink] = 0;
+	for (int i = 0; i <	N; i++) gap[i] = 0;
+	for (int i = 0; i < N; i++) cur[i] = f[i];
+	gap[1] = N - 1;
+	gap[0] = 1;
+	int x = source;
+	while (level[x] < N){
+		//printf("level[s]: %d\n", level[source]);
+		//printf("%d\n", x);
+		//for (int i = 0; i < N; i++) printf("%d ", level[i]); printf("\n");
+		int flag = false;
+		for (int &t = cur[x]; t != -1; t = a[t].next){
+			int y = a[t].y;
+			if (a[t].cap > 0 && level[x] == level[y] + 1){
+				flag = true;
+				pre[y] = x;
+				x = y;
+				if (x == sink){
+					int aug = 10000;
+					y = pre[x];
+					while (true){
+						if (a[cur[y]].cap < aug) aug = a[cur[y]].cap;
+						if (y == source) break;
+						y = pre[y];
+					}
+					flow += aug;
+					//printf("flow: %d\n", flow);
+					y = pre[x];
+					while (true){
+						a[cur[y]].cap -= aug;
+						a[cur[y] ^ 1].cap += aug;
+						if (y == source) break;
+						y = pre[y];
+					}
+					x = source;
+				}
+				break;
+			}
+		}
+		if (flag) continue;
+		int minLevel = N;
+		for (int t = f[x]; t != -1; t = a[t].next){
+			int y = a[t].y;
+			if (a[t].cap > 0 && level[y] < minLevel){
+				minLevel = level[y];
+				cur[x] = t;
+			}
+		}
+		if ((--gap[level[x]]) == 0) break;
+		level[x] = minLevel + 1;
+		gap[level[x]]++;
+		if (x != source) x = pre[x];
+	}
+	printf("Maxflow: %d\n", flow);
+	
+}
+
+void TestMaxflow(){
+	N = 6;
+	source = 0;
+	sink = N - 1;
+	InitMap();
+	AddEdge(source, 1, 100);
+	AddEdge(1, 2, 110);
+	AddEdge(2, sink, 20);
+	AddEdge(source, 3, 30);
+	AddEdge(3, 4, 200);
+	AddEdge(4, sink, 201);
+	AddEdge(2, 4, 11);
+	AddEdge(4, 2, 30);
+	Maxflow();
+}
+
+void ChangeLabel(int alpha, int beta){
+	for (int t = sinkEdgeS; t < sinkEdgeE; t++) if (a[t].y == sink && a[t].cap == 0 && a[t ^ 1].cap > 0) lb[a[t].x] = beta;
+
+	for (int t = sourceEdgeS; t < sourceEdgeE; t++) if (a[t].x == source && a[t].cap == 0 && a[t ^ 1].cap > 0) lb[a[t].y] = alpha;
+//	for (int t = sinkEdgeS; t < sinkEdgeE; t++) if (a[t].y == sink && a[t].cap == 0 && a[t ^ 1].cap > 0) lb[a[t].x] = beta;
+}
+
+
+void Lb2Label(){
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++){
+		int index = i * w + j;
+		label[i][j] = lb[index];
+	}
+}
+
+void AlphaBetaSwap(){
+	//Lb2Label();
+	//ImageLabelInput();
+	for (int alpha = 0; alpha < numLabels; alpha++)
+	for (int beta = alpha + 1; beta < numLabels; beta++){
+		ModifyMap(alpha, beta);
+		Maxflow();
+		ChangeLabel(alpha, beta);
+		//Lb2Label();
+		//ImageLabelInput();
+	}
+}
+
+void Swap(int count = 100){
+	Image2Array();
+	InitMap();
+	BuildMap();
+	for (int i = 0; i < MAXPIXEL; i++){
+		int minCost = 10000, minCostLabel = 0;
+		for (int l = 0; l < numLabels; l++) if (ComputeDataCost(i, l) < minCost){
+			minCost = ComputeDataCost(i, l);
+			minCostLabel = l;
+		}
+		lb[i] = (minCostLabel + 1) % numLabels;
+	}
+	int newEnergy = ComputeEnergy();
+	int oldEnergy = newEnergy + 1;
+	printf("Before energy: %d\n", newEnergy);
+	while ((oldEnergy != newEnergy) && (count-- > 0)){
+		oldEnergy = newEnergy;
+		AlphaBetaSwap();
+		newEnergy = ComputeEnergy();
+	}
+	Lb2Label();
+	//ImageLabelInput();
+
+	printf("After energy: %d\n", oldEnergy);
+
+}
+
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 void Dilate(int l, int ver, int hor){
 	for (int i = 0; i < h; i++)
@@ -800,12 +1096,9 @@ void DetectSpace_0(){		//labelÓÅ»¯
 
 	for (int i = 0; i < h; i++)
 	for (int j = 0; j < w; j++) label[i][j] = img[i][j];
-	for (int i = 0; i < h; i++)
-	for (int j = 0; j < w; j++) if (makers.at<int>(i, j) == 2) label[i][j] = 255;
-
 }
 
-void DetectSpace_1(){  //·ÖË®Áë·Ö¸îÇ°±³¾°
+void ForegroundSeparation(){  //·ÖË®Áë·Ö¸îÇ°±³¾°
 	makers = Mat(imageOriginal.size(), CV_32SC1, Scalar(0));
 	for (int i = 0; i < h; i++)
 	for (int j = 0; j < w / 4; j++) makers.at<int>(i, j) = 1;
@@ -824,9 +1117,6 @@ void DetectSpace_1(){  //·ÖË®Áë·Ö¸îÇ°±³¾°
 		}
 	}
 }
-
-int dir[4][2] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } };
-
 
 void dfs(int i, int j, int l){
 	if ((i < 0) || (i >= h) || (j < 0) || (j >= w)) return;
@@ -852,7 +1142,7 @@ void DetectSpace_2(){ //ÏŞÖÆÁ¬Í¨ÓòµÄÁªÍ¨¿í¶È£¬Õâ¸ö²¿·Ö·ÅÔÚÊÓ½ÇÅ¤ÕıÖ®ºóĞ§¹û¸ü¼Ñ~£
 	{
 		for (int l = 0; l < numBlocks; l++) blockCount[i][l] = 0;
 		for (int j = 0; j < w; j++) blockCount[i][block[i][j]]++;
-		for (int j = 0; j < w; j++) if (blockCount[i][block[i][j]] < w / 6) label[i][j] = 3;
+		for (int j = 0; j < w; j++) if (blockCount[i][block[i][j]] < w / 3) label[i][j] = 2;
 	}
 
 }
@@ -1059,9 +1349,15 @@ void PerspectiveTransfrom(){
 	cornersT[2] = Point2f(w - 1, h - 1);
 	cornersT[3] = Point2f(0, h - 1);
 
+	imageLabel = imageOriginal.clone();
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) imageLabel.at<Vec3b>(i, j) = Vec3b(label[i][j], label[i][j], label[i][j]);
+
 	Mat transform = getPerspectiveTransform(corners, cornersT);
-	warpPerspective(imageOriginal, imageOriginalT, transform,Size(w, h));
-	ShowImage(imageOriginalT, "trans");
+	warpPerspective(imageLabel, imageLabelT, transform, Size(w, h));
+	warpPerspective(imageOriginal, imageOriginalT, transform, Size(w, h));
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) label[i][j] = imageLabelT.at<Vec3b>(i, j)[0];
 }
 
 int findLeftEdge(){
@@ -1072,18 +1368,17 @@ int findLeftEdge(){
 	}
 	return w - 1;
 }
-
 void DetectSpace_3(){
-	double thresh = 100;
-	int boundary = findLeftEdge();
-	printf("boundary: %d\n", boundary);
-	imageOutput = imageOriginal.clone();
-	Canny(imageLabel, imageCanny, thresh, thresh * 2);
+	int boundary = w;
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++) imageLabel.at<Vec3b>(i, j) = Vec3b(label[i][j], label[i][j], label[i][j]);
+	Canny(imageLabel, imageCanny, 1, 2);
 	line(imageCanny, Point(0, 0), Point(0, h - 1), Scalar(255, 255, 255), 1);
 	line(imageCanny, Point(0, 0), Point(w - 1, 0), Scalar(255, 255, 255), 1);
-	ShowImage(imageCanny, "Canny");
 	OptimizeCanny();
+	ShowImage(imageCanny, "Canny");
 	findContours(imageCanny, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+	imageOutput = imageOriginalT;
 	int index = 0;
 	for each (vector<Point> contour in contours)
 	{
@@ -1112,23 +1407,32 @@ void DetectSpace_3(){
 #pragma endregion
 
 
+
+
+
 int main(){
-	string user = "qzf";
+	string user = "yzy";
 
 	if (user == "yzy")
 	{
-		//LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õı³£¹âÕÕ´ø¼ÙÃæ°å\\jpeg_20140912_150217.jpg");
-		LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õı³£¹âÕÕ²¿·Ö²ğ³ı\\jpeg_20140912_152553.jpg");	//ÔØÈëÍ¼Æ¬£¬ÓãÑÛ½ÃÕı
+		LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õı³£¹âÕÕ´ø¼ÙÃæ°å\\jpeg_20140912_150217.jpg");
+		//system("PAUSE");
+		//return 0;
+		//LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õı³£¹âÕÕ²¿·Ö²ğ³ı\\jpeg_20140912_152553.jpg");	//ÔØÈëÍ¼Æ¬£¬ÓãÑÛ½ÃÕı
 		//return 0;
 
-		Preprocess();		 					//Ô¤´¦Àí£¬ÔİÊ±Ã»Ê²Ã´ÓÃ£¬¿É¼ÓÈë¹âÕÕµ÷Õû
-		DetectSpace_1();
+		Preprocess();							//Ô¤´¦Àí£¬ÔİÊ±Ã»Ê²Ã´ÓÃ£¬¿É¼ÓÈë¹âÕÕµ÷Õû
+		ForegroundSeparation();
 		DetectContours();						//±ß½ç¼ì²â£¬Ö÷Òª°üÀ¨cannyºÍfindContours
 		DetectLines();							//´ÓcontoursÖĞÌáÈ¡Ö±Ïß
-		DetectSpace_1();						//Ç°±³¾°·Ö¸î
-		DetectContours();						//ÖØĞÂ½øĞĞcanny£¬ÓÃÓÚÍ¼Ïñ·Ö¸î
-		MultiLabelGraphCut();					//Í¼Ïñ·Ö¸î
+//		MultiLabelGraphCut();					//Í¼Ïñ·Ö¸î
+		Swap();
+
 		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
+		PerspectiveTransfrom();					//ÊÓ½Ç±ä»»
+		ImageLabelInput();
+		
+
 		DetectSpace_0();						//ÔÓÎï¹ıÂË£¨ºáÏò¸¯Ê´£©
 		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
 		DetectSpace_2();						//ÁªÍ¨¶ÈÓÅ»¯
@@ -1141,29 +1445,10 @@ int main(){
 	else
 	if (user == "qzf"){
 
-		//LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õı³£¹âÕÕ´ø¼ÙÃæ°å\\jpeg_20140912_150217.jpg");
-
+		LoadImage("C:\\Users\\ZoeQIAN\\Pictures\\»ªÎªÅÄÕÕ\\Õı³£¹âÕÕ\\60.jpg");
 		//cali();
-		LoadImage(fname+type+num+".jpg");		//ÔØÈëÍ¼Æ¬£¬ÓãÑÛ½ÃÕı
-
-		Preprocess();							//Ô¤´¦Àí£¬ÔİÊ±Ã»Ê²Ã´ÓÃ£¬¿É¼ÓÈë¹âÕÕµ÷Õû
-		DetectSpace_1();
-		DetectContours();						//±ß½ç¼ì²â£¬Ö÷Òª°üÀ¨cannyºÍfindContours
-		DetectLines();							//´ÓcontoursÖĞÌáÈ¡Ö±Ïß
-		PerspectiveTransfrom();					//ÊÓ½Ç±ä»»
-		imageOriginal = imageOriginalT.clone();	//½«ÊÓ½Ç±ä»»ºóµÄÍ¼Ìæ´úÔ­Í¼
-		DetectSpace_1();						//Ç°±³¾°·Ö¸î
-		DetectContours();						//ÖØĞÂ½øĞĞcanny£¬ÓÃÓÚÍ¼Ïñ·Ö¸î
-		MultiLabelGraphCut();					//Í¼Ïñ·Ö¸î
-		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
-		DetectSpace_0();						//ÔÓÎï¹ıÂË£¨ºáÏò¸¯Ê´£©
-		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
-		DetectSpace_2();						//ÁªÍ¨¶ÈÓÅ»¯
-		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
-		DetectSpace_3();						//¿ÕÓà¿Õ¼äĞ£Ñé£¬½á¹ûÏÔÊ¾
-
-		waitKey();
-		destroyAllWindows();
+		Preprocess();
+		ForegroundSeparation();
 	}
 	else
 	if (user == "qyz"){
