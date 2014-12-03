@@ -7,7 +7,7 @@
 //#include <def.h>
 #include "tinyjpeg-internal.h"
 struct jdec_private decoder;
-int jpg_decode(UINT8T* iPicture,UINT8T* oY,UINT8T* oU,UINT8T* oV,UINT16T size)
+int jpg_decode(UINT8T* iPicture,UINT8T* oY,UINT8T* oU,UINT8T* oV,UINT32T size)
 {
 	int output_format = TINYJPEG_FMT_YUV420P;
 	
@@ -42,7 +42,10 @@ int jpg_decode(UINT8T* iPicture,UINT8T* oY,UINT8T* oU,UINT8T* oV,UINT16T size)
   tinyjpeg_get_components(jdec, components);
 
   /* Only called this if the buffers were allocated by tinyjpeg_decode() */
-  //tinyjpeg_free(jdec);//VS有内存错误
+#ifdef WIN32
+#else
+  tinyjpeg_free(jdec);//VS有内存错误
+#endif
   /* else called just free(jdec); */
   return 0;
 }

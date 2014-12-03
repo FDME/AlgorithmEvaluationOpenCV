@@ -87,12 +87,17 @@ typedef struct RGBType RGBTYPE;
 //函数声明
 #ifdef WIN32
 //windows下函数声明
-void showImage(RGBTYPE* image_RGB);
+//void showImage(RGBTYPE* image_RGB);
 int filesize(FILE *fp);
 #else
 //ARM下函数声明
 UINT16T camera(void);
 #endif
 int yuv2rgb(UINT8T* py, UINT8T* pu, UINT8T* pv, RGBTYPE* image_RGB);
-int jpg_decode(UINT8T* iPicture, UINT8T* oY, UINT8T* oU, UINT8T* oV, UINT16T size);
+int jpg_decode(UINT8T* iPicture, UINT8T* oY, UINT8T* oU, UINT8T* oV, UINT32T size);
+
+void calc_gray(UINT8T* Gray, RGBTYPE* RGB);
+void calc_integral(UINT32T* integral, UINT8T* image);
+void calc_gaussian_5x5(UINT8T* dst, UINT8T* src);
+void calc_sobel_3x3(UINT8T* dst, UINT8T* src);
 #endif //__HEADER_H__

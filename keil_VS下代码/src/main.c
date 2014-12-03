@@ -14,12 +14,14 @@ UINT8T buffer[SIZE]; //存储拍摄jpeg
 UINT8T py[SIZE];   
 UINT8T pu[SIZE/4];
 UINT8T pv[SIZE/4];
-RGBTYPE image_RGB[SIZE];
+RGBTYPE image_RGB[SIZE];// color
 
-//测试所用图片RGB信息
-extern UINT8T imageOringinal_R[R][C];
-extern UINT8T imageOringinal_G[R][C];
-extern UINT8T imageOringinal_B[R][C];
+UINT8T  image_Gray[SIZE];
+UINT32T image_Integral[SIZE];
+UINT8T  image_Edge[SIZE];
+UINT8T  image_Gauss[SIZE];
+UINT8T  image_Sobel[SIZE];
+UINT8T	image_Canny[SIZE];
 /*********************************************************************************************
 * name:		main
 *********************************************************************************************/
@@ -28,13 +30,19 @@ int main(int argc,char **argv)
 {
 		UINT8T* picture = buffer;
 		UINT32T k = 0;
-		UINT16T jpg_size;
+		UINT32T jpg_size;
+		int i, j;
 #ifdef WIN32
 		FILE* fp;
+		IplImage *image;
+		IplImage *image_1ch;
+		UINT8T pRGB[SIZE * 3]; //数组个数过大，需改reserved stack size
+		UINT8T pGray[SIZE];    //用于显示单通道图片
+
+
 		fp = fopen("..\\..\\60_4.jpg", "rb");
 		jpg_size = filesize(fp);
 		printf("size=%d\n", jpg_size);
-		UINT8T temp;
 		fread(buffer, jpg_size, 1, fp);
 		fclose(fp);
 		printf("读入图片成功！\n");
@@ -78,16 +86,18 @@ int main(int argc,char **argv)
 #else
 			uart_printf("Finish RGB\n"); 
 #endif
-
+		calc_gray(image_Gray, image_RGB);
+		calc_integral(image_Integral, image_Gray);
+		calc_gaussian_5x5(image_Gauss, image_Gray);
+		calc_sobel_3x3(image_Sobel, image_Gray);
+		canny();
 //检验结果
 #ifdef WIN32
 		//输出为图片
 		//showImage(image_RGB);
-		UINT8T pRGB[SIZE * 3]; //数组个数过大，需改reserved stack size
+		
 		memset(pRGB, 0, SIZE * 3); //初始化
-		IplImage *image;
-
-		for (int i = 0; i < R; i++)  //int不够，必须二重循环
+		for (i = 0; i < R; i++)  //int不够，必须二重循环
 		{
 			for (int j = 0; j < C; j++)
 			{
@@ -99,10 +109,29 @@ int main(int argc,char **argv)
 
 		image = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 3);
 		cvSetData(image, pRGB, C * 3);
-		cvNamedWindow("1");
-		cvShowImage("1", image);
+		cvNamedWindow("rgb");
+		cvShowImage("rgb", image);
 		cvWaitKey();
+
+		// 显示单通道数据
 		
+		memset(pGray, 0, SIZE); //初始化
+		//for (i = 0; i < R; i++)  //int不够，必须二重循环
+		//{
+		//	for (j = 0; j < C; j++)
+		//	{
+		//		//pGray[i*C + j] = image_Gray[i*C + j];
+		//		//pGray[i*C + j] = (UINT8T)((image_Integral[i*C + j])/SIZE);  // show integral
+		//		//pGray[i*C + j] = (UINT8T)(image_Gauss[i*C + j]); 
+		//		//pGray[i*C + j] = (UINT8T)(image_Sobel[i*C + j]);
+		//	}
+		//}
+		//cvSetData(image_1ch, pGray, C);
+		image_1ch = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 1);
+		cvSetData(image_1ch, image_Canny, C);
+		cvNamedWindow("pGray");
+		cvShowImage("pGray", image_1ch);
+		cvWaitKey();
 #else
 		/*	//print the result of decoding
 		k = 0;

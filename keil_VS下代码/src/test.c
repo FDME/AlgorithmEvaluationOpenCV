@@ -1,5 +1,6 @@
 #include"header.h"
 #ifdef WIN32
+extern IplImage* image_1ch;
 int filesize(FILE *fp)
 {
 	long pos;
@@ -31,7 +32,6 @@ int filesize(FILE *fp)
 //	cvShowImage("1", image);
 //	cvWaitKey();
 //}
-
 
 
 #endif
