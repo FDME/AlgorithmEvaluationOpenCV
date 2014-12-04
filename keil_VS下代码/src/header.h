@@ -17,8 +17,8 @@ extern "C" {
 #define DOWNLOAD_ADDRESS _RAM_STARTADDRESS
 #define DEBUG_OUT uart_printf
 
-#define min(x1,x2) (((x1)<(x2))? (x1):(x2))
-#define max(x1,x2) (((x1)>(x2))? (x1):(x2))
+//#define min(x1,x2) (((x1)<(x2))? (x1):(x2))
+//#define max(x1,x2) (((x1)>(x2))? (x1):(x2))
 
 #define ONESEC0 (62500)				// 16us resolution, max 1.04 sec
 #define ONESEC1 (31250)				// 32us resolution, max 2.09 sec
@@ -26,7 +26,7 @@ extern "C" {
 #define ONESEC3 (7812)				//128us resolution, max 8.38 sec
 #define ONESEC4 (PCLK/128/(0xff+1))	// @60Mhz, 128*4us resolution, max 32.53 sec
 
-#define NULL 0
+//#define NULL 0
 #define LCD   0xDD					// LCD symbol
 #define UART0 0x0					// UART symbol
 #define UART1 0x1
@@ -81,8 +81,12 @@ extern "C" {
 struct RGBType{
 	UINT8T r, g, b;
 };
-
 typedef struct RGBType RGBTYPE;
+
+struct Point{
+	UINT8T x,y;
+};
+typedef struct Point POINT;
 
 //º¯ÊýÉùÃ÷
 #ifdef WIN32
