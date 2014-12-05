@@ -16,12 +16,15 @@ UINT8T pu[SIZE/4];
 UINT8T pv[SIZE/4];
 RGBTYPE image_RGB[SIZE];// color
 RGBTYPE image_Transform[SIZE];
+RGBTYPE image_undis[SIZE];
 UINT8T  image_Gray[SIZE];
 UINT32T image_Integral[SIZE];
 UINT8T  image_Edge[SIZE];
 UINT8T  image_Gauss[SIZE];
 UINT8T  image_Sobel[SIZE];
 UINT8T	image_Canny[SIZE];
+double cam[] = { 283.561, 0, 246, 0, 285.903, 334.103, 0, 0, 1 };
+double dis[] = { -0.313793, 0.122695, 0.00123624, -0.000849487, -0.0250905 };
 /*********************************************************************************************
 * name:		main
 *********************************************************************************************/
@@ -32,12 +35,14 @@ int main(int argc,char **argv)
 		UINT32T k = 0;
 		UINT32T jpg_size;
 		int i, j;
+
 #ifdef WIN32
 		FILE* fp;
 		IplImage *image;
 		IplImage *image_1ch;
 		UINT8T pRGB[SIZE * 3]; //数组个数过大，需改reserved stack size
 		UINT8T pGray[SIZE];    //用于显示单通道图片
+
 
 
 		fp = fopen("..\\..\\60_4.jpg", "rb");
@@ -90,7 +95,7 @@ int main(int argc,char **argv)
 		calc_integral(image_Integral, image_Gray);
 		calc_gaussian_5x5(image_Gauss, image_Gray);
 		calc_sobel_3x3(image_Sobel, image_Gray);
-		canny();
+		//canny();
 //检验结果
 #ifdef WIN32
 		//输出为图片
@@ -99,19 +104,18 @@ int main(int argc,char **argv)
 		memset(pRGB, 0, SIZE * 3); //初始化
 		for (i = 0; i < R; i++)  //int不够，必须二重循环
 		{
-			for (int j = 0; j < C; j++)
+			for (j = 0; j < C; j++)
 			{
 				pRGB[i*C * 3 + j * 3] = image_RGB[i*C + j].b;
 				pRGB[i*C * 3 + j * 3 + 1] = image_RGB[i*C + j].g;
 				pRGB[i*C * 3 + j * 3 + 2] = image_RGB[i*C + j].r;
 			}
 		}
-
 		image = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 3);
 		cvSetData(image, pRGB, C * 3);
-		cvNamedWindow("rgb");
+		cvNamedWindow("rgb",1);
 		cvShowImage("rgb", image);
-		cvWaitKey();
+		cvWaitKey(0);
 
 		// 显示单通道数据
 		
@@ -129,9 +133,9 @@ int main(int argc,char **argv)
 		//cvSetData(image_1ch, pGray, C);
 		image_1ch = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 1);
 		cvSetData(image_1ch, image_Canny, C);
-		cvNamedWindow("pGray");
+		cvNamedWindow("pGray",1);
 		cvShowImage("pGray", image_1ch);
-		cvWaitKey();
+		cvWaitKey(0);
 #else
 		/*	//print the result of decoding
 		k = 0;

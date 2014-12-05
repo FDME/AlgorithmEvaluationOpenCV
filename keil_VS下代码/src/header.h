@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include<opencv/cv.h>
+#include<opencv/highgui.h>
 
 #ifndef __2410lib_h__
 #define __2410lib_h__
@@ -93,6 +94,7 @@ typedef struct Point POINT;
 //windows下函数声明
 //void showImage(RGBTYPE* image_RGB);
 int filesize(FILE *fp);
+extern void undistort_map();
 #else
 //ARM下函数声明
 UINT16T camera(void);

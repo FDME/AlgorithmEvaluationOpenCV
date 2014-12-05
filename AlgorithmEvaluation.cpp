@@ -31,18 +31,20 @@ int blockCount[MAXHEIGHT][MAXBLOCKS];
 
 int w, h;
 int leftBoundary;
-double cam[] = { 386.951, 0, 233.539, 0, 384.132, 352.891, 0, 0, 1 };
-double dis[] = { -0.44601, 0.266848, -0.00143158, 0.000143152, -0.103006 };
+//double cam[] = { 386.951, 0, 233.539, 0, 384.132, 352.891, 0, 0, 1 };
+//double dis[] = { -0.44601, 0.266848, -0.00143158, 0.000143152, -0.103006 };
+
 //以上是之前的参数
 
-//double cam[] = { 283.561, 0, 246, 0, 285.903, 334.103, 0, 0, 1 };
-//double dis[] = { -0.313793, 0.122695, 0.00123624, -0.000849487, -0.0250905 };
+double cam[] = { 283.561, 0, 246, 0, 285.903, 334.103, 0, 0, 1 };
+double dis[] = { -0.313793, 0.122695, 0.00123624, -0.000849487, -0.0250905 };
 
 Mat camMat(3, 3, CV_64F, cam), distCoeffs(1, 5, CV_64F, dis);
 Mat imageOriginal, imageGray, imageCanny, imageOutput, imageLabel, imageForeground;
 Mat imageResult;
 Mat imageOriginalT, imageCannyT, imageLabelT;
-Mat mask, makers;
+Mat mask, makers; 
+Mat map1,map2;
 vector<Vec3d> lines;
 vector<vector<Point>> contours;
 
@@ -193,6 +195,64 @@ void cali()
 	}
 	destroyWindow("Undistort");
 	// waitKey();
+}
+void generate_map_files()
+{
+	//取map值存储
+	FILE* map;
+	int R = map1.size().height, C = map1.size().width; 
+	fopen_s(&map, "map.c", "w+");
+
+
+	fprintf(map, "#include \"2410lib.h\"\nUINT8T map1[%d][%d] = {\n", R, C);
+
+	//CvScalar s;
+	for (int i = 0; i < R; i++)
+	{
+		fprintf(map, "{ ");
+		for (int j = 0; j < C; j++)
+		{
+			//s = cvGet2D(&(IplImage)imageOriginal, i, j);
+			fprintf(map, "%d", (int)map1.at<float>(i,j));//map1
+			if (j != C - 1){
+				fprintf(map, ", ");
+			}
+
+			if (j % 20 == 0 && j != 0)
+			{
+				fprintf(map, "\n ");
+			}
+		}
+		fprintf(map, "},\n");
+	}
+	fseek(map, -3, SEEK_CUR);
+	fprintf(map, "};\n");
+
+	fprintf(map, "UINT8T map2[%d][%d] = {\n", R, C);
+
+	//CvScalar s;
+	for (int i = 0; i < R; i++)
+	{
+		fprintf(map, "{ ");
+		for (int j = 0; j < C; j++)
+		{
+			//s = cvGet2D(&(IplImage)imageOriginal, i, j);
+			fprintf(map, "%d", (int)map2.at<float>(i,j));//map1
+			if (j != C - 1){
+				fprintf(map, ", ");
+			}
+
+			if (j % 20 == 0 && j != 0)
+			{
+				fprintf(map, "\n ");
+			}
+		}
+		fprintf(map, "},\n");
+	}
+	fseek(map, -3, SEEK_CUR);
+	fprintf(map, "};\n");
+
+	fclose(map);
 }
 
 #pragma endregion
@@ -546,15 +606,34 @@ void LoadImage(string path = "C:\\HuaWeiImage\\华为拍照\\正常光照\\60~90.jpg"){
 	h = imageOriginal.rows;
 	w = imageOriginal.cols;
 	printf("%dx%d\n", h, w);
-	//Mat R;
+	Mat R;
 	//Mat map1,map2;
 	// initUndistortRectifyMap(camMat, distCoeffs, Mat(),
 	//	 getOptimalNewCameraMatrix(camMat, distCoeffs, image.size(), 1, image.size(), 0),
 	//	 Size(2*image.cols,2*image.rows), CV_16SC2, map1, map2);
 
-	//	initUndistortRectifyMap(camMat,distCoeffs,R, camMat,Size(2*image.cols,2*image.rows),CV_32FC1,map1,map2);
+	initUndistortRectifyMap(camMat,distCoeffs,R, camMat,Size(image.cols,image.rows),CV_32FC1,map1,map2);
+	generate_map_files();
 	//remap(image,imageOriginal,map1,map2,INTER_LINEAR);
+	//imageOriginal = image;
+	//cout << map1 << endl;
+	//cout << map2 << endl;
+	//for(int i = 500; i != 640; i++)
+	//	for(int j = 0; j != 480; j++){
+	//		cout << map2.at<float>(i,j) << " " << endl;
+	//		
+	//}
+	//int x,y;
+	//for(int i = 0; i != 540; i++)
+	//	for(int j = 0; j != 480; j++){
+	//		//x = map1.at<float>(i,j);
+	//		//y = map2.at<float>(i,j);
+	//		//if( x != (int)map1.at<float>(i,j))
+	//		//cout << x << " " << y << " " << flush;
+	//		imageOriginal.at<Vec3b>(i,j) = image.at<Vec3b>((int)map2.at<float>(i+100,j),(int)map1.at<float>(i,j));
+	//	}
 	ShowImage(imageOriginal, "undistort");
+	waitKey();
 
 }
 
@@ -1411,7 +1490,7 @@ void DetectSpace_3(){
 
 
 int main(){
-	string user = "yzy";
+	string user = "qzf";
 
 	if (user == "yzy")
 	{
@@ -1445,7 +1524,7 @@ int main(){
 	else
 	if (user == "qzf"){
 
-		LoadImage("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照\\正常光照\\60.jpg");
+		LoadImage("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照\\正常光照\\3.jpg");
 		//cali();
 		Preprocess();
 		ForegroundSeparation();
