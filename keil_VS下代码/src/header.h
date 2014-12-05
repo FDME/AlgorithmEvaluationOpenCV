@@ -92,16 +92,16 @@ typedef struct Point POINT;
 //函数声明
 #ifdef WIN32
 //windows下函数声明
-//void showImage(RGBTYPE* image_RGB);
+void showImage_RGB(RGBTYPE* image_RGB, const char* name);
 int filesize(FILE *fp);
-extern void undistort_map();
+
 #else
 //ARM下函数声明
 UINT16T camera(void);
 #endif
 int yuv2rgb(UINT8T* py, UINT8T* pu, UINT8T* pv, RGBTYPE* image_RGB);
 int jpg_decode(UINT8T* iPicture, UINT8T* oY, UINT8T* oU, UINT8T* oV, UINT32T size);
-
+void undistort_map();
 void calc_gray(UINT8T* Gray, RGBTYPE* RGB);
 void calc_integral(UINT32T* integral, UINT8T* image);
 void calc_gaussian_5x5(UINT8T* dst, UINT8T* src);
