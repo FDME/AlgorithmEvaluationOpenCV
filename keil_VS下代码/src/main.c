@@ -42,7 +42,7 @@ int main(int argc,char **argv)
 		UINT32T k = 0;
 		UINT32T jpg_size;
 		int i, j;
-
+		UINT8T pGray[SIZE];    //用于显示单通道图片
 	UINT32T	    	col;
 	UINT32T	    	row; 
 			
@@ -60,7 +60,7 @@ CvPoint end_pt;
                 //fp = fopen("C:\\projects\\huawei\\image\\测试图片\\image_undistort.jpg", "rb");  // 鱼眼矫正后
 
 
-		fp = fopen("..\\..\\60_4.jpg", "rb");
+		fp = fopen("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照-20141128\\机柜A——正常光照\\5.jpg", "rb");
 		jpg_size = filesize(fp);
 		printf("size=%d\n", jpg_size);
 		fread(buffer, jpg_size, 1, fp);
@@ -160,7 +160,7 @@ CvPoint end_pt;
 		showImage_RGB(image_Correction, "Correction");
 
         // 显示单通道数据
-		UINT8T pGray[SIZE];    //用于显示单通道图片
+
 		memset(pGray, 0, SIZE); //初始化
 		for (i = 0; i < R; i++)  //int不够，必须二重循环
 		{

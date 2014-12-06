@@ -213,15 +213,17 @@ void generate_map_files()
 		for (int j = 0; j < C; j++)
 		{
 			//s = cvGet2D(&(IplImage)imageOriginal, i, j);
-			fprintf(map, "%d", (int)map1.at<float>(i,j));//map1
+			fprintf(map, "%f", map1.at<float>(i,j));//map1
+			if(i == 400 && j == 200)
+				printf("%f    %f",map1.at<float>(i,j),map2.at<float>(i,j));
 			if (j != C - 1){
 				fprintf(map, ", ");
 			}
 
-			if (j % 20 == 0 && j != 0)
-			{
-				fprintf(map, "\n ");
-			}
+			//if (j % 20 == 0 && j != 0)
+			//{
+			//	fprintf(map, "\n ");
+			//}
 		}
 		fprintf(map, "},\n");
 	}
@@ -237,15 +239,15 @@ void generate_map_files()
 		for (int j = 0; j < C; j++)
 		{
 			//s = cvGet2D(&(IplImage)imageOriginal, i, j);
-			fprintf(map, "%d", (int)map2.at<float>(i,j));//map1
+			fprintf(map, "%f", map2.at<float>(i,j));//map1
 			if (j != C - 1){
 				fprintf(map, ", ");
 			}
 
-			if (j % 20 == 0 && j != 0)
-			{
-				fprintf(map, "\n ");
-			}
+			//if (j % 20 == 0 && j != 0)
+			//{
+			//	fprintf(map, "\n ");
+			//}
 		}
 		fprintf(map, "},\n");
 	}
