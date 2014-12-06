@@ -79,7 +79,10 @@ struct coorlist
 /*----------------------------------------------------------------------------*/
 struct point {int x,y;};
 
-
+extern UINT8T image_Canny[SIZE];
+extern UINT8T image_Gray[SIZE];
+extern IplImage *image_1ch;
+extern UINT8T pGray[SIZE];    //用于显示单通道图片
 /*----------------------------------------------------------------------------*/
 /*------------------------- Miscellaneous functions --------------------------*/
 /*----------------------------------------------------------------------------*/
@@ -1767,3 +1770,55 @@ ntuple_list lsd(image_double image)
                                density_th, n_bins, max_grad, NULL );
 }
 /*----------------------------------------------------------------------------*/
+
+void lineDetect()
+{
+	// LSD算法检测直线
+	int i, j;
+	UINT32T	    	col;
+	UINT32T	    	row;
+	image_double image_LSD = new_image_double(C, R);
+	ntuple_list detected_lines;
+	int dim;
+	CvPoint start_pt;
+	CvPoint end_pt;
+	// LSD算法检测直线，要考虑定点化处理
+	for (row = 1; row<(R - 1); row++)
+	{
+		for (col = 1; col<(C - 1); col++)
+		{
+			image_LSD->data[row*C + col] = image_Canny[row*C + col];//im_gray是灰度图像，没有颜色通道
+		}
+	}
+	detected_lines = lsd(image_LSD);//detected_lines中存储提取直线的首位坐标及宽度，具体意义见说明文档
+	free_image_double(image_LSD);
+
+	// LSD算法检测直线,将检测出的直线绘制在载入的灰度图像上,灰度图注释了
+	cvSetData(image_1ch, pGray, C);
+	dim = detected_lines->dim;
+	printf("Number of lines detected = %d", detected_lines->size);
+	//double angle[770]; //当前detected_lines->size = 770
+	double angletemp;
+	double length;
+	for (j = 0; j < detected_lines->size; j++)
+	{
+		start_pt = cvPoint((int)detected_lines->values[j*dim + 0], (int)detected_lines->values[j*dim + 1]);
+		end_pt = cvPoint((int)detected_lines->values[j*dim + 2], (int)detected_lines->values[j*dim + 3]);
+		//cvLine(res_im,start_pt,end_pt,CV_RGB(j%255,(5*j)%255,(9*j)%255),1,CV_AA);
+		//新
+		angletemp = (int)(atan((detected_lines->values[j*dim + 1] - detected_lines->values[j*dim + 3]) / (detected_lines->values[j*dim + 0] - detected_lines->values[j*dim + 2])) * 180 / 3.1416);//反正切的角度值
+		length = sqrt((detected_lines->values[j*dim + 2] - detected_lines->values[j*dim + 0]) * (detected_lines->values[j*dim + 2] - detected_lines->values[j*dim + 0]) + (detected_lines->values[j*dim + 3] - detected_lines->values[j*dim + 1])*(detected_lines->values[j*dim + 3] - detected_lines->values[j*dim + 1]));
+		printf("j = %d, length = %f\n", j, length);
+		if (angletemp>10 || angletemp < -20)
+			continue;
+		if (length < 30.0)
+			continue;
+		cvLine(image_1ch, start_pt, end_pt, CV_RGB(0, 0, 255), 1, CV_AA, 0);
+
+		
+	}
+
+	cvNamedWindow("LSD", 0);
+	cvShowImage("LSD", image_1ch);
+	cvWaitKey(0);
+}

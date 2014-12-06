@@ -110,4 +110,5 @@ void calc_gray(UINT8T* Gray, RGBTYPE* RGB);
 void calc_integral(UINT32T* integral, UINT8T* image);
 void calc_gaussian_5x5(UINT8T* dst, UINT8T* src);
 void calc_sobel_3x3(UINT8T* dst, UINT8T* src);
+void lineDetect();
 #endif //__HEADER_H__

@@ -227,7 +227,7 @@ void canny()
 		nEdgeNum += nHist[k];
 	}
 	int nThrHigh, nThrLow;
-	nThrHigh = k;
+	nThrHigh = k ;
 	nThrLow = (int)((nThrHigh)*dRatLow + 0.5);
 	printf("Canny: nThrHigh = %d, nThrLow = %d\n", nThrHigh, nThrLow);
 	//利用函数寻找边界起点
