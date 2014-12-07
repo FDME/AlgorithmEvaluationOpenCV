@@ -1,6 +1,6 @@
 //This is for solving the linear equation in perspectivetransform
 extern int muav(double a[],int m,int n,double u[],double v[],double eps,int ka);
-int  ginv(double a[],int m,int n,double aa[],double eps,double u[],double v[],int ka)
+int  ginv(double* a,int m,int n,double aa[],double eps,double u[],double v[],int ka)
 {
 	int i,j,k,l,t,p,q,f;
 	i=muav(a,m,n,u,v,eps,ka);

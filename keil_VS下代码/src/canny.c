@@ -1,9 +1,6 @@
 #include"header.h"
 ////////////全局变量/////
 
-extern UINT8T  image_Gauss[SIZE];
-extern UINT8T	image_Canny[SIZE];
-
 //////对非最大抑制后的图像进行边缘搜索/////////
 void TraceEdge(int y, int x, int nThrLow, UINT8T* pimage_Gauss, int *pMag)
 {
@@ -32,14 +29,38 @@ void TraceEdge(int y, int x, int nThrLow, UINT8T* pimage_Gauss, int *pMag)
 
 void canny()
 {
+	//变量定义 
 	UINT32T x, y;
 	//方向导数，求梯度//////
 	int Gradx[SIZE];
 	int Grady[SIZE];
 	int Mag[SIZE];
-
+//中间变量
+	double dSqt1;
+	double dSqt2;
 	//x方向的方向导数
 
+	//非最大抑制
+	int nPos;//当前位置
+	int gx;//x方向的梯度
+	int gy;//y方向的梯度
+	//中间变量
+	int g1, g2, g3, g4;
+	double weight;
+	double dTemp, dTemp1, dTemp2;
+	
+	//自适应阈值
+	UINT32T k;
+	int nHist[256];//直方图数组
+	int nEdgeNum;
+	int nMaxMag = 0;
+	int nHighCount;
+	
+	double dRatHigh = 0.8;
+	double dRatLow = 0.4;
+	int nThrHigh, nThrLow;
+	
+	//求梯度
 	for (y = 1; y<R - 1; y++)
 	{
 		for (x = 1; x<C - 1; x++)
@@ -58,9 +79,6 @@ void canny()
 		}
 	}
 	//求梯度
-	//中间变量
-	double dSqt1;
-	double dSqt2;
 
 	for (y = 0; y<R; y++)
 	{
@@ -74,15 +92,7 @@ void canny()
 	}
 
 	//非最大抑制
-	int nPos;//当前位置
-	int gx;//x方向的梯度
-	int gy;//y方向的梯度
-	//中间变量
-	int g1, g2, g3, g4;
-	double weight;
-	double dTemp, dTemp1, dTemp2;
-
-
+	
 	//设置图像边缘为不可能的分界点
 	for (x = 0; x<C; x++)
 	{
@@ -179,14 +189,7 @@ void canny()
 		}
 	}
 	///////统计pMag的直方图，判定阈值//////////待调整
-	UINT32T k;
-	int nHist[256];//直方图数组
-	int nEdgeNum;
-	int nMaxMag;
-	int nHighCount;
-	nMaxMag = 0;
-	double dRatHigh = 0.8;
-	double dRatLow = 0.4;
+	
 	//初始化
 	for (k = 0; k<256; k++)
 	{
@@ -226,10 +229,13 @@ void canny()
 		k++;
 		nEdgeNum += nHist[k];
 	}
-	int nThrHigh, nThrLow;
-	nThrHigh = k ;
+	
+	nThrHigh = k;
 	nThrLow = (int)((nThrHigh)*dRatLow + 0.5);
+	#ifdef WIN32
 	printf("Canny: nThrHigh = %d, nThrLow = %d\n", nThrHigh, nThrLow);
+	#endif
+	
 	//利用函数寻找边界起点
 	for (y = 0; y<R; y++)
 	{

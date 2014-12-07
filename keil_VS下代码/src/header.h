@@ -85,9 +85,30 @@ struct RGBType{
 typedef struct RGBType RGBTYPE;
 
 struct Point{
-	UINT8T x,y;
+	UINT16T x,y;
 };
 typedef struct Point POINT;
+//全局变量声明
+extern UINT8T buffer[SIZE]; //存储拍摄jpeg
+extern UINT8T py[SIZE];   
+extern UINT8T pu[SIZE/4];
+extern UINT8T pv[SIZE/4];
+extern RGBTYPE image_RGB[SIZE];// color
+
+extern RGBTYPE image_Transform[SIZE];  //视角变换结果
+extern RGBTYPE image_Correction[SIZE]; //鱼眼矫正结果
+
+extern UINT8T  image_Gray[SIZE];
+extern UINT32T image_Integral[SIZE];
+extern UINT8T  image_Edge[SIZE];
+extern UINT8T  image_Gauss[SIZE];
+extern UINT8T  image_Sobel[SIZE];
+extern UINT8T	image_Canny[SIZE];
+
+#ifdef WIN32
+extern IplImage *image_1ch;
+extern UINT8T pGray[SIZE];    //用于显示单通道图片
+#endif
 
 //函数声明
 #ifdef WIN32
