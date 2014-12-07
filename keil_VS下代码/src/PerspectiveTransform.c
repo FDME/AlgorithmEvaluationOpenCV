@@ -13,6 +13,7 @@ void PerspectiveTransform(POINT src[], POINT dst[])
 	int i,j,k,x,y;
 	double sum;
 	double aa[8][8],u[8][8],v[8][8],eps=0.0001,s;
+	double ta[64],taa[64],tu[64],tv[64];
 	for(i = 0; i < 4; i++)
 	{
 		a[i][0] = a[i+4][3] = src[i].x;
@@ -37,40 +38,18 @@ void PerspectiveTransform(POINT src[], POINT dst[])
 	for(i = 0; i != 8; i++)
 		printf("%lf ",b[i]);
 	printf("\n\n");
-	//下面的是高斯消元法，不适用
-	//需用SVD求解线性方程组
-	//for(i = 0; i < 8; i++)
-	//	for(j = i+1; j < 8; j++)
-	//		for(k = i; k < 8; k++)
-	//		{
-	//			a[j][k] = a[j][k]*a[i][i] - a[i][k]*a[j][i];
-	//			b[k] = b[k]*a[i][i] - b[i]*a[j][i];
-	//		}
-	//for(i = 7; i >= 0; i--)
-	//{
-	//	sum = 0;
-	//	for(j = 7; j > i; j--)
-	//	{
-	//		sum += M[j/3][j%3]*a[i][j];
-	//	}
-	//	M[j/3][j%3] = (b[i] - sum)/a[i][i];
-	//}
-	//M[2][2] = 1;
-	//for(i = 0; i != 8; i++)
-	//{
-	//	for(j = 0; j != 8; j++)
-	//		printf("%lf ",a[i][j]);
-	//	printf("\n");
-	//}
-	//printf("\n");
-	//for(i = 0; i != 3; i++)
-	//{
-	//	for(j = 0; j != 3; j++)
-	//		printf("%lf ",M[i][j]);
-	//	printf("\n");
-	//}
+
 	/*************************SVD求解方程组**************************/
-	i=ginv(a,8,8,aa,eps,u,v,9);
+	for(i = 0; i != 8; i++)	//解决二维一维参数不兼容问题
+		for(j = 0; j != 8; j++)
+		{
+			ta[i*8+j] = a[i][j];
+			taa[i*8+j] = aa[i][j];
+			tu[i*8+j] = u[i][j];
+			tv[i*8+j] = v[i][j];
+		}
+
+	i=ginv(ta,8,8,taa,eps,tu,tv,9);
 	printf("MAT U(%d*%d) IS:\n",8,8);
 	printf("MAT A+(%d*%d) is:\n",8,8);
 	if(i>0)
