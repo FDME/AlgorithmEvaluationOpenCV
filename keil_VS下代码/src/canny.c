@@ -27,7 +27,7 @@ void TraceEdge(int y, int x, int nThrLow, UINT8T* pimage_Gauss, int *pMag)
 }
 
 
-void canny()
+void canny(UINT8T* dst, UINT8T* src)
 {
 	//变量定义 
 	UINT32T x, y;
@@ -60,6 +60,8 @@ void canny()
 	double dRatLow = 0.4;
 	int nThrHigh, nThrLow;
 	
+	//高斯滤波
+	calc_gaussian_5x5(image_Gauss, image_Gray);
 	//求梯度
 	for (y = 1; y<R - 1; y++)
 	{
