@@ -88,6 +88,11 @@ struct Point{
 	UINT16T x,y;
 };
 typedef struct Point POINT;
+struct ws_Queue{
+	UINT32T pos[SIZE];
+	UINT32T st,en;
+};
+typedef struct ws_Queue WSQ;
 //全局变量声明
 extern UINT8T buffer[SIZE]; //存储拍摄jpeg
 extern UINT8T py[SIZE];   
@@ -104,6 +109,7 @@ extern UINT8T  image_Edge[SIZE];
 extern UINT8T  image_Gauss[SIZE];
 extern UINT8T  image_Sobel[SIZE];
 extern UINT8T	image_Canny[SIZE];
+extern WSQ q[256];
 
 #ifdef WIN32
 extern IplImage *image_1ch;
@@ -132,4 +138,8 @@ void calc_integral(UINT32T* integral, UINT8T* image);
 void calc_gaussian_5x5(UINT8T* dst, UINT8T* src);
 void calc_sobel_3x3(UINT8T* dst, UINT8T* src);
 void lineDetect();
+void ForegroundSeperation();
 #endif //__HEADER_H__
+#ifdef __cplusplus
+}
+#endif

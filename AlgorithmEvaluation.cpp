@@ -1437,8 +1437,10 @@ void PerspectiveTransfrom(){
 	Mat transform = getPerspectiveTransform(corners, cornersT);
 	warpPerspective(imageLabel, imageLabelT, transform, Size(w, h));
 	warpPerspective(imageOriginal, imageOriginalT, transform, Size(w, h));
+	imshow("aaaa~",imageOriginalT);
 	for (int i = 0; i < h; i++)
 	for (int j = 0; j < w; j++) label[i][j] = imageLabelT.at<Vec3b>(i, j)[0];
+
 }
 
 int findLeftEdge(){
@@ -1530,6 +1532,24 @@ int main(){
 		//cali();
 		Preprocess();
 		ForegroundSeparation();
+		DetectContours();						//边界检测，主要包括canny和findContours
+		DetectLines();							//从contours中提取直线
+//		MultiLabelGraphCut();					//图像分割
+		Swap();
+
+		ImageLabelInput();						//label图象显示
+		PerspectiveTransfrom();					//视角变换
+		ImageLabelInput();
+		
+
+		DetectSpace_0();						//杂物过滤（横向腐蚀）
+		ImageLabelInput();						//label图象显示
+		DetectSpace_2();						//联通度优化
+		ImageLabelInput();						//label图象显示
+		DetectSpace_3();						//空余空间校验，结果显示
+
+		waitKey();
+		destroyAllWindows();
 	}
 	else
 	if (user == "qyz"){
