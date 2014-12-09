@@ -1623,6 +1623,7 @@ static int refine( struct point * reg, int * reg_size, image_double modgrad,
 /*
    LSD full interface
  */
+
 ntuple_list LineSegmentDetection( image_double image, double scale,
                                   double sigma_scale, double quant,
                                   double ang_th, double eps, double density_th,
@@ -1656,25 +1657,37 @@ ntuple_list LineSegmentDetection( image_double image, double scale,
   if( max_grad <= 0.0 ) error("'max_grad' value must be positive.");
 
 
-  /* angle tolerance */
+  /* angle tolerance */// 角度阈值  
   prec = M_PI * ang_th / 180.0;
-  p = ang_th / 180.0;
-  rho = quant / sin(prec); /* gradient magnitude threshold */
-
-
+  p = ang_th / 180.0;  // contrario model中角度符合level-line角度阈值的概率  
+  rho = quant / sin(prec); // 梯度阈值 gradient magnitude threshold
+  
+  // 对图像进行尺度变换  
   /* scale image (if necessary) and compute angle at each pixel */
   if( scale != 1.0 )
     {
       scaled_image = gaussian_sampler( image, scale, sigma_scale );
-      angles = ll_angle( scaled_image, rho, &list_p, &mem_p,
+	  // 计算每个点的方向
+	  angles = ll_angle( scaled_image, rho, &list_p, &mem_p,
                          &modgrad, (unsigned int) n_bins, max_grad );
       free_image_double(scaled_image);
     }
   else
+	  // 计算每个点的方向
     angles = ll_angle( image, rho, &list_p, &mem_p, &modgrad,
                        (unsigned int) n_bins, max_grad );
   xsize = angles->xsize;
   ysize = angles->ysize;
+
+  /* Number of Tests - NT
+  improve rectangle step根据p的衰减看出运行11次，共(XY)^(5/2)种线段，得到Ntest
+  The theoretical number of tests is Np.(XY)^(5/2) where X and Y are number of columns and rows of the image.
+  Np corresponds to the number of angle precisions considered. As the procedure 'rect_improve' tests 5 times
+  to halve the angle precision, and 5 more times after improving other factors, 11 different precision values
+  are potentially tested. Thus, the number of tests is
+  11 * (X*Y)^(5/2)
+  whose logarithm value is
+  log10(11) + 5/2 * (log10(X) + log10(Y)).                                       */
   logNT = 5.0 * ( log10( (double) xsize ) + log10( (double) ysize ) ) / 2.0;
   min_reg_size = (int) (-logNT/log10(p)); /* minimal number of points in region
                                              that can give a meaningful event */
@@ -1688,14 +1701,14 @@ ntuple_list LineSegmentDetection( image_double image, double scale,
   if( reg == NULL ) error("not enough memory!");
 
 
-  /* search for line segments */
+  /* search for line segments */// 搜索线段  
   for(;list_p; list_p = list_p->next )
     if( used->data[ list_p->x + list_p->y * used->xsize ] == NOTUSED &&
         angles->data[ list_p->x + list_p->y * angles->xsize ] != NOTDEF )
        /* there is no risk of double comparison problem here
           because we are only interested in the exact NOTDEF value */
       {
-        /* find the region of connected point and ~equal angle */
+		/* find the region of connected point and ~equal angle */ // 找出位置相邻接且方向相近的点构成的区域
         region_grow( list_p->x, list_p->y, angles, reg, &reg_size,
                      &reg_angle, used, prec );
 
@@ -1713,7 +1726,7 @@ ntuple_list LineSegmentDetection( image_double image, double scale,
            "LSD: A Fast Line Segment Detector with a False Detection Control"
            by R. Grompone von Gioi, J. Jakubowicz, J.M. Morel, and G. Randall.
            The original algorithm is obtained with density_th = 0.0.
-         */
+         */// 检查矩形中点的密度，若小于阈值，则改进矩形表示。若仍旧不满足阈值条件，则清除该区域  
         if( !refine( reg, &reg_size, modgrad, reg_angle, prec, p,
                      &rec, used, angles, density_th, logNT, eps ) ) continue;
 
@@ -1722,14 +1735,14 @@ ntuple_list LineSegmentDetection( image_double image, double scale,
         if( log_nfa <= eps ) continue;
 
         /* A New Line Segment was found! */
-        ++ls_count;  /* increase line segment counter */
+        ++ls_count;  /* increase line segment counter */// 补偿梯度计算时的误差  
 
         /*
            The gradient was computed with a 2x2 mask, its value corresponds to
            points with an offset of (0.5,0.5), that should be added to output.
            The coordinates origin is at the center of pixel (0,0).
          */
-        rec.x1 += 0.5; rec.y1 += 0.5;
+        rec.x1 += 0.5; rec.y1 += 0.5;// 尺度变换 
         rec.x2 += 0.5; rec.y2 += 0.5;
 
         /* scale the result values if a subsampling was performed */
@@ -1767,7 +1780,8 @@ ntuple_list LineSegmentDetection( image_double image, double scale,
 ntuple_list lsd(image_double image)
 {
   /* LSD parameters */
-  double scale = 0.8;       /* Scale the image by Gaussian filter to 'scale'. */
+	double scale = 1.0;
+	// double scale = 0.8;       /* Scale the image by Gaussian filter to 'scale'. */
   double sigma_scale = 0.6; /* Sigma for Gaussian filter is computed as
                                 sigma = sigma_scale/scale.                    */
   double quant = 2.0;       /* Bound to the quantization error on the
@@ -1827,16 +1841,17 @@ int lineDetect(double* k, double* b)
 		//��
 		temp_k = (detected_lines->values[j*dim + 1] - detected_lines->values[j*dim + 3]) / (detected_lines->values[j*dim + 0] - detected_lines->values[j*dim + 2]);
 		angletemp = (int)(atan(temp_k) * 180 / 3.1416);
-		length = sqrt((detected_lines->values[j*dim + 2] - detected_lines->values[j*dim + 0]) * (detected_lines->values[j*dim + 2] - detected_lines->values[j*dim + 0]) + (detected_lines->values[j*dim + 3] - detected_lines->values[j*dim + 1])*(detected_lines->values[j*dim + 3] - detected_lines->values[j*dim + 1]));
 		
-		//检查是否满足条件
-		if (angletemp>10 || angletemp < -20)
+	//检查倾角是否满足条件
+		if (angletemp>20 || angletemp < -20)
 			continue;
+		//判断长度是否满足条件
+		length = sqrt((detected_lines->values[j*dim + 2] - detected_lines->values[j*dim + 0]) * (detected_lines->values[j*dim + 2] - detected_lines->values[j*dim + 0]) + (detected_lines->values[j*dim + 3] - detected_lines->values[j*dim + 1])*(detected_lines->values[j*dim + 3] - detected_lines->values[j*dim + 1]));
 		if (length < (double)C / 16)
 			continue;
 		//printf("j = %d, length = %f\n", j, length);
 
-		//若满足，求直线方程
+		//对满足两个条件的线段，求直线方程
 		k[counter] = temp_k;
 		temp_b = detected_lines->values[j*dim + 1] - temp_k * detected_lines->values[j*dim + 0];
 		b[counter] = temp_b;

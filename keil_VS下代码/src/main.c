@@ -1,7 +1,7 @@
-/*********************************************************************************************
-* File£º	main.c
+ï»¿/*********************************************************************************************
+* Fileï¼š	main.c
 * Author:	embest
-* Desc£º	c main entry
+* Descï¼š	c main entry
 * History:	
 *********************************************************************************************/
 
@@ -11,14 +11,14 @@
 #include "header.h"
 #include "lsd.h"
 
-UINT8T buffer[SIZE]; //´æ´¢ÅÄÉãjpeg
+UINT8T buffer[SIZE]; //å­˜å‚¨æ‹æ‘„jpeg
 UINT8T py[SIZE];   
 UINT8T pu[SIZE/4];
 UINT8T pv[SIZE/4];
 RGBTYPE image_RGB[SIZE];// color
 
-RGBTYPE image_Transform[SIZE];  //ÊÓ½Ç±ä»»½á¹û
-RGBTYPE image_Correction[SIZE]; //ÓãÑÛ½ÃÕı½á¹û
+RGBTYPE image_Transform[SIZE];  //è§†è§’å˜æ¢ç»“æœ
+RGBTYPE image_Correction[SIZE]; //é±¼çœ¼çŸ«æ­£ç»“æœ
 
 UINT8T  image_Gray[SIZE];
 UINT32T image_Integral[SIZE];
@@ -27,21 +27,18 @@ UINT8T  image_Gauss[SIZE];
 UINT8T  image_Sobel[SIZE];
 UINT8T	image_Canny[SIZE];
 
+WSQ q[256];//mask
 
-WSQ q[256];//´¢´æmaskºÍÍ¼Ïñ×ø±êµÄ¶ÓÁĞ
-
-
-//¼ì²âµ½µÄÖ±Ïß²ÎÊı£¬¸öÊı´ıÓÅ»¯
+//æ£€æµ‹åˆ°çš„ç›´çº¿å‚æ•°ï¼Œä¸ªæ•°å¾…ä¼˜åŒ–
 double Line_k[1000]; 
 double Line_b[1000];
-
 #ifdef WIN32
 IplImage *image_1ch;
 #endif
 /*********************************************************************************************
 * name:		main
 *********************************************************************************************/
-//void lens_correct(const UINT8T* src, UINT8T* dst);  //ÓãÑÛ½ÃÕı
+//void lens_correct(const UINT8T* src, UINT8T* dst);  //é±¼çœ¼çŸ«æ­£
 int main(int argc,char **argv)
 {
 		UINT8T* picture = buffer;
@@ -53,16 +50,18 @@ int main(int argc,char **argv)
 		image_1ch = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 1);
 		FILE* fp;
 
-                //fp = fopen("C:\\projects\\huawei\\image\\²âÊÔÍ¼Æ¬\\»ªÎªÅÄÕÕ-20141128\\»ú¹ñA--µçÏß¸ÉÈÅ\\jpeg_20141128_151936.jpg", "rb");  // ¿ÉÓÃ
-                //fp = fopen("C:\\projects\\huawei\\image\\²âÊÔÍ¼Æ¬\\image_undistort.jpg", "rb");  // ÓãÑÛ½ÃÕıºó
+                //fp = fopen("C:\\projects\\huawei\\image\\æµ‹è¯•å›¾ç‰‡\\åä¸ºæ‹ç…§-20141128\\æœºæŸœA--ç”µçº¿å¹²æ‰°\\jpeg_20141128_151936.jpg", "rb");  // å¯ç”¨
+                //fp = fopen("C:\\projects\\huawei\\image\\æµ‹è¯•å›¾ç‰‡\\image_undistort.jpg", "rb");  // é±¼çœ¼çŸ«æ­£å
 
 
-		fp = fopen("C:\\Users\\ZoeQIAN\\Pictures\\»ªÎªÅÄÕÕ-20141128\\»ú¹ñA¡ª¡ªÕı³£¹âÕÕ\\5.jpg", "rb");
+		//fp = fopen("..\\..\\jpeg_20141128_150700.jpg", "rb");
+		fp = fopen("..\\..\\jpeg_20141128_160552.jpg", "rb");
+		
 		jpg_size = filesize(fp);
 		printf("size=%d\n", jpg_size);
 		fread(buffer, jpg_size, 1, fp);
 		fclose(fp);
-		printf("¶ÁÈëÍ¼Æ¬³É¹¦£¡\n");
+		printf("è¯»å…¥å›¾ç‰‡æˆåŠŸï¼\n");
 		
 #else
 		sys_init();        /* Initial s3c2410's Clock, MMU, Interrupt,Port and UART */
@@ -105,25 +104,29 @@ int main(int argc,char **argv)
 #endif
 		
 		undistort_map();
+		ForegroundSeperation();
 		calc_gray(image_Gray, image_Correction);
 		//calc_integral(image_Integral, image_Gray);
 		//calc_gaussian_5x5(image_Gauss, image_Gray);
 		//calc_sobel_3x3(image_Sobel, image_Gray);
 		canny(image_Canny,image_Gray);
 		int number = lineDetect(Line_k,Line_b);
-//¼ìÑé½á¹û
+//æ£€éªŒç»“æœ
 #ifdef WIN32
-		//Êä³öÎªÍ¼Æ¬
+		//è¾“å‡ºä¸ºå›¾ç‰‡
 		showImage_RGB(image_RGB,"Original");
 		
-		//Êä³öÓãÑÛ½ÃÕı½á¹û
+		//è¾“å‡ºé±¼çœ¼çŸ«æ­£ç»“æœ
 		showImage_RGB(image_Correction, "Correction");
-		//·ÖË®ÁëÇ°±³¾°·ÖÀë
-		ForegroundSeperation();
-
-
+	
 		showImage_1ch(image_Gray, "Gray");
-		showImage_1ch(image_Canny, "canny");
+
+		//UINT8T pGray[SIZE];
+		//for (i = 0; i < R; i++)  //intï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½
+			//for (j = 0; j < C; j++)
+			////pGray[i*C + j] = image_Gray[i*C + j];
+				//pGray[i*C + j] = (UINT8T)((image_Integral[i*C + j])/SIZE);  
+		//showImage_1ch(pGray, "integral");
 
 
 #else

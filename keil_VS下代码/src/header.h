@@ -110,7 +110,6 @@ extern UINT8T  image_Gauss[SIZE];
 extern UINT8T  image_Sobel[SIZE];
 extern UINT8T	image_Canny[SIZE];
 extern WSQ q[256];
-
 #ifdef WIN32
 extern IplImage *image_1ch;
 #endif
@@ -119,7 +118,7 @@ extern IplImage *image_1ch;
 #ifdef WIN32
 //windowsÏÂº¯ÊýÉùÃ÷
 void showImage_RGB(RGBTYPE* image_RGB, const char* name);
-void showImage_1ch(UINT8T* pGray, const char* name);
+void showImage_1ch(UINT8T* p_1ch, const char* name);
 int filesize(FILE *fp);
 
 #else
@@ -144,4 +143,3 @@ int lineDetect(double* k, double* b);
 #ifdef __cplusplus
 }
 #endif
-
