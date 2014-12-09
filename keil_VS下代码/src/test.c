@@ -36,4 +36,13 @@ void showImage_RGB(RGBTYPE* image_RGB, const char* name)
 	cvWaitKey(0);
 }
 
+void showImage_1ch(UINT8T* p_1ch, const char* name)
+{
+	// 显示单通道数据
+
+	cvSetData(image_1ch, p_1ch, C);
+	cvNamedWindow(name, 0);
+	cvShowImage(name, image_1ch);
+	cvWaitKey(0);
+}
 #endif

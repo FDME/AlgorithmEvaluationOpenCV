@@ -113,13 +113,13 @@ extern WSQ q[256];
 
 #ifdef WIN32
 extern IplImage *image_1ch;
-extern UINT8T pGray[SIZE];    //用于显示单通道图片
 #endif
 
 //函数声明
 #ifdef WIN32
 //windows下函数声明
 void showImage_RGB(RGBTYPE* image_RGB, const char* name);
+void showImage_1ch(UINT8T* pGray, const char* name);
 int filesize(FILE *fp);
 
 #else
@@ -137,9 +137,11 @@ void calc_gray(UINT8T* Gray, RGBTYPE* RGB);
 void calc_integral(UINT32T* integral, UINT8T* image);
 void calc_gaussian_5x5(UINT8T* dst, UINT8T* src);
 void calc_sobel_3x3(UINT8T* dst, UINT8T* src);
-void lineDetect();
 void ForegroundSeperation();
+void canny(UINT8T* dst, UINT8T* src);
+int lineDetect(double* k, double* b);
 #endif //__HEADER_H__
 #ifdef __cplusplus
 }
 #endif
+

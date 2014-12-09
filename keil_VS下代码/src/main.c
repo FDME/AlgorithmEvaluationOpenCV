@@ -27,7 +27,13 @@ UINT8T  image_Gauss[SIZE];
 UINT8T  image_Sobel[SIZE];
 UINT8T	image_Canny[SIZE];
 
+
 WSQ q[256];//储存mask和图像坐标的队列
+
+
+//检测到的直线参数，个数待优化
+double Line_k[1000]; 
+double Line_b[1000];
 
 #ifdef WIN32
 IplImage *image_1ch;
@@ -43,19 +49,8 @@ int main(int argc,char **argv)
 		UINT32T jpg_size;
 		int i, j;
 
-	UINT32T	    	col;
-	UINT32T	    	row; 
-			
-// LSD算法检测直线
-image_double image_LSD = new_image_double(C, R);
-ntuple_list detected_lines;
-	double imageGrad[SIZE];
-int dim;
-		UINT8T pGray[SIZE];    //用于显示单通道图片
 #ifdef WIN32
-CvPoint start_pt; //LSD结果显示
-CvPoint end_pt;
-	
+		image_1ch = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 1);
 		FILE* fp;
 
                 //fp = fopen("C:\\projects\\huawei\\image\\测试图片\\华为拍照-20141128\\机柜A--电线干扰\\jpeg_20141128_151936.jpg", "rb");  // 可用
@@ -114,46 +109,8 @@ CvPoint end_pt;
 		//calc_integral(image_Integral, image_Gray);
 		//calc_gaussian_5x5(image_Gauss, image_Gray);
 		//calc_sobel_3x3(image_Sobel, image_Gray);
-		//canny();
-		
-		
-		//memset(pRGB, 0, SIZE * 3); //初始化
-		//for (i = 0; i < R; i++)  //int不够，必须二重循环
-		//{
-		//	for (j = 0; j < C; j++)
-		//	{
-		//		pRGB[i*C * 3 + j * 3] = image_RGB[i*C + j].b;
-		//		pRGB[i*C * 3 + j * 3 + 1] = image_RGB[i*C + j].g;
-		//		pRGB[i*C * 3 + j * 3 + 2] = image_RGB[i*C + j].r;
-		//	}
-		//}
-
-
-		//鱼眼矫正
-		//UINT8T* dst;
-		//UINT8T lens_result[SIZE * 3];
-		//dst = lens_result;
-		//lens_correct(pRGB, dst);
-		//转灰度，积分图，高斯滤波和canny
-		//calc_gray(image_Gray, image_RGB);
-		//calc_integral(image_Integral, image_Gray);
-		//calc_gaussian_5x5(image_Gauss, image_Gray); //可考虑在canny中调用以节省空间
-		//calc_sobel_3x3(image_Sobel, image_Gray);
-		//canny();
-
-  // LSD算法检测直线，要考虑定点化处理
-	for (row=1;row<(R-1);row++)
-  {
-    for (col=1;col<(C-1);col++)
-    {  
-      image_LSD->data[row*C+col] = image_Gray[row*C+col];//im_gray是灰度图像，没有颜色通道
-    }
-  }
-    detected_lines = lsd(image_LSD);//detected_lines中存储提取直线的首位坐标及宽度，具体意义见说明文档
-	free_image_double(image_LSD);
-
-		
-		
+		canny(image_Canny,image_Gray);
+		int number = lineDetect(Line_k,Line_b);
 //检验结果
 #ifdef WIN32
 		//输出为图片
@@ -161,37 +118,14 @@ CvPoint end_pt;
 		
 		//输出鱼眼矫正结果
 		showImage_RGB(image_Correction, "Correction");
+		//分水岭前背景分离
 		ForegroundSeperation();
-		showImage_RGB(image_Correction, "fgnd");
-        // 显示单通道数据5
-		
-		memset(pGray, 0, SIZE); //初始化
-		for (i = 0; i < R; i++)  //int不够，必须二重循环
-		{
-			for (j = 0; j < C; j++)
-			{
-				pGray[i*C + j] = image_Gray[i*C + j];
-				//pGray[i*C + j] = (UINT8T)((image_Integral[i*C + j])/SIZE);  // show integral
-				//pGray[i*C + j] = (UINT8T)(image_Gauss[i*C + j]); 
-				//pGray[i*C + j] = (UINT8T)(image_Sobel[i*C + j]); 
-				//pGray[i*C + j] = (UINT8T)(image_Erzhi[i*C + j]);
-			}
-		}
-		image_1ch = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 1);
-		cvSetData(image_1ch, pGray, C);
 
-		// LSD算法检测直线,将检测出的直线绘制在载入的灰度图像上,灰度图注释了
-		dim = detected_lines->dim;
-		for (j = 0; j < detected_lines->size; j++)
-		{
-			start_pt = cvPoint((int)detected_lines->values[j*dim + 0], (int)detected_lines->values[j*dim + 1]);
-			end_pt = cvPoint((int)detected_lines->values[j*dim + 2], (int)detected_lines->values[j*dim + 3]);
-			//cvLine(res_im,start_pt,end_pt,CV_RGB(j%255,(5*j)%255,(9*j)%255),1,CV_AA);
-			cvLine(image_1ch, start_pt, end_pt, CV_RGB(0, 0, 255), 1, CV_AA, 0);
-		}
-		cvNamedWindow("LSD", 0);
-		cvShowImage("LSD", image_1ch);
-		cvWaitKey(0);
+
+		showImage_1ch(image_Gray, "Gray");
+		showImage_1ch(image_Canny, "canny");
+
+
 #else
 		/*	//print the result of decoding
 		k = 0;
