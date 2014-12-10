@@ -10,7 +10,8 @@
 /*------------------------------------------------------------------------------------------*/
 #include "header.h"
 #include "lsd.h"
-
+#include "LineSort.h"
+#include "PerspectiveTransform.h"
 UINT8T buffer[SIZE]; //存储拍摄jpeg
 UINT8T py[SIZE];   
 UINT8T pu[SIZE/4];
@@ -32,6 +33,7 @@ WSQ q[256];//mask
 //检测到的直线参数，个数待优化
 double Line_k[1000]; 
 double Line_b[1000];
+INT32T numLines;
 #ifdef WIN32
 IplImage *image_1ch;
 #endif
@@ -49,13 +51,7 @@ int main(int argc,char **argv)
 #ifdef WIN32
 		image_1ch = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 1);
 		FILE* fp;
-
-                //fp = fopen("C:\\projects\\huawei\\image\\测试图片\\华为拍照-20141128\\机柜A--电线干扰\\jpeg_20141128_151936.jpg", "rb");  // 可用
-                //fp = fopen("C:\\projects\\huawei\\image\\测试图片\\image_undistort.jpg", "rb");  // 鱼眼矫正后
-
-
-		//fp = fopen("..\\..\\jpeg_20141128_150700.jpg", "rb");
-		fp = fopen("..\\..\\jpeg_20141128_160552.jpg", "rb");
+		fp = fopen("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A——正常光照\\jpeg_20141128_150639.jpg", "rb");
 		
 		jpg_size = filesize(fp);
 		printf("size=%d\n", jpg_size);
@@ -71,11 +67,6 @@ int main(int argc,char **argv)
 		uart_select(UART0);
 		uart_printf("Finish transmitting\n");
 #endif
-	/*	while(k<size){
-			uart_sendbyte(buffer[k]);
-			k++;
-		}
-		*/
 		if(jpg_decode(picture,py,pu,pv,jpg_size)<0)
 #ifdef WIN32
 			printf("Decoding error!\n");
@@ -104,13 +95,26 @@ int main(int argc,char **argv)
 #endif
 		
 		undistort_map();
-		ForegroundSeperation();
+		//ForegroundSeperation();
 		calc_gray(image_Gray, image_Correction);
-		//calc_integral(image_Integral, image_Gray);
-		//calc_gaussian_5x5(image_Gauss, image_Gray);
-		//calc_sobel_3x3(image_Sobel, image_Gray);
 		canny(image_Canny,image_Gray);
-		int number = lineDetect(Line_k,Line_b);
+		numLines = lineDetect(Line_k,Line_b);
+		numLines = LineSort(numLines, Line_k, Line_b);
+
+		//**********PerspectiveTransform测试代码如下：************
+		POINT src[4], dst[4];
+		src[1].x = 0; src[1].y = 0;
+		src[2].x = 0; src[2].y = 200;
+		src[3].x = 150; src[3].y = 200;
+		src[4].x = 150; src[4].y = 0;
+
+		dst[1].x = 0; dst[1].y = 0;
+		dst[2].x = 0; dst[2].y = C;
+		dst[3].x = R; dst[3].y = C;
+		dst[4].x = R; dst[4].y = 0;
+		PerspectiveTransform(src, dst);
+		//*********************************************************
+
 //检验结果
 #ifdef WIN32
 		//输出为图片

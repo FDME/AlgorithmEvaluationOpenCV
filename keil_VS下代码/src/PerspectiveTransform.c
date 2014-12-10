@@ -3,7 +3,7 @@
 		Functions are as following,
 			void PerspectiveTransform(POINT src[], POINT dst[]);
 */
-#include "header.h"
+#include "PerspectiveTransform.h"
 extern int muav(double a[],int m,int n,double u[],double v[],double eps,int ka);
 extern int ginv(double a[],int m,int n,double aa[],double eps,double u[],double v[],int ka);
 void PerspectiveTransform(POINT src[], POINT dst[])
@@ -106,12 +106,12 @@ void PerspectiveTransform(POINT src[], POINT dst[])
 		printf("\n");
 	}
 	system("PAUSE");
-	//for(i = 0; i != SIZE; i++){
-	//	x = i/640;
-	//	y = i%640;
-	//	j = (M[0][0]*x + M[0][1]*y + M[0][2])/(M[2][0]*x + M[2][1]*y + M[2][2]);
-	//	k = (M[1][0]*x + M[1][1]*y + M[1][2])/(M[2][0]*x + M[2][1]*y + M[2][2]);
-	//	image_Transform[i] = image_RGB[j*640+k];
-	//}
+	for(i = 0; i != SIZE; i++){
+		x = i/640;
+		y = i%640;
+		j = (M[0][0]*x + M[0][1]*y + M[0][2])/(M[2][0]*x + M[2][1]*y + M[2][2]);
+		k = (M[1][0]*x + M[1][1]*y + M[1][2])/(M[2][0]*x + M[2][1]*y + M[2][2]);
+		image_Transform[i] = image_RGB[j*640+k];
+	}
 	//return M;
 }

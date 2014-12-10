@@ -1847,7 +1847,7 @@ int lineDetect(double* k, double* b)
 			continue;
 		//判断长度是否满足条件
 		length = sqrt((detected_lines->values[j*dim + 2] - detected_lines->values[j*dim + 0]) * (detected_lines->values[j*dim + 2] - detected_lines->values[j*dim + 0]) + (detected_lines->values[j*dim + 3] - detected_lines->values[j*dim + 1])*(detected_lines->values[j*dim + 3] - detected_lines->values[j*dim + 1]));
-		if (length < (double)C / 16)
+		if (length < (double)C / 8)
 			continue;
 		//printf("j = %d, length = %f\n", j, length);
 

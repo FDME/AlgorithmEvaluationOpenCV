@@ -85,7 +85,7 @@ struct RGBType{
 typedef struct RGBType RGBTYPE;
 
 struct Point{
-	UINT16T x,y;
+	INT16T x,y;
 };
 typedef struct Point POINT;
 struct ws_Queue{
