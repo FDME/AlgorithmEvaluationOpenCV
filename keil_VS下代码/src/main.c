@@ -12,6 +12,9 @@
 #include "lsd.h"
 #include "LineSort.h"
 #include "PerspectiveTransform.h"
+#include "ImageSegmentation.h"
+#include "LabelOptimization.h"
+
 UINT8T buffer[SIZE]; //存储拍摄jpeg
 UINT8T py[SIZE];   
 UINT8T pu[SIZE/4];
@@ -27,6 +30,7 @@ UINT8T  image_Edge[SIZE];
 UINT8T  image_Gauss[SIZE];
 UINT8T  image_Sobel[SIZE];
 UINT8T	image_Canny[SIZE];
+UINT8T	label[SIZE];
 
 WSQ q[256];//mask
 
@@ -98,21 +102,25 @@ int main(int argc,char **argv)
 		//ForegroundSeperation();
 		calc_gray(image_Gray, image_Correction);
 		canny(image_Canny,image_Gray);
+		ImageSegment(label);
+		LabelOptimize(label);
 		numLines = lineDetect(Line_k,Line_b);
 		numLines = LineSort(numLines, Line_k, Line_b);
 
 		//**********PerspectiveTransform测试代码如下：************
-		POINT src[4], dst[4];
-		src[1].x = 0; src[1].y = 0;
-		src[2].x = 0; src[2].y = 200;
-		src[3].x = 150; src[3].y = 200;
-		src[4].x = 150; src[4].y = 0;
+		if (0){
+			POINT src[4], dst[4];
+			src[1].x = 0; src[1].y = 0;
+			src[2].x = 0; src[2].y = 200;
+			src[3].x = 150; src[3].y = 200;
+			src[4].x = 150; src[4].y = 0;
 
-		dst[1].x = 0; dst[1].y = 0;
-		dst[2].x = 0; dst[2].y = C;
-		dst[3].x = R; dst[3].y = C;
-		dst[4].x = R; dst[4].y = 0;
-		PerspectiveTransform(src, dst);
+			dst[1].x = 0; dst[1].y = 0;
+			dst[2].x = 0; dst[2].y = C;
+			dst[3].x = R; dst[3].y = C;
+			dst[4].x = R; dst[4].y = 0;
+			PerspectiveTransform(src, dst);
+		}
 		//*********************************************************
 
 //检验结果
