@@ -13,15 +13,12 @@ int filesize(FILE *fp)
 void showImage_RGB(RGBTYPE* image_RGB, const char* name)
 {
 	UINT8T pRGB[SIZE * 3]; //数组个数过大，需改reserved stack size
-	IplImage *image;
-	int i,j;
-
 	memset(pRGB, 0, SIZE * 3); //初始化
-	
+	IplImage *image;
 
-	for (i = 0; i < R; i++)  //int不够，必须二重循环
+	for (int i = 0; i < R; i++)  //int不够，必须二重循环
 	{
-		for (j = 0; j < C; j++)
+		for (int j = 0; j < C; j++)
 		{
 			pRGB[i*C * 3 + j * 3] = image_RGB[i*C + j].b;
 			pRGB[i*C * 3 + j * 3 + 1] = image_RGB[i*C + j].g;

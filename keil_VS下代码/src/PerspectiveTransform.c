@@ -104,12 +104,12 @@ void PerspectiveTransform(POINT* src, POINT* dst)
 		printf("\n");
 	}
 	system("PAUSE");
-	//for(i = 0; i != SIZE; i++){
-	//	x = i/640;
-	//	y = i%640;
-	//	j = (M[0][0]*x + M[0][1]*y + M[0][2])/(M[2][0]*x + M[2][1]*y + M[2][2]);
-	//	k = (M[1][0]*x + M[1][1]*y + M[1][2])/(M[2][0]*x + M[2][1]*y + M[2][2]);
-	//	image_Transform[i] = image_RGB[j*640+k];
-	//}
+	for(i = 0; i != SIZE; i++){
+		x = i/640;
+		y = i%640;
+		j = (M[0][0]*x + M[0][1]*y + M[0][2])/(M[2][0]*x + M[2][1]*y + M[2][2]);
+		k = (M[1][0]*x + M[1][1]*y + M[1][2])/(M[2][0]*x + M[2][1]*y + M[2][2]);
+		image_Transform[i] = image_RGB[j*640+k];
+	}
 	//return M;
 }
