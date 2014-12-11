@@ -1,0 +1,8 @@
+--cpu ARM920T
+".\s3c2410a.o"
+".\labeloptimization.o"
+".\imagesegmentation.o"
+--strict --scatter ".\ImageSegmentationTest.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\ImageSegmentationTest.map" -o .\ImageSegmentationTest.axf

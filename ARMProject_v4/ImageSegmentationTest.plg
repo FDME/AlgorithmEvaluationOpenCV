@@ -1,0 +1,448 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\HuaWeiImage\ARMProject_v4\ImageSegmentationTest.uvproj
+Project File Date:  12/11/2014
+
+<h2>Output:</h2>
+Build target 'Target 1'
+assembling S3C2410A.s...
+linking...
+.\ImageSegmentationTest.axf: Error: L6630E: Invalid token start expected number or ( but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6629E: Unmatched parentheses expecting ) but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6226E: Missing base address for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6292E: Ignoring unknown attribute 'null' specified for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6228E: Expected '{', found ')...'.
+.\ImageSegmentationTest.sct: Error: L6372E: Image needs at least one load region.
+".\ImageSegmentationTest.axf" - 6 Errors, 0 Warning(s).
+Target not created
+Build target 'Target 1'
+linking...
+.\ImageSegmentationTest.axf: Error: L6630E: Invalid token start expected number or ( but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6629E: Unmatched parentheses expecting ) but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6226E: Missing base address for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6292E: Ignoring unknown attribute 'null' specified for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6228E: Expected '{', found ')...'.
+.\ImageSegmentationTest.sct: Error: L6372E: Image needs at least one load region.
+".\ImageSegmentationTest.axf" - 6 Errors, 0 Warning(s).
+Target not created
+Build target 'Target 1'
+linking...
+.\ImageSegmentationTest.axf: Error: L6630E: Invalid token start expected number or ( but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6629E: Unmatched parentheses expecting ) but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6226E: Missing base address for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6292E: Ignoring unknown attribute 'null' specified for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6228E: Expected '{', found ')...'.
+.\ImageSegmentationTest.sct: Error: L6372E: Image needs at least one load region.
+".\ImageSegmentationTest.axf" - 6 Errors, 0 Warning(s).
+Target not created
+Build target 'Target 1'
+linking...
+.\ImageSegmentationTest.axf: Error: L6630E: Invalid token start expected number or ( but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6629E: Unmatched parentheses expecting ) but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6226E: Missing base address for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6292E: Ignoring unknown attribute 'null' specified for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6228E: Expected '{', found ')...'.
+.\ImageSegmentationTest.sct: Error: L6372E: Image needs at least one load region.
+".\ImageSegmentationTest.axf" - 6 Errors, 0 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+linking...
+.\ImageSegmentationTest.axf: Error: L6630E: Invalid token start expected number or ( but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6629E: Unmatched parentheses expecting ) but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6226E: Missing base address for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6292E: Ignoring unknown attribute 'null' specified for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6228E: Expected '{', found ')...'.
+.\ImageSegmentationTest.sct: Error: L6372E: Image needs at least one load region.
+".\ImageSegmentationTest.axf" - 6 Errors, 0 Warning(s).
+Target not created
+Build target 'Target 1'
+compiling LabelOptimization.c...
+LabelOptimization.h(5): warning:  #1-D: last line of file ends without a newline
+LabelOptimization.c(111): error:  #167: argument of type "unsigned char (*)[480]" is incompatible with parameter of type "unsigned char *"
+LabelOptimization.c(114): error:  #167: argument of type "unsigned char (*)[480]" is incompatible with parameter of type "unsigned char *"
+LabelOptimization.c(116): warning:  #1-D: last line of file ends without a newline
+".\ImageSegmentationTest.axf" - 2 Errors, 2 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+LabelOptimization.h(5): warning:  #1-D: last line of file ends without a newline
+LabelOptimization.c(111): error:  #167: argument of type "unsigned char (*)[480]" is incompatible with parameter of type "unsigned char *"
+LabelOptimization.c(114): error:  #167: argument of type "unsigned char (*)[480]" is incompatible with parameter of type "unsigned char *"
+LabelOptimization.c(116): warning:  #1-D: last line of file ends without a newline
+".\ImageSegmentationTest.axf" - 2 Errors, 2 Warning(s).
+Target not created
+Build target 'Target 1'
+compiling LabelOptimization.c...
+LabelOptimization.h(5): warning:  #1-D: last line of file ends without a newline
+LabelOptimization.c(116): warning:  #1-D: last line of file ends without a newline
+linking...
+.\ImageSegmentationTest.axf: Error: L6630E: Invalid token start expected number or ( but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6629E: Unmatched parentheses expecting ) but found n at position 5 on line 5
+.\ImageSegmentationTest.axf: Error: L6226E: Missing base address for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6292E: Ignoring unknown attribute 'null' specified for region LR_.
+.\ImageSegmentationTest.sct(5): error: L6228E: Expected '{', found ')...'.
+.\ImageSegmentationTest.sct: Error: L6372E: Image needs at least one load region.
+".\ImageSegmentationTest.axf" - 6 Errors, 2 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+LabelOptimization.h(5): warning:  #1-D: last line of file ends without a newline
+LabelOptimization.c(116): warning:  #1-D: last line of file ends without a newline
+linking...
+.\ImageSegmentationTest.axf: Error: L6406E: No space in execution regions with .ANY selector matching labeloptimization.o(.bss).
+.\ImageSegmentationTest.axf: Error: L6407E: Sections of aggregate size 0x41a000 bytes could not fit into .ANY selector(s).
+".\ImageSegmentationTest.axf" - 2 Errors, 2 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+LabelOptimization.h(5): warning:  #1-D: last line of file ends without a newline
+LabelOptimization.c(116): warning:  #1-D: last line of file ends without a newline
+linking...
+.\ImageSegmentationTest.axf: Error: L6406E: No space in execution regions with .ANY selector matching labeloptimization.o(.bss).
+.\ImageSegmentationTest.axf: Error: L6407E: Sections of aggregate size 0x41a000 bytes could not fit into .ANY selector(s).
+".\ImageSegmentationTest.axf" - 2 Errors, 2 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+LabelOptimization.h(5): warning:  #1-D: last line of file ends without a newline
+LabelOptimization.c(116): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=4640 RO-data=32 RW-data=40 ZI-data=4302056  
+".\ImageSegmentationTest.axf" - 0 Errors, 2 Warning(s).
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+LabelOptimization.h(5): warning:  #1-D: last line of file ends without a newline
+LabelOptimization.c(117): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=4640 RO-data=32 RW-data=40 ZI-data=4302056  
+".\ImageSegmentationTest.axf" - 0 Errors, 2 Warning(s).
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+LabelOptimization.h(5): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=4640 RO-data=32 RW-data=40 ZI-data=4302056  
+".\ImageSegmentationTest.axf" - 0 Errors, 1 Warning(s).
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+linking...
+Program Size: Code=4640 RO-data=32 RW-data=40 ZI-data=4302056  
+".\ImageSegmentationTest.axf" - 0 Errors, 0 Warning(s).
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+ImageSegmentation.c(137): error:  #29: expected an expression
+ImageSegmentation.c(141): error:  #29: expected an expression
+".\ImageSegmentationTest.axf" - 2 Errors, 1 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+linking...
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol lb multiply defined (by imagesegmentation.o and labeloptimization.o).
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol h multiply defined (by imagesegmentation.o and labeloptimization.o).
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol w multiply defined (by imagesegmentation.o and labeloptimization.o).
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol numLabels multiply defined (by imagesegmentation.o and labeloptimization.o).
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol i multiply defined (by imagesegmentation.o and labeloptimization.o).
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol j multiply defined (by imagesegmentation.o and labeloptimization.o).
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol k multiply defined (by imagesegmentation.o and labeloptimization.o).
+".\ImageSegmentationTest.axf" - 7 Errors, 1 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+linking...
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol lb multiply defined (by imagesegmentation.o and labeloptimization.o).
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol h multiply defined (by imagesegmentation.o and labeloptimization.o).
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol w multiply defined (by imagesegmentation.o and labeloptimization.o).
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol numLabels multiply defined (by imagesegmentation.o and labeloptimization.o).
+".\ImageSegmentationTest.axf" - 4 Errors, 1 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+linking...
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol lb multiply defined (by imagesegmentation.o and labeloptimization.o).
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol numLabels multiply defined (by imagesegmentation.o and labeloptimization.o).
+".\ImageSegmentationTest.axf" - 2 Errors, 1 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+linking...
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol lb multiply defined (by imagesegmentation.o and labeloptimization.o).
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol numLabels multiply defined (by imagesegmentation.o and labeloptimization.o).
+".\ImageSegmentationTest.axf" - 2 Errors, 1 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+linking...
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol lb multiply defined (by imagesegmentation.o and labeloptimization.o).
+".\ImageSegmentationTest.axf" - 1 Errors, 1 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+linking...
+.\ImageSegmentationTest.axf: Error: L6218E: Undefined symbol image_Canny (referred from imagesegmentation.o).
+.\ImageSegmentationTest.axf: Error: L6218E: Undefined symbol image_Correction (referred from imagesegmentation.o).
+.\ImageSegmentationTest.axf: Error: L6218E: Undefined symbol t (referred from imagesegmentation.o).
+".\ImageSegmentationTest.axf" - 3 Errors, 1 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+header.h(46): warning:  #1-D: last line of file ends without a newline
+compiling ImageSegmentation.c...
+header.h(46): warning:  #1-D: last line of file ends without a newline
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+linking...
+.\ImageSegmentationTest.axf: Error: L6200E: Symbol image_Canny multiply defined (by imagesegmentation.o and labeloptimization.o).
+".\ImageSegmentationTest.axf" - 1 Errors, 3 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+linking...
+.\ImageSegmentationTest.axf: Error: L6218E: Undefined symbol image_Correction (referred from imagesegmentation.o).
+.\ImageSegmentationTest.axf: Error: L6218E: Undefined symbol t (referred from imagesegmentation.o).
+".\ImageSegmentationTest.axf" - 2 Errors, 1 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+ImageSegmentation.c(38): error:  #20: identifier "image_Correction" is undefined
+".\ImageSegmentationTest.axf" - 1 Errors, 1 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+linking...
+.\ImageSegmentationTest.axf: Error: L6218E: Undefined symbol t (referred from imagesegmentation.o).
+".\ImageSegmentationTest.axf" - 1 Errors, 1 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+linking...
+.\ImageSegmentationTest.axf: Error: L6218E: Undefined symbol t (referred from imagesegmentation.o).
+".\ImageSegmentationTest.axf" - 1 Errors, 0 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+linking...
+Program Size: Code=4640 RO-data=32 RW-data=40 ZI-data=4302056  
+".\ImageSegmentationTest.axf" - 0 Errors, 0 Warning(s).
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+linking...
+Program Size: Code=4640 RO-data=32 RW-data=40 ZI-data=4302056  
+".\ImageSegmentationTest.axf" - 0 Errors, 0 Warning(s).
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.c(277): error:  #147-D: declaration is incompatible with "void ImageSegment(unsigned char *)" (declared at line 17 of "ImageSegmentation.h")
+ImageSegmentation.c(282): error:  #165: too few arguments in function call
+".\ImageSegmentationTest.axf" - 2 Errors, 0 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+ImageSegmentation.c(282): error:  #165: too few arguments in function call
+".\ImageSegmentationTest.axf" - 1 Errors, 1 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+ImageSegmentation.h(17): warning:  #1295-D: Deprecated declaration ImageSegment - give arg types
+linking...
+Program Size: Code=4640 RO-data=32 RW-data=40 ZI-data=4302056  
+".\ImageSegmentationTest.axf" - 0 Errors, 1 Warning(s).
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+linking...
+Program Size: Code=4640 RO-data=32 RW-data=40 ZI-data=4302056  
+".\ImageSegmentationTest.axf" - 0 Errors, 0 Warning(s).
+Build target 'Target 1'
+compiling LabelOptimization.c...
+header.h(36): error:  #101: "RGBType" has already been declared in the current scope
+header.h(39): error:  #256: invalid redeclaration of type name "RGBTYPE" (declared at line 39)
+header.h(41): error:  #101: "Point" has already been declared in the current scope
+header.h(44): error:  #256: invalid redeclaration of type name "POINT" (declared at line 44)
+compiling ImageSegmentation.c...
+".\ImageSegmentationTest.axf" - 4 Errors, 0 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+header.h(36): error:  #101: "RGBType" has already been declared in the current scope
+header.h(39): error:  #256: invalid redeclaration of type name "RGBTYPE" (declared at line 39)
+header.h(41): error:  #101: "Point" has already been declared in the current scope
+header.h(44): error:  #256: invalid redeclaration of type name "POINT" (declared at line 44)
+compiling ImageSegmentation.c...
+".\ImageSegmentationTest.axf" - 4 Errors, 0 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+header.h(36): error:  #101: "RGBType" has already been declared in the current scope
+header.h(39): error:  #256: invalid redeclaration of type name "RGBTYPE" (declared at line 39)
+compiling ImageSegmentation.c...
+".\ImageSegmentationTest.axf" - 2 Errors, 0 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+header.h(36): error:  #101: "RGBType" has already been declared in the current scope
+header.h(39): error:  #256: invalid redeclaration of type name "RGBTYPE" (declared at line 39)
+header.h(41): error:  #101: "Point" has already been declared in the current scope
+header.h(44): error:  #256: invalid redeclaration of type name "POINT" (declared at line 44)
+compiling ImageSegmentation.c...
+".\ImageSegmentationTest.axf" - 4 Errors, 0 Warning(s).
+Target not created
+Build target 'Target 1'
+compiling LabelOptimization.c...
+header.h(38): warning:  #375-D: declaration requires a typedef name
+header.h(36): error:  #101: "RGBType" has already been declared in the current scope
+header.h(38): warning:  #375-D: declaration requires a typedef name
+header.h(39): error:  #256: invalid redeclaration of type name "RGBTYPE" (declared at line 39)
+header.h(41): error:  #101: "Point" has already been declared in the current scope
+header.h(44): error:  #256: invalid redeclaration of type name "POINT" (declared at line 44)
+compiling ImageSegmentation.c...
+header.h(38): warning:  #375-D: declaration requires a typedef name
+".\ImageSegmentationTest.axf" - 4 Errors, 3 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+header.h(36): warning:  #260-D: explicit type is missing ("int" assumed)
+header.h(36): error:  #65: expected a ";"
+header.h(39): error:  #256: invalid redeclaration of type name "RGBTYPE" (declared at line 36)
+header.h(36): error:  #84: invalid combination of type specifiers
+header.h(41): error:  #101: "Point" has already been declared in the current scope
+header.h(44): error:  #256: invalid redeclaration of type name "POINT" (declared at line 44)
+compiling ImageSegmentation.c...
+header.h(36): warning:  #260-D: explicit type is missing ("int" assumed)
+header.h(36): error:  #65: expected a ";"
+header.h(39): error:  #256: invalid redeclaration of type name "RGBTYPE" (declared at line 36)
+ImageSegmentation.c(30): error:  #70: incomplete type is not allowed
+ImageSegmentation.c(40): error:  #852: expression must be a pointer to a complete object type
+ImageSegmentation.c(45): error:  #852: expression must be a pointer to a complete object type
+ImageSegmentation.c(45): error:  #852: expression must be a pointer to a complete object type
+ImageSegmentation.c(45): error:  #852: expression must be a pointer to a complete object type
+ImageSegmentation.c(45): error:  #852: expression must be a pointer to a complete object type
+ImageSegmentation.c(45): error:  #852: expression must be a pointer to a complete object type
+ImageSegmentation.c(45): error:  #852: expression must be a pointer to a complete object type
+ImageSegmentation.c(20): error:  #235: variable "image_Correction" was declared with a never-completed type
+".\ImageSegmentationTest.axf" - 16 Errors, 2 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+header.h(36): warning:  #260-D: explicit type is missing ("int" assumed)
+header.h(36): error:  #65: expected a ";"
+header.h(36): error:  #84: invalid combination of type specifiers
+header.h(40): error:  #101: "Point" has already been declared in the current scope
+header.h(43): error:  #256: invalid redeclaration of type name "POINT" (declared at line 43)
+compiling ImageSegmentation.c...
+header.h(36): warning:  #260-D: explicit type is missing ("int" assumed)
+header.h(36): error:  #65: expected a ";"
+ImageSegmentation.c(31): error:  #154: expression must have struct or union type
+ImageSegmentation.c(31): error:  #154: expression must have struct or union type
+ImageSegmentation.c(31): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+".\ImageSegmentationTest.axf" - 14 Errors, 2 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+header.h(36): warning:  #260-D: explicit type is missing ("int" assumed)
+header.h(36): error:  #65: expected a ";"
+header.h(36): error:  #84: invalid combination of type specifiers
+header.h(40): error:  #101: "Point" has already been declared in the current scope
+header.h(43): error:  #256: invalid redeclaration of type name "POINT" (declared at line 43)
+compiling ImageSegmentation.c...
+header.h(36): warning:  #260-D: explicit type is missing ("int" assumed)
+header.h(36): error:  #65: expected a ";"
+ImageSegmentation.c(31): error:  #154: expression must have struct or union type
+ImageSegmentation.c(31): error:  #154: expression must have struct or union type
+ImageSegmentation.c(31): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+ImageSegmentation.c(45): error:  #154: expression must have struct or union type
+".\ImageSegmentationTest.axf" - 14 Errors, 2 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+header.h(38): error:  #256: invalid redeclaration of type name "RGBTYPE" (declared at line 38)
+header.h(40): error:  #101: "Point" has already been declared in the current scope
+header.h(43): error:  #256: invalid redeclaration of type name "POINT" (declared at line 43)
+compiling ImageSegmentation.c...
+".\ImageSegmentationTest.axf" - 3 Errors, 0 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+header.h(37): error:  #101: "Point" has already been declared in the current scope
+header.h(40): error:  #256: invalid redeclaration of type name "POINT" (declared at line 40)
+compiling ImageSegmentation.c...
+".\ImageSegmentationTest.axf" - 2 Errors, 0 Warning(s).
+Target not created
+Rebuild target 'Target 1'
+assembling S3C2410A.s...
+compiling LabelOptimization.c...
+compiling ImageSegmentation.c...
+linking...
+Program Size: Code=11800 RO-data=32 RW-data=88 ZI-data=70659376  
+".\ImageSegmentationTest.axf" - 0 Errors, 0 Warning(s).

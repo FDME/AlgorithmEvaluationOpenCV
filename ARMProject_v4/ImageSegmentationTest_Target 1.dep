@@ -1,0 +1,6 @@
+Dependencies for Project 'ImageSegmentationTest', Target 'Target 1': (DO NOT MODIFY !)
+F (.\S3C2410A.s)(0x51C7B90E)(--cpu ARM920T -g --apcs=interwork -I "C:\Program Files (x86)\keil\ARM\RV31\INC"-I "C:\Program Files (x86)\keil\ARM\CMSIS\Include"-I "C:\Program Files (x86)\keil\ARM\Inc\Samsung"--list .\s3c2410a.lst --xref -o .\s3c2410a.o --depend .\s3c2410a.d)
+F (.\LabelOptimization.c)(0x54897EF6)()
+I (C:\HuaWeiImage\ARMProject_v4\LabelOptimization.h)(0x54897F0B)
+I (C:\HuaWeiImage\ARMProject_v4\header.h)(0x54897C33)
+F (.\ImageSegmentation.c)(0x54897F44)()
