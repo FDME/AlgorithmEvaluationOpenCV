@@ -34,8 +34,6 @@ UINT8T  image_Sobel[SIZE];
 UINT8T	image_Canny[SIZE];
 UINT8T	label[SIZE];
 
-WSQ q[256];//mask
-
 //检测到的直线参数，个数待优化
 
 double Line_k[1000]; 
@@ -111,7 +109,7 @@ int main(int argc,char **argv)
 		numLines = LineSort(numLines, Line_k, Line_b);
 
 		//**********PerspectiveTransform测试代码如下：************
-		if (0){
+		if (1){
 			POINT src[4], dst[4];
 			src[1].x = 0; src[1].y = 0;
 			src[2].x = 0; src[2].y = 200;

@@ -14,4 +14,4 @@ struct Edge{
 };
 typedef struct Edge EDGE;
 
-void ImageSegment();
+void ImageSegment(UINT8T *label);

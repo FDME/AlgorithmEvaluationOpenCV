@@ -137,11 +137,11 @@ void ModifyMap(INT32T alpha, INT32T beta){
 			if ((lb[a[t].y] == alpha) || (lb[a[t].y] == beta))  a[t].cap = ComputeDataCost(a[t].y, alpha);
 	}
 
-	for (int t = sinkEdgeS; t < sinkEdgeE; t += 2){
+	for (t = sinkEdgeS; t < sinkEdgeE; t += 2){
 			if ((lb[a[t].x] == alpha) || (lb[a[t].x] == beta))  a[t].cap = ComputeDataCost(a[t].x, beta);
 	}
 
-	for (int t = pixelEdgeS; t < pixelEdgeE; t ++){
+	for (t = pixelEdgeS; t < pixelEdgeE; t ++){
 		if ((lb[a[t].x] == alpha) || (lb[a[t].x] == beta)){
 			if ((lb[a[t].y] == alpha) || (lb[a[t].y] == beta)){
 				a[t].cap = ComputeSmoothCost(alpha, beta);
@@ -246,8 +246,9 @@ void AlphaBetaSwap(){
 }
 
 void LoadImage(){
-	return;
 	FILE *fp;
+	return;
+	
 	fopen_s(&fp, "C:\\HuaWeiImage\\ARMProject\\ARMProject\\ImageData.txt", "r");
 	fscanf_s(fp, "%d %d", &h, &w);
 	printf("Image Loaded: %d x %d\n", h, w);
@@ -294,10 +295,11 @@ void SwapOperation(INT32T count){
 }
 
 void OutputSegmentationLabel(UINT8T *label){
+	FILE *fp;
 	for (i = 0; i < MAXPIXEL; i++) label[i] = lb[i];
 
 	//return;
-	FILE *fp;
+	
 	fopen_s(&fp, "Label.txt", "w");
 	fprintf(fp, "%d %d\n", h, w);
 	for (i = 0; i < MAXPIXEL; i++) fprintf_s(fp, "%d\n", label[i]);

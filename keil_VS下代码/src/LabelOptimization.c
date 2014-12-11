@@ -9,12 +9,13 @@ int temp[MAXHEIGHT][MAXWIDTH], block[MAXHEIGHT][MAXWIDTH];
 int queue[MAXHEIGHT * MAXWIDTH];
 int head, tail;
 int numBlocks;
+FILE *fp;
 
 void LoadLabel(UINT8T *labelIn){
 	for (i = 0; i < h; i++)
 	for (j = 0; j < w; j++) label[i][j] = labelIn[i * w + j];
 	return;
-	FILE *fp;
+	
 	fopen_s(&fp, "Label.txt", "r");
 	fscanf_s(fp, "%d %d", &h, &w);
 	printf("Image Loaded: %d x %d\n", h, w);
@@ -28,9 +29,10 @@ void LoadLabel(UINT8T *labelIn){
 }
 
 void OutputOptimisticLabel(UINT8T *labelIn){
+	FILE *fp;
 	for (i = 0; i < h; i++)
 	for (j = 0; j < w; j++) labelIn[i * w + j] = label[i][j];
-	FILE *fp;
+	
 	fopen_s(&fp, "Label.txt", "w");
 	fprintf_s(fp, "%d %d\n", h, w);
 	for (i = 0; i < h; i++)
