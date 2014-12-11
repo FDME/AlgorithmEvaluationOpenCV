@@ -88,11 +88,7 @@ struct Point{
 	UINT16T x,y;
 };
 typedef struct Point POINT;
-struct ws_Queue{
-	UINT32T pos[SIZE];
-	UINT32T st,en;
-};
-typedef struct ws_Queue WSQ;
+
 //全局变量声明
 extern UINT8T buffer[SIZE]; //存储拍摄jpeg
 extern UINT8T py[SIZE];   
@@ -109,7 +105,6 @@ extern UINT8T  image_Edge[SIZE];
 extern UINT8T  image_Gauss[SIZE];
 extern UINT8T  image_Sobel[SIZE];
 extern UINT8T	image_Canny[SIZE];
-extern WSQ q[256];
 
 #ifdef WIN32
 extern IplImage *image_1ch;
@@ -128,7 +123,8 @@ UINT16T camera(void);
 #endif
 int yuv2rgb(UINT8T* py, UINT8T* pu, UINT8T* pv, RGBTYPE* image_RGB);
 int jpg_decode(UINT8T* iPicture, UINT8T* oY, UINT8T* oU, UINT8T* oV, UINT32T size);
-void undistort_map();
+void undistort_map(RGBTYPE*src, RGBTYPE*dst);
+//以下是一些像素的运算，我只用到了pix_inter~其他的留着备用，不用可删
 RGBTYPE pix_add(RGBTYPE a, RGBTYPE b);
 RGBTYPE pix_div(RGBTYPE a, int n);
 RGBTYPE pix_mul(RGBTYPE a, float t);

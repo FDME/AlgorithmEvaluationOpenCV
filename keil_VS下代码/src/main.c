@@ -10,6 +10,7 @@
 /*------------------------------------------------------------------------------------------*/
 #include "header.h"
 #include "lsd.h"
+#include "ForegroundSeperation.h"
 
 UINT8T buffer[SIZE]; //存储拍摄jpeg
 UINT8T py[SIZE];   
@@ -28,7 +29,7 @@ UINT8T  image_Sobel[SIZE];
 UINT8T	image_Canny[SIZE];
 
 
-WSQ q[256];//储存mask和图像坐标的队列
+
 
 
 //检测到的直线参数，个数待优化
@@ -47,11 +48,12 @@ int main(int argc,char **argv)
 		UINT8T* picture = buffer;
 		UINT32T k = 0;
 		UINT32T jpg_size;
-		int i, j;
+		int i, j, number;
 
 #ifdef WIN32
-		image_1ch = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 1);
 		FILE* fp;
+		image_1ch = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 1);
+
 
                 //fp = fopen("C:\\projects\\huawei\\image\\测试图片\\华为拍照-20141128\\机柜A--电线干扰\\jpeg_20141128_151936.jpg", "rb");  // 可用
                 //fp = fopen("C:\\projects\\huawei\\image\\测试图片\\image_undistort.jpg", "rb");  // 鱼眼矫正后
@@ -104,13 +106,13 @@ int main(int argc,char **argv)
 			uart_printf("Finish RGB\n"); 
 #endif
 		
-		undistort_map();
+		undistort_map(image_RGB,image_Correction);
 		calc_gray(image_Gray, image_Correction);
 		//calc_integral(image_Integral, image_Gray);
 		//calc_gaussian_5x5(image_Gauss, image_Gray);
 		//calc_sobel_3x3(image_Sobel, image_Gray);
 		canny(image_Canny,image_Gray);
-		int number = lineDetect(Line_k,Line_b);
+		number = lineDetect(Line_k,Line_b);
 //检验结果
 #ifdef WIN32
 		//输出为图片
@@ -119,7 +121,7 @@ int main(int argc,char **argv)
 		//输出鱼眼矫正结果
 		showImage_RGB(image_Correction, "Correction");
 		//分水岭前背景分离
-		ForegroundSeperation();
+		ForegroundSeperation(image_Correction);
 
 
 		showImage_1ch(image_Gray, "Gray");

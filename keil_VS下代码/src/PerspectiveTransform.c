@@ -3,10 +3,8 @@
 		Functions are as following,
 			void PerspectiveTransform(POINT src[], POINT dst[]);
 */
-#include "header.h"
-extern int muav(double a[],int m,int n,double u[],double v[],double eps,int ka);
-extern int ginv(double a[],int m,int n,double aa[],double eps,double u[],double v[],int ka);
-void PerspectiveTransform(POINT src[], POINT dst[])
+#include "PerspectiveTransform.h"
+void PerspectiveTransform(POINT* src, POINT* dst)
 {
 	double M[3][3];
 	double a[8][8],b[8];

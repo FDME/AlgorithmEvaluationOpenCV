@@ -1795,6 +1795,11 @@ int lineDetect(double* k, double* b)
 	image_double image_LSD = new_image_double(C, R);
 	ntuple_list detected_lines;
 	int dim;
+	UINT8T pGray[SIZE];
+	double angletemp;
+	double length;
+	double temp_k,temp_b;
+	int counter = 0;
 #ifdef WIN32
 	CvPoint start_pt;
 	CvPoint end_pt;
@@ -1811,16 +1816,13 @@ int lineDetect(double* k, double* b)
 	free_image_double(image_LSD);
 
 	// LSD结果显示
-	UINT8T pGray[SIZE];
+	
 	memset(pGray, 0, SIZE);
 	cvSetData(image_1ch, pGray, C);
 	dim = detected_lines->dim;
 	printf("Number of lines detected = %d", detected_lines->size);
 	//double angle[770]; //detected_lines->size = 770
-	double angletemp;
-	double length;
-	double temp_k,temp_b;
-	int counter = 0;
+
 	for (j = 0; j < detected_lines->size; j++)
 	{
 		//cvLine(res_im,start_pt,end_pt,CV_RGB(j%255,(5*j)%255,(9*j)%255),1,CV_AA);
