@@ -17,34 +17,45 @@ struct GraphPixel{
 	int edge;
 };
 
-GraphPixel g[MAXWIDTH][MAXHEIGHT];
+GraphPixel g[MAXHEIGHT][MAXWIDTH];
+
+struct ResultRect{
+	int x, y;
+	int height, width;
+	int type;
+	int u;
+};
+
+ResultRect result[MAXHEIGHT];
+int numResult;
+
 int img[MAXHEIGHT][MAXWIDTH] = {};
 int tmp[MAXHEIGHT][MAXWIDTH] = {};
 int label[MAXHEIGHT][MAXWIDTH] = {};
 int numLabels = 3;
 
-#define MAXBLOCKS 100
+#define MAXBLOCKS 1000
 int numBlocks;
 int block[MAXHEIGHT][MAXWIDTH];
 bool isVisited[MAXHEIGHT][MAXWIDTH];
 int blockCount[MAXHEIGHT][MAXBLOCKS];
 
+int reach[MAXHEIGHT];
+
 int w, h;
 int leftBoundary;
-//double cam[] = { 386.951, 0, 233.539, 0, 384.132, 352.891, 0, 0, 1 };
-//double dis[] = { -0.44601, 0.266848, -0.00143158, 0.000143152, -0.103006 };
-
+double cam[] = { 386.951, 0, 233.539, 0, 384.132, 352.891, 0, 0, 1 };
+double dis[] = { -0.44601, 0.266848, -0.00143158, 0.000143152, -0.103006 };
 //ÒÔÉÏÊÇÖ®Ç°µÄ²ÎÊý
 
-double cam[] = { 283.561, 0, 246, 0, 285.903, 334.103, 0, 0, 1 };
-double dis[] = { -0.313793, 0.122695, 0.00123624, -0.000849487, -0.0250905 };
+//double cam[] = { 283.561, 0, 246, 0, 285.903, 334.103, 0, 0, 1 };
+//double dis[] = { -0.313793, 0.122695, 0.00123624, -0.000849487, -0.0250905 };
 
 Mat camMat(3, 3, CV_64F, cam), distCoeffs(1, 5, CV_64F, dis);
 Mat imageOriginal, imageGray, imageCanny, imageOutput, imageLabel, imageForeground;
 Mat imageResult;
 Mat imageOriginalT, imageCannyT, imageLabelT;
-Mat mask, makers; 
-Mat map1,map2;
+Mat mask, makers;
 vector<Vec3d> lines;
 vector<vector<Point>> contours;
 
@@ -195,66 +206,6 @@ void cali()
 	}
 	destroyWindow("Undistort");
 	// waitKey();
-}
-void generate_map_files()
-{
-	//È¡mapÖµ´æ´¢
-	FILE* map;
-	int R = map1.size().height, C = map1.size().width; 
-	fopen_s(&map, "map.c", "w+");
-
-
-	fprintf(map, "#include \"2410lib.h\"\nUINT8T map1[%d][%d] = {\n", R, C);
-
-	//CvScalar s;
-	for (int i = 0; i < R; i++)
-	{
-		fprintf(map, "{ ");
-		for (int j = 0; j < C; j++)
-		{
-			//s = cvGet2D(&(IplImage)imageOriginal, i, j);
-			fprintf(map, "%f", map1.at<float>(i,j));//map1
-			if(i == 400 && j == 200)
-				printf("%f    %f",map1.at<float>(i,j),map2.at<float>(i,j));
-			if (j != C - 1){
-				fprintf(map, ", ");
-			}
-
-			//if (j % 20 == 0 && j != 0)
-			//{
-			//	fprintf(map, "\n ");
-			//}
-		}
-		fprintf(map, "},\n");
-	}
-	fseek(map, -3, SEEK_CUR);
-	fprintf(map, "};\n");
-
-	fprintf(map, "UINT8T map2[%d][%d] = {\n", R, C);
-
-	//CvScalar s;
-	for (int i = 0; i < R; i++)
-	{
-		fprintf(map, "{ ");
-		for (int j = 0; j < C; j++)
-		{
-			//s = cvGet2D(&(IplImage)imageOriginal, i, j);
-			fprintf(map, "%f", map2.at<float>(i,j));//map1
-			if (j != C - 1){
-				fprintf(map, ", ");
-			}
-
-			//if (j % 20 == 0 && j != 0)
-			//{
-			//	fprintf(map, "\n ");
-			//}
-		}
-		fprintf(map, "},\n");
-	}
-	fseek(map, -3, SEEK_CUR);
-	fprintf(map, "};\n");
-
-	fclose(map);
 }
 
 #pragma endregion
@@ -608,34 +559,20 @@ void LoadImage(string path = "C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õý³£¹âÕÕ\\60~90.jpg"){
 	h = imageOriginal.rows;
 	w = imageOriginal.cols;
 	printf("%dx%d\n", h, w);
-	Mat R;
+	//Mat R;
 	//Mat map1,map2;
 	// initUndistortRectifyMap(camMat, distCoeffs, Mat(),
 	//	 getOptimalNewCameraMatrix(camMat, distCoeffs, image.size(), 1, image.size(), 0),
 	//	 Size(2*image.cols,2*image.rows), CV_16SC2, map1, map2);
 
-	initUndistortRectifyMap(camMat,distCoeffs,R, camMat,Size(image.cols,image.rows),CV_32FC1,map1,map2);
-	generate_map_files();
+	//	initUndistortRectifyMap(camMat,distCoeffs,R, camMat,Size(2*image.cols,2*image.rows),CV_32FC1,map1,map2);
 	//remap(image,imageOriginal,map1,map2,INTER_LINEAR);
-	//imageOriginal = image;
-	//cout << map1 << endl;
-	//cout << map2 << endl;
-	//for(int i = 500; i != 640; i++)
-	//	for(int j = 0; j != 480; j++){
-	//		cout << map2.at<float>(i,j) << " " << endl;
-	//		
-	//}
-	//int x,y;
-	//for(int i = 0; i != 540; i++)
-	//	for(int j = 0; j != 480; j++){
-	//		//x = map1.at<float>(i,j);
-	//		//y = map2.at<float>(i,j);
-	//		//if( x != (int)map1.at<float>(i,j))
-	//		//cout << x << " " << y << " " << flush;
-	//		imageOriginal.at<Vec3b>(i,j) = image.at<Vec3b>((int)map2.at<float>(i+100,j),(int)map1.at<float>(i,j));
-	//	}
 	ShowImage(imageOriginal, "undistort");
-	waitKey();
+	//imageOutput = imageOriginal.clone();
+	//resize(imageOutput, imageOriginal, Size(w / 2, h / 2));
+	//ShowImage(imageOriginal, "small");
+	//w /= 2;
+	//h /= 2;
 
 }
 
@@ -756,6 +693,7 @@ void ImageLabelInput(){
 		}
 		it++;
 	}
+	
 	ShowImage(imageOutput, "Label");
 }
 
@@ -800,7 +738,7 @@ int ComputeDataCost(int index, int l){
 	}
 	else
 	if (l == 1){
-		cost = max(210 - gray, 0) + 10;
+		cost = max(210 - gray, 0) + 20;
 	}
 	else
 	if (l == 2){
@@ -814,7 +752,7 @@ int ComputeDataCost(int index, int l){
 }
 
 int ComputeSmoothCost(int l1, int l2){
-	int varity = 10;
+	int varity = 5;
 	if (l1 == l2) return 0;
 	int temp;
 	if (l1 > l2){
@@ -824,7 +762,7 @@ int ComputeSmoothCost(int l1, int l2){
 	}
 	if (l1 == 0){
 		if (l2 == 1) return 60 / varity;
-		if (l2 == 2) return 30 / varity;
+		if (l2 == 2) return 40 / varity;
 		//if (l2 == 3) return 30 / varity;
 	} else 
 	if (l1 == 1){
@@ -959,7 +897,7 @@ int ComputeEnergy(){
 	for (int i = 0; i < MAXPIXEL; i++) energy += (int)ComputeDataCost(i, lb[i]);
 	printf("EEE1: %d\n", energy);
 	for (int t = pixelEdgeS; t < pixelEdgeE; t += 2) {
-		energy += ComputeSmoothCost(a[t].x, a[t].y);
+		energy += ComputeSmoothCost(lb[a[t].x], lb[a[t].y]);
 		//printf("EEE2: %d\n", ComputeSmoothCost(a[t].x, a[t].y));
 	}
 	printf("EEE2: %d\n", energy);
@@ -1172,8 +1110,8 @@ void DetectSpace_0(){		//labelÓÅ»¯
 	for (int i = 0; i < h; i++)
 	for (int j = 0; j < w; j++) img[i][j] = label[i][j];
 
-	Dilate(2, 6, 4);
-	Erode(2, 2, 10);
+	Dilate(2, 6 - (MAXWIDTH / w - 1), 4 - (MAXWIDTH / w - 1));
+	Erode(2, 2 - (MAXWIDTH / w - 1), 10 - (MAXWIDTH / w - 1));
 
 	for (int i = 0; i < h; i++)
 	for (int j = 0; j < w; j++) label[i][j] = img[i][j];
@@ -1210,7 +1148,7 @@ void dfs(int i, int j, int l){
 }
 
 void DetectSpace_2(){ //ÏÞÖÆÁ¬Í¨ÓòµÄÁªÍ¨¿í¶È£¬Õâ¸ö²¿·Ö·ÅÔÚÊÓ½ÇÅ¤ÕýÖ®ºóÐ§¹û¸ü¼Ñ~£¡
-	numBlocks = 0;
+	numBlocks = 1;
 	for (int i = 0; i < h; i++)
 	for (int j = 0; j < w; j++) isVisited[i][j] = false;
 	for (int i = 0; i < h; i++)
@@ -1219,13 +1157,15 @@ void DetectSpace_2(){ //ÏÞÖÆÁ¬Í¨ÓòµÄÁªÍ¨¿í¶È£¬Õâ¸ö²¿·Ö·ÅÔÚÊÓ½ÇÅ¤ÕýÖ®ºóÐ§¹û¸ü¼Ñ~£
 		numBlocks++;
 	}
 	printf("blocks: %d\n", numBlocks);
-	for (int i = 0; i < h; i++)
+	for (int i = 0; i < MAXHEIGHT; i++)
 	{
-		for (int l = 0; l < numBlocks; l++) blockCount[i][l] = 0;
+		for (int j = 0; j < numBlocks; j++) blockCount[i][j] = 0;
 		for (int j = 0; j < w; j++) blockCount[i][block[i][j]]++;
-		for (int j = 0; j < w; j++) if (blockCount[i][block[i][j]] < w / 3) label[i][j] = 2;
+		for (int j = 0; j < w; j++) if (blockCount[i][block[i][j]] < w * 2 / 5) {
+			label[i][j] = 2;
+			block[i][j] = 0;
+		}
 	}
-
 }
 
 Vec3d CalcLine(vector<Point> points){
@@ -1279,8 +1219,8 @@ bool OutOfBox(vector<Point> contour){
 	if (x_sum < leftBoundary * contour.size()) return false; else return true;
 }
 void DetectLines(){
-	int lengthLimit = 90;
-	int split = 30;
+	int lengthLimit = 90 * w / MAXWIDTH;
+	int split = 30 * w / MAXWIDTH;
 	vector<Point> points;
 	vector<Point> pointsTemp;
 	Vec3d result;
@@ -1302,7 +1242,7 @@ void DetectLines(){
 				if (points.size() >=  lengthLimit){
 					result = CalcLine(points);
 					if (checkLine(result)) lines.push_back(result);
-					for (int i = 0; i < points.size(); i++) line(imageOutput, points[i], points[i], Scalar(0, 255, 0), 1.5);
+					//for (int i = 0; i < points.size(); i++) line(imageOutput, points[i], points[i], Scalar(0, 255, 0), 1.5);
 					printf("k = %lf, b = %lf\n", result[0], result[1]);
 					//ShowImage(imageOutput, "line");
 				}
@@ -1312,7 +1252,7 @@ void DetectLines(){
 		if (points.size() > lengthLimit){
 			result = CalcLine(points);
 			if (checkLine(result)) lines.push_back(result);
-			for (int i = 0; i < points.size(); i++) line(imageOutput, points[i], points[i], Scalar(0, 255, 0), 1.5);
+			//for (int i = 0; i < points.size(); i++) line(imageOutput, points[i], points[i], Scalar(0, 255, 0), 1.5);
 			printf("k = %lf, b = %lf\n", result[0], result[1]);
 			//ShowImage(imageOutput, "line");
 		}
@@ -1322,7 +1262,7 @@ void DetectLines(){
 		double b = lines[i][1];
 		Point st = Point(0, b);
 		Point en = Point(w, b + w * k);
-		line(imageOutput, st, en, Scalar(255, 0, 0), 1.5);
+		line(imageOutput, st, en, Scalar(0, 255, 0), 1.5);
 		printf("k = %lf, b = %lf\n", k, b);
 	}
 	ShowImage(imageOutput, "line");
@@ -1373,7 +1313,7 @@ void LineSort(){
 		double b = lines[i][1];
 		Point st = Point(0, b);
 		Point en = Point(w, b + w * k);
-		line(imageOutput, st, en, Scalar(255, 0, 0), 1.5);
+		line(imageOutput, st, en, Scalar(0, 255, 0), 1.5);
 		printf("k = %lf, b = %lf\n", k, b);
 	}
 	ShowImage(imageOutput, "lineSorted");
@@ -1437,10 +1377,8 @@ void PerspectiveTransfrom(){
 	Mat transform = getPerspectiveTransform(corners, cornersT);
 	warpPerspective(imageLabel, imageLabelT, transform, Size(w, h));
 	warpPerspective(imageOriginal, imageOriginalT, transform, Size(w, h));
-	imshow("aaaa~",imageOriginalT);
 	for (int i = 0; i < h; i++)
 	for (int j = 0; j < w; j++) label[i][j] = imageLabelT.at<Vec3b>(i, j)[0];
-
 }
 
 int findLeftEdge(){
@@ -1451,14 +1389,19 @@ int findLeftEdge(){
 	}
 	return w - 1;
 }
+
 void DetectSpace_3(){
 	int boundary = w;
+	printf("%dx%d\n", imageLabel.rows, imageLabel.cols);
+
 	for (int i = 0; i < h; i++)
 	for (int j = 0; j < w; j++) imageLabel.at<Vec3b>(i, j) = Vec3b(label[i][j], label[i][j], label[i][j]);
 	Canny(imageLabel, imageCanny, 1, 2);
 	line(imageCanny, Point(0, 0), Point(0, h - 1), Scalar(255, 255, 255), 1);
 	line(imageCanny, Point(0, 0), Point(w - 1, 0), Scalar(255, 255, 255), 1);
 	OptimizeCanny();
+	printf("%dx%d\n", h, w);
+
 	ShowImage(imageCanny, "Canny");
 	findContours(imageCanny, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
 	imageOutput = imageOriginalT;
@@ -1475,41 +1418,141 @@ void DetectSpace_3(){
 		int maxx = 0;
 		for (int i = 0; i < 4; i++) if (vertices[i].x > maxx) maxx = vertices[i].x;
 		for (int i = 0; i < 4; i++) if (vertices[i].x < minx) minx = vertices[i].x;
-		if (minx > boundary / 10) continue;
+		if (minx > boundary / 16) continue;
 		if (maxx < boundary / 2) continue;
 		for (int i = 0; i < 4; i++){
 			line(imageOutput, vertices[i], vertices[(i + 1) % 4], Scalar(0, 0, 255), 2);
 		}
-
 		//drawContours(imageOutput, contours, index++, Scalar(255, 0, 0), 2);
 			//ShowImage(imageOutput, "result");
 	}
 	ShowImage(imageOutput, "result");
 }
 
+void OutputImage(string path = "C:\\HuaWeiImage\\ARMProject\\ARMProject\\ImageData.txt"){
+	FILE *fp;
+	fopen_s(&fp, path.c_str(), "w");
+	fprintf_s(fp, "%d %d\n", h, w);
+	for (MatIterator_<Vec3b> it = imageOriginal.begin<Vec3b>(); it != imageOriginal.end<Vec3b>(); it++){
+		fprintf_s(fp, "%d %d %d\n", (*it)[0], (*it)[1], (*it)[2]);
+	}
+	for (MatIterator_<uchar> it = imageCanny.begin<uchar>(); it != imageCanny.end<uchar>(); it++){
+		fprintf_s(fp, "%d\n", (*it));
+	}
+	fclose(fp);
+}
+
 #pragma endregion
 
+void File2Label(){
+	FILE *fp;
+	fopen_s(&fp, "C:\\HuaWeiImage\\ARMProject_v3\\ARMProject_v3\\Label.txt", "r");
+	fscanf_s(fp, "%d %d", &h, &w);
+	for (int i = 0; i < h; i++)
+	for (int j = 0; j < w; j++){
+		fscanf_s(fp, "%d", &label[i][j]);
+	}
 
+	fclose(fp);
+	ImageLabelInput();
+} 
 
+int Pixel2U(int height){
+	int offset = 20;
+	int p2u = 30;
+	return (height + offset) / p2u;
+}
+
+void DetectSpace_4(){
+	int cost = w / 24;
+	int limit = w / 48;
+	for (int i = 0; i < h; i++){
+		int len = 0;
+		int l = label[i][0];
+		reach[i] = 0;
+		if (l != 2){
+			for (int j = 0; j < w; j++) if (label[i][j] == l){
+				len++;
+				reach[i] = j;
+			}
+			else{
+				len -= 20;
+				if (len < 0) break;
+			}
+		}	
+	}
+	int last = 0;
+	FILE *fp;
+	fopen_s(&fp, "C:\\HuaWeiImage\\ARMProject_v3\\ARMProject_v3\\Reach.txt", "w");
+	for (int i = 0; i < h; i++) fprintf_s(fp, "%d\n", reach[i]);
+	fclose(fp);
+	
+	int y1, y2, wid, minWid;
+	numResult = 0;
+	y1 = y2 = 0;
+	wid = minWid = w;
+	for (int i = 0; i < h; i++){
+		if (reach[i] > w / 2){
+			if (reach[i] < wid) wid = reach[i];
+			y2 = i;
+		}
+		else {
+			if (y2 - y1 > limit && y1 > limit && y2 < 600 && y1 > 150){
+				result[numResult].x = 0;
+				result[numResult].y = y1;
+				result[numResult].width = wid;
+				result[numResult].height = y2 - y1;
+				result[numResult].type = label[y1][0];
+				result[numResult].u = Pixel2U(y2 - y1);
+				printf("[H: %d, W: %d] [@y = %d] [Type%d, %dU]\n", y2 - y1, wid, y1, result[numResult].type, result[numResult].u);
+				numResult++;
+				if (wid < minWid) minWid = wid;
+			}
+			wid = w;
+			y1 = i;
+		}
+	}
+	for (int i = 0; i < numResult; i++) result[i].width = minWid;
+}
+
+void ShowResult(){
+	printf("Result: %d", numResult);
+	imageOutput = imageOriginalT.clone();
+	for (int i = 0; i < numResult; i++){
+		line(imageOutput, cv::Point(result[i].x, result[i].y), cv::Point(result[i].x + result[i].width, result[i].y), Scalar(0, 0, 255), 2);
+		line(imageOutput, Point(result[i].x + result[i].width, result[i].y), Point(result[i].x + result[i].width, result[i].y + result[i].height), Scalar(0, 0, 255), 2);
+		line(imageOutput, Point(result[i].x + result[i].width, result[i].y + result[i].height), Point(result[i].x, result[i].y + result[i].height), Scalar(0, 0, 255), 2);
+		line(imageOutput, Point(result[i].x, result[i].y + result[i].height), Point(result[i].x, result[i].y), Scalar(0, 0, 255), 2);
+	}
+	ShowImage(imageOutput, "Result");
+}
 
 
 int main(){
-	string user = "qzf";
+	string user = "yzy";
 
 	if (user == "yzy")
 	{
-		LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õý³£¹âÕÕ´ø¼ÙÃæ°å\\jpeg_20140912_150217.jpg");
-		//system("PAUSE");
-		//return 0;
-		//LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ\\Õý³£¹âÕÕ²¿·Ö²ð³ý\\jpeg_20140912_152553.jpg");	//ÔØÈëÍ¼Æ¬£¬ÓãÑÛ½ÃÕý
+		//LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ-20141128\\»ú¹ñA-ÖÐÐÄÏÂÒÆ\\jpeg_20141128_154129.jpg");  // ok
+		//LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ-20141128\\»ú¹ñA--µçÏß¸ÉÈÅ\\jpeg_20141128_151911.jpg");  //ok
+		//LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ-20141128\\»ú¹ñA-¼õÉÙ2¸öÉè±¸\\jpeg_20141128_153021.jpg");
+		//LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ-20141128\\»ú¹ñB-Õý³£\\jpeg_20141128_160552.jpg");
+		//LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ-20141128\\»ú¹ñA-°µ³¡¾°\\jpeg_20141128_151235.jpg");  //°µÇøÓò¼ì²âÊ§Ð§
+		LoadImage("C:\\HuaWeiImage\\»ªÎªÅÄÕÕ-20141128\\»ú¹ñA--²ðÁËÒ»¸öÉè±¸\\jpeg_20141128_152412.jpg");
+		//DetectContours();						//±ß½ç¼ì²â£¬Ö÷Òª°üÀ¨cannyºÍfindContours
+		//OutputImage();
+
+		//File2Label();
 		//return 0;
 
 		Preprocess();							//Ô¤´¦Àí£¬ÔÝÊ±Ã»Ê²Ã´ÓÃ£¬¿É¼ÓÈë¹âÕÕµ÷Õû
+		// retinex();
 		ForegroundSeparation();
 		DetectContours();						//±ß½ç¼ì²â£¬Ö÷Òª°üÀ¨cannyºÍfindContours
+		OutputImage();
 		DetectLines();							//´ÓcontoursÖÐÌáÈ¡Ö±Ïß
 //		MultiLabelGraphCut();					//Í¼Ïñ·Ö¸î
-		Swap();
+		Swap(3);
 
 		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
 		PerspectiveTransfrom();					//ÊÓ½Ç±ä»»
@@ -1520,36 +1563,21 @@ int main(){
 		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
 		DetectSpace_2();						//ÁªÍ¨¶ÈÓÅ»¯
 		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
-		DetectSpace_3();						//¿ÕÓà¿Õ¼äÐ£Ñé£¬½á¹ûÏÔÊ¾
-
+		DetectSpace_2();						//ÁªÍ¨¶ÈÓÅ»¯
+		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
+		DetectSpace_4();
+		//DetectSpace_3();						//¿ÕÓà¿Õ¼äÐ£Ñé£¬½á¹ûÏÔÊ¾
+		ShowResult();
 		waitKey();
 		destroyAllWindows();
 	}
 	else
 	if (user == "qzf"){
 
-		LoadImage("C:\\Users\\ZoeQIAN\\Pictures\\»ªÎªÅÄÕÕ\\Õý³£¹âÕÕ\\3.jpg");
+		LoadImage("C:\\Users\\ZoeQIAN\\Pictures\\»ªÎªÅÄÕÕ\\Õý³£¹âÕÕ\\60.jpg");
 		//cali();
 		Preprocess();
 		ForegroundSeparation();
-		DetectContours();						//±ß½ç¼ì²â£¬Ö÷Òª°üÀ¨cannyºÍfindContours
-		DetectLines();							//´ÓcontoursÖÐÌáÈ¡Ö±Ïß
-//		MultiLabelGraphCut();					//Í¼Ïñ·Ö¸î
-		Swap();
-
-		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
-		PerspectiveTransfrom();					//ÊÓ½Ç±ä»»
-		ImageLabelInput();
-		
-
-		DetectSpace_0();						//ÔÓÎï¹ýÂË£¨ºáÏò¸¯Ê´£©
-		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
-		DetectSpace_2();						//ÁªÍ¨¶ÈÓÅ»¯
-		ImageLabelInput();						//labelÍ¼ÏóÏÔÊ¾
-		DetectSpace_3();						//¿ÕÓà¿Õ¼äÐ£Ñé£¬½á¹ûÏÔÊ¾
-
-		waitKey();
-		destroyAllWindows();
 	}
 	else
 	if (user == "qyz"){
