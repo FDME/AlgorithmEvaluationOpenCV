@@ -42,6 +42,11 @@ void retinex(RGBTYPE* dst, RGBTYPE* src, int sigma, int scale)
 	double src_fl[SIZE * 3]; //原图，量化结果图 
 	double src_fl1[SIZE * 3];//Log(I(x, y))
 	double src_fl2[SIZE * 3];//Log(Gauss(I(x, y)))
+	double mean[3], dev[3]; //b,g,r
+	double min[3];
+	double max[3];
+	double maxmin[3];
+	double temp1, temp2;
 
 	//三维变一维, 并转换范围，所有图像元素增加1.0保证cvlog正常
 	for (i = 0; i < R; i++)
@@ -82,11 +87,7 @@ void retinex(RGBTYPE* dst, RGBTYPE* src, int sigma, int scale)
 	//使用GIMP中转换方法：使用图像的均值方差等信息进行变换
 	//没有添加溢出判断
 
-	double mean[3], dev[3]; //b,g,r
-	double min[3];
-	double max[3];
-	double maxmin[3];
-	double temp1, temp2;
+
 	AvgSdv(src_fl, mean, dev);//计算图像的均值和标准差
 	for (k = 0; k<3; k++)
 	{

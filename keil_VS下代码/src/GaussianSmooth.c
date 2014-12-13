@@ -5,11 +5,6 @@ void GaussianSmooth(double* dst, double* src, double sigma, int channels)
 	int ksize;
 	double tempData[SIZE * 3];
 	double result[SIZE * 3];
-	sigma = sigma > 0 ? sigma : -sigma;
-	//高斯核矩阵的大小为(6*sigma+1)*(6*sigma+1)
-	//ksize为奇数
-	ksize = ceil(sigma * 3) * 2 + 1;
-
 	//计算一维高斯核
 	//sigma < 50
 	double kernel[301];
@@ -18,8 +13,16 @@ void GaussianSmooth(double* dst, double* src, double sigma, int channels)
 	double cons = 1 / sqrt(-scale / PI);
 
 	double sum = 0;
-	int kcenter = ksize / 2;
-	int i = 0, j = 0;
+	int kcenter;
+	int i = 0, j = 0,x,y,k;
+
+	sigma = sigma > 0 ? sigma : -sigma;
+	//高斯核矩阵的大小为(6*sigma+1)*(6*sigma+1)
+	//ksize为奇数
+	ksize = ceil(sigma * 3) * 2 + 1;
+	kcenter = ksize / 2;
+
+
 	for (i = 0; i < ksize; i++)
 	{
 		int x = i - kcenter;
@@ -34,13 +37,14 @@ void GaussianSmooth(double* dst, double* src, double sigma, int channels)
 	}
 
 	//x方向一维高斯模糊
-	for (int y = 0; y < R; y++)
+	for (y = 0; y < R; y++)
 	{
-		for (int x = 0; x < C; x++)
+		for (x = 0; x < C; x++)
 		{
 			double mul = 0;
-			sum = 0;
 			double bmul = 0, gmul = 0, rmul = 0;
+			sum = 0;
+			
 			for (i = -kcenter; i <= kcenter; i++)
 			{
 				if ((x + i) >= 0 && (x + i) < C)
@@ -73,13 +77,14 @@ void GaussianSmooth(double* dst, double* src, double sigma, int channels)
 
 
 	//y方向一维高斯模糊
-	for (int x = 0; x < C; x++)
+	for (x = 0; x < C; x++)
 	{
-		for (int y = 0; y < R; y++)
+		for (y = 0; y < R; y++)
 		{
 			double mul = 0;
-			sum = 0;
 			double bmul = 0, gmul = 0, rmul = 0;
+			sum = 0;
+			
 			for (i = -kcenter; i <= kcenter; i++)
 			{
 				if ((y + i) >= 0 && (y + i) < R)
@@ -114,7 +119,7 @@ void GaussianSmooth(double* dst, double* src, double sigma, int channels)
 	//复制结果
 	for (i = 0; i < R; i++)
 	for (j = 0; j < C; j++)
-	for (int k = 0; k < 3; k++)
+	for (k = 0; k < 3; k++)
 	{
 		dst[i*C*channels + j*channels+k] = result[i*C*channels + j*channels+k];
 	}

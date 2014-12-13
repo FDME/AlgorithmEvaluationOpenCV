@@ -1,4 +1,4 @@
 // µœ÷‘⁄watershd.c
 #include "header.h"
 
-void ForegroundSeperation(RGBTYPE* img);
+void ForegroundSeperation(RGBTYPE* src,RGBTYPE* dst);

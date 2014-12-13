@@ -69,8 +69,8 @@ int main(int argc,char **argv)
 		FILE* fp;
 
 		//fp = fopen("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A——正常光照\\jpeg_20141128_150639.jpg", "rb");
-		//fp = fopen("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照-20141128\\机柜A——正常光照\\5.jpg","rb");
-		fp = fopen("E:\\VS2013_pro\\jpeg_20141128_151235.jpg", "rb");  //暗光图片
+		fp = fopen("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照-20141128\\机柜A——正常光照\\5.jpg","rb");
+		//fp = fopen("E:\\VS2013_pro\\jpeg_20141128_151235.jpg", "rb");  //暗光图片
 		jpg_size = filesize(fp);
 		printf("size=%d\n", jpg_size);
 		fread(buffer, jpg_size, 1, fp);
@@ -103,7 +103,7 @@ int main(int argc,char **argv)
 		//LabelOptimize(label);
 		//numLines = lineDetect(Line_k,Line_b);
 		//numLines = LineSort(numLines, Line_k, Line_b);
-		ForegroundSeperation(image_Preprocess);
+		ForegroundSeperation(image_Preprocess,image_Preprocess);
 
 		//**********PerspectiveTransform测试代码如下：************
 		if (1){
@@ -117,7 +117,8 @@ int main(int argc,char **argv)
 			dst[1].x = 0; dst[1].y = C;
 			dst[2].x = R; dst[2].y = C;
 			dst[3].x = R; dst[3].y = 0;
-			PerspectiveTransform(src, dst);
+			//no in-place 输入输出不能相同
+			PerspectiveTransform(src, dst, image_Correction,image_Transform);
 		}
 		//*********************************************************
 
@@ -131,7 +132,6 @@ int main(int argc,char **argv)
 		showImage_RGB(image_Preprocess, "preprocess");
 		
 		showImage_RGB(image_Transform,"Transform");
-		showImage_RGB(image_Correction,"watershed");
 		//showImage_1ch(image_Gray, "Gray");
 
 		//UINT8T pGray[SIZE];

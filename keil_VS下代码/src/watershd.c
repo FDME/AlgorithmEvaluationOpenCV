@@ -13,15 +13,14 @@
 #define ws_min(a,b) min(a,b)
 #define ws_push(idx,pos)	\
 {								\
-	if(q[idx].next > 255){q[en].pos = pos;q[q[idx].en].next = en;q[en].flag = 1;q[idx].en = en++;}			\
-	else {q[idx].pos = pos; q[idx].en = idx;q[q[idx].en].next = en;q[idx].flag = 1;}\
+	if(q[idx].flag){q[en].pos = pos;q[q[idx].en].next = en;q[en].flag = 1;q[idx].en = en++;}			\
+	else {q[idx].pos = pos; q[idx].en = idx;q[idx].flag = 1;}\
 }
 #define ws_pop(idx,pos)		\
 {							\
 	pos = q[idx].pos;		\
-	q[idx].flag = 0; \
-	q[q[idx].next].en = q[idx].en;\
-	q[idx] = q[q[idx].next];	\
+	if(!q[q[idx].next].flag) q[idx].flag = 0; \
+	else {if(q[q[idx].next].next == q[idx].next) q[idx].en = idx; q[q[idx].next].flag = 0; q[idx].pos = q[q[idx].next].pos; q[idx].next = q[q[idx].next].next;}	\
 }
 #define c_diff(ptr1,ptr2,diff)	\
 {								\
@@ -38,7 +37,7 @@ struct ws_Queue{
 };
 typedef struct ws_Queue WSQ;
 
-void ForegroundSeperation(RGBTYPE* img){
+void ForegroundSeperation(RGBTYPE* src,RGBTYPE* dst){
 	UINT8T markers[SIZE], *m;
 	UINT32T** pt;
 	UINT32T i,j,pos,en = 256, qt;
@@ -47,7 +46,7 @@ void ForegroundSeperation(RGBTYPE* img){
 	UINT16T idx;
     WSQ q[SIZE];//储存mask和图像坐标的队列
 	for(i = 0; i != SIZE; i++)//初始化队列
-	{if(i < 256) q[i].next = i; else q[i].next = 0; q[i].flag = 0;q[i].en = 0; q[i].pos = 0;}
+	{q[i].next = i; q[i].flag = 0;q[i].en = 0; q[i].pos = 0;}
 	//这里改marker
 	for( i = 0; i != R; i++)
 		for( j = 0; j != C; j++)
@@ -78,20 +77,20 @@ void ForegroundSeperation(RGBTYPE* img){
 				pos = i*C + j;
 				idx = 256;
 				if( m[-1] < 3 && m[-1] > 0 )
-					c_diff(img[pos],img[pos-1],idx);
+					c_diff(src[pos],src[pos-1],idx);
 				if( m[1] < 3 && m[1] > 0 )
 				{
-					c_diff(img[pos],img[pos+1],t);
+					c_diff(src[pos],src[pos+1],t);
 					idx = ws_min(idx,t);
 				}
 				if( m[-C] < 3 && m[-C] > 0 )
 				{
-					c_diff(img[pos],img[pos-C],t);
+					c_diff(src[pos],src[pos-C],t);
 					idx = ws_min(idx,t);
 				}
 				if( m[C] < 3 && m[C] > 0 )
 				{
-					c_diff(img[pos],img[pos+C],t);
+					c_diff(src[pos],src[pos+C],t);
 					idx = ws_min(idx,t);
 				}
 				ws_push(idx, pos);
@@ -109,10 +108,8 @@ void ForegroundSeperation(RGBTYPE* img){
 
 	active_queue = i;
 	m = markers;
-	j = 0; 
 	while(1)
 	{
-		j++;
 		lab = 0;
 		if(!q[active_queue].flag)
 		{
@@ -126,10 +123,6 @@ void ForegroundSeperation(RGBTYPE* img){
 		ws_pop(active_queue,pos);
 
 		m = markers + pos;
-		if(pos >= 307200)
-			pos = pos;
-		if(pos == 0)
-			pos = pos;
 		t = m[-1];
 		if( t < 3 && t > 0 ) lab = t;
 		t = m[1];
@@ -157,7 +150,7 @@ void ForegroundSeperation(RGBTYPE* img){
 			continue;
 		if( m[-1] == 0 )
 		{
-			c_diff( img[pos], img[pos-1],t);
+			c_diff( src[pos], src[pos-1],t);
 			pos--;
 			ws_push(t,pos); 
 			pos++;
@@ -166,7 +159,7 @@ void ForegroundSeperation(RGBTYPE* img){
 		}
 		if( m[1] == 0 )
 		{
-			c_diff( img[pos], img[pos+1],t);
+			c_diff( src[pos], src[pos+1],t);
 			pos++;
 			ws_push(t,pos);
 			pos--;
@@ -175,7 +168,7 @@ void ForegroundSeperation(RGBTYPE* img){
 		}
 		if( m[-C] == 0 )
 		{
-			c_diff( img[pos], img[pos-C],t);
+			c_diff( src[pos], src[pos-C],t);
 			pos-=C;
 			ws_push(t,pos);
 			pos+=C;
@@ -184,7 +177,7 @@ void ForegroundSeperation(RGBTYPE* img){
 		}
 		if( m[C] == 0 )
 		{
-			c_diff( img[pos], img[pos+C],t);
+			c_diff( src[pos], src[pos+C],t);
 			pos+=C;
 			ws_push(t,pos);
 			pos-=C;
@@ -198,9 +191,10 @@ void ForegroundSeperation(RGBTYPE* img){
 			pos = i*C+j;
 			if(markers[pos] == BGND)
 			{
-				img[pos].r = 0;
-				img[pos].g = 0;
-				img[pos].b = 0;
+				dst[pos].r = 0;
+				dst[pos].g = 0;
+				dst[pos].b = 0;
 			}
+			else dst[pos] = src[pos];
 		}
 }
