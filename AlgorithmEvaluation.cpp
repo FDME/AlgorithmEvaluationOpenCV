@@ -1373,8 +1373,22 @@ void PerspectiveTransfrom(){
 	imageLabel = imageOriginal.clone();
 	for (int i = 0; i < h; i++)
 	for (int j = 0; j < w; j++) imageLabel.at<Vec3b>(i, j) = Vec3b(label[i][j], label[i][j], label[i][j]);
+	vector<Point2f> src(4), dst(4);
+				src[0].x = 0; src[0].y = 0;
+			src[1].x = 0; src[1].y = 200;
+			src[2].x = 150; src[2].y = 200;
+			src[3].x = 150; src[3].y = 0;
 
-	Mat transform = getPerspectiveTransform(corners, cornersT);
+			dst[0].x = 0; dst[0].y = 0;
+			dst[1].x = 0; dst[1].y = 480;
+			dst[2].x = 640; dst[2].y = 480;
+			dst[3].x = 640; dst[3].y = 0;
+	Mat transform = getPerspectiveTransform(src, dst);
+	for(int i = 0; i < 3; i++){
+		for(int j = 0; j < 3; j++)
+			printf("%f ",transform.at<double>(i,j));
+		printf("\n");
+	}
 	warpPerspective(imageLabel, imageLabelT, transform, Size(w, h));
 	warpPerspective(imageOriginal, imageOriginalT, transform, Size(w, h));
 	for (int i = 0; i < h; i++)

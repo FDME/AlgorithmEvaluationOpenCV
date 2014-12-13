@@ -1,4 +1,4 @@
-﻿/*----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
 
   LSD - Line Segment Detector on digital images
 
@@ -1830,11 +1830,12 @@ int lineDetect(double* k, double* b)
 	free_image_double(image_LSD);
 
 	// LSD结果显示
-	
+#ifdef WIN32
 	memset(pGray, 0, SIZE);
 	cvSetData(image_1ch, pGray, C);
+#endif
 	dim = detected_lines->dim;
-	printf("Number of lines detected = %d", detected_lines->size);
+	//printf("Number of lines detected = %d", detected_lines->size);
 	//double angle[770]; //detected_lines->size = 770
 
 	for (j = 0; j < detected_lines->size; j++)

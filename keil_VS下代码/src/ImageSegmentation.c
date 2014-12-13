@@ -6,8 +6,8 @@
 
 INT32T h, w;
 INT32T numLabels = 3;
-INT32T i, j, k, index, t;
-
+INT32T i, j, k, t;
+INT32T index;
 EDGE a[MAXNODE * 12];
 INT32T f[MAXNODE], pre[MAXNODE], lv[MAXNODE], gap[MAXNODE], cur[MAXNODE];
 INT32T tot;
@@ -124,9 +124,13 @@ INT32T ComputeEnergy(){
 	INT32T energy = 0;
 	for (i = 0; i < MAXPIXEL; i++) energy += ComputeDataCost(i, lb[i]);
 	for (i = 0; i < MAXPIXEL; i++) energy += (int)ComputeDataCost(i, lb[i]);
+#ifdef WIN32
 	printf("Data Cost: %d\n", energy);
+#endif
 	for (t = pixelEdgeS; t < pixelEdgeE; t += 2) energy += ComputeSmoothCost(lb[a[t].x], lb[a[t].y]);
+#ifdef WIN32
 	printf("Data & Smooth Cost: %d\n", energy);
+#endif
 	return energy;
 }
 
@@ -209,7 +213,9 @@ INT32T Maxflow(){
 		gap[lv[x]]++;
 		if (x != source) x = pre[x];
 	}
+#ifdef WIN32
 	printf("Maxflow: %d\n", flow);
+#endif	
 	return flow;
 }
 void TestMaxflow(){
@@ -246,6 +252,7 @@ void AlphaBetaSwap(){
 }
 
 void LoadImage(){
+#ifdef WIN32
 	FILE *fp;
 	return;
 	
@@ -263,6 +270,7 @@ void LoadImage(){
 		fscanf_s(fp, "%d", &image_Canny[index]);
 	}
 	fclose(fp);
+#endif
 }
 
 void InitLabel(){
@@ -285,16 +293,21 @@ void SwapOperation(INT32T count){
 	InitLabel();
 	newEnergy = ComputeEnergy();
 	oldEnergy = newEnergy + 1;
+#ifdef WIN32
 	printf("Before energy: %d\n", newEnergy);
+#endif
 	while ((oldEnergy != newEnergy) && (count-- > 0)){
 		oldEnergy = newEnergy;
 		AlphaBetaSwap();
 		newEnergy = ComputeEnergy();
+#ifdef WIN32
 		printf("After energy: %d\n", newEnergy);
+#endif
 	}
 }
 
 void OutputSegmentationLabel(UINT8T *label){
+#ifdef WIN32
 	FILE *fp;
 	for (i = 0; i < MAXPIXEL; i++) label[i] = lb[i];
 
@@ -305,6 +318,7 @@ void OutputSegmentationLabel(UINT8T *label){
 	for (i = 0; i < MAXPIXEL; i++) fprintf_s(fp, "%d\n", label[i]);
 	fprintf_s(fp, "\n");
 	fclose(fp);
+#endif
 }
 
 //void main(){

@@ -88,11 +88,11 @@ void ChangeBaudRate()
 	uart_sendbyte(0xA6);
 }
 
-UINT16T camera()
+UINT32T camera(UINT8T* buffer)
 {
 	UINT8T incomingbyte;
 	UINT8T LH, LL;//file size
-	UINT16T size;
+	UINT32T size;
 	UINT16T j = 0, k = 0;
 	memset(buffer,'\0',0xFFFF);
 	uart_init(0,38400,1); //´®¿Ú1

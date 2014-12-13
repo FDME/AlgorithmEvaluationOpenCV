@@ -15,6 +15,7 @@
 #include "PerspectiveTransform.h"
 #include "ImageSegmentation.h"
 #include "LabelOptimization.h"
+#include "undistort.h"
 
 
 UINT8T buffer[SIZE]; //存储拍摄jpeg
@@ -56,7 +57,8 @@ int main(int argc,char **argv)
 #ifdef WIN32
 		FILE* fp;
 
-		fp = fopen("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A——正常光照\\jpeg_20141128_150639.jpg", "rb");
+		//fp = fopen("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A——正常光照\\jpeg_20141128_150639.jpg", "rb");
+		fp = fopen("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照-20141128\\机柜A——正常光照\\5.jpg","rb");
 		
 		jpg_size = filesize(fp);
 		printf("size=%d\n", jpg_size);
@@ -68,7 +70,7 @@ int main(int argc,char **argv)
 		sys_init();        /* Initial s3c2410's Clock, MMU, Interrupt,Port and UART */
 		uart_select(UART0);
 		uart_printf("Take a picture\n");
-		jpg_size = camera();
+		jpg_size = camera(buffer);
 		uart_select(UART0);
 		uart_printf("Finish transmitting\n");
 #endif
@@ -103,23 +105,23 @@ int main(int argc,char **argv)
 		undistort_map(image_RGB,image_Correction);
 		calc_gray(image_Gray, image_Correction);
 		canny(image_Canny,image_Gray);
-		ImageSegment(label);
-		LabelOptimize(label);
-		numLines = lineDetect(Line_k,Line_b);
-		numLines = LineSort(numLines, Line_k, Line_b);
+		//ImageSegment(label);
+		//LabelOptimize(label);
+		//numLines = lineDetect(Line_k,Line_b);
+		//numLines = LineSort(numLines, Line_k, Line_b);
 
 		//**********PerspectiveTransform测试代码如下：************
 		if (1){
 			POINT src[4], dst[4];
-			src[1].x = 0; src[1].y = 0;
-			src[2].x = 0; src[2].y = 200;
-			src[3].x = 150; src[3].y = 200;
-			src[4].x = 150; src[4].y = 0;
+			src[0].x = 0; src[0].y = 0;
+			src[1].x = 0; src[1].y = 200;
+			src[2].x = 150; src[2].y = 200;
+			src[3].x = 150; src[3].y = 0;
 
-			dst[1].x = 0; dst[1].y = 0;
-			dst[2].x = 0; dst[2].y = C;
-			dst[3].x = R; dst[3].y = C;
-			dst[4].x = R; dst[4].y = 0;
+			dst[0].x = 0; dst[0].y = 0;
+			dst[1].x = 0; dst[1].y = C;
+			dst[2].x = R; dst[2].y = C;
+			dst[3].x = R; dst[3].y = 0;
 			PerspectiveTransform(src, dst);
 		}
 		//*********************************************************
@@ -133,9 +135,9 @@ int main(int argc,char **argv)
 		showImage_RGB(image_Correction, "Correction");
 
 		ForegroundSeperation(image_Correction);
-
-
-		showImage_1ch(image_Gray, "Gray");
+		showImage_RGB(image_Transform,"Transform");
+		showImage_RGB(image_Correction,"watershed");
+		//showImage_1ch(image_Gray, "Gray");
 
 		//UINT8T pGray[SIZE];
 		//for (i = 0; i < R; i++)  //int�������������ѭ��

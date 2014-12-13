@@ -18,8 +18,8 @@ extern "C" {
 #define DOWNLOAD_ADDRESS _RAM_STARTADDRESS
 #define DEBUG_OUT uart_printf
 
-//#define min(x1,x2) (((x1)<(x2))? (x1):(x2))
-//#define max(x1,x2) (((x1)>(x2))? (x1):(x2))
+#define min(x1,x2) (((x1)<(x2))? (x1):(x2))
+#define max(x1,x2) (((x1)>(x2))? (x1):(x2))
 
 #define ONESEC0 (62500)				// 16us resolution, max 1.04 sec
 #define ONESEC1 (31250)				// 32us resolution, max 2.09 sec
@@ -119,11 +119,11 @@ int filesize(FILE *fp);
 
 #else
 //ARM下函数声明
-UINT16T camera(void);
+UINT32T camera(UINT8T* buffer);
 #endif
 int yuv2rgb(UINT8T* py, UINT8T* pu, UINT8T* pv, RGBTYPE* image_RGB);
 int jpg_decode(UINT8T* iPicture, UINT8T* oY, UINT8T* oU, UINT8T* oV, UINT32T size);
-void undistort_map(RGBTYPE*src, RGBTYPE*dst);
+
 //以下是一些像素的运算，我只用到了pix_inter~其他的留着备用，不用可删
 RGBTYPE pix_add(RGBTYPE a, RGBTYPE b);
 RGBTYPE pix_div(RGBTYPE a, int n);
@@ -133,7 +133,6 @@ void calc_gray(UINT8T* Gray, RGBTYPE* RGB);
 void calc_integral(UINT32T* integral, UINT8T* image);
 void calc_gaussian_5x5(UINT8T* dst, UINT8T* src);
 void calc_sobel_3x3(UINT8T* dst, UINT8T* src);
-void ForegroundSeperation();
 void canny(UINT8T* dst, UINT8T* src);
 int lineDetect(double* k, double* b);
 #endif //__HEADER_H__
