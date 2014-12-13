@@ -1,3 +1,6 @@
+#ifndef __HEADER_H__
+#define __HEADER_H__
+
 #ifdef WIN32
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,9 +75,6 @@ extern "C" {
 #include "2410lib.h"
 #endif
 //struct定义
-#ifndef __HEADER_H__
-#define __HEADER_H__
-
 #define SIZE 307200
 #define R 640
 #define C 480
@@ -90,51 +90,26 @@ struct Point{
 typedef struct Point POINT;
 
 //全局变量声明
-extern UINT8T buffer[SIZE]; //存储拍摄jpeg
-extern UINT8T py[SIZE];   
-extern UINT8T pu[SIZE/4];
-extern UINT8T pv[SIZE/4];
-extern RGBTYPE image_RGB[SIZE];// color
+//extern UINT8T buffer[SIZE]; //存储拍摄jpeg
+//extern UINT8T py[SIZE];   
+//extern UINT8T pu[SIZE/4];
+//extern UINT8T pv[SIZE/4];
+//extern RGBTYPE image_RGB[SIZE];// color
+//
+//extern RGBTYPE image_Transform[SIZE];  //视角变换结果
+//extern RGBTYPE image_Correction[SIZE]; //鱼眼矫正结果
+//
+//extern UINT8T  image_Gray[SIZE];
+//extern UINT32T image_Integral[SIZE];
+//extern UINT8T  image_Edge[SIZE];
+//extern UINT8T  image_Gauss[SIZE];
+//extern UINT8T  image_Sobel[SIZE];
+//extern UINT8T	image_Canny[SIZE];
+//#ifdef WIN32
+//extern IplImage *image_1ch;
+//#endif
 
-extern RGBTYPE image_Transform[SIZE];  //视角变换结果
-extern RGBTYPE image_Correction[SIZE]; //鱼眼矫正结果
 
-extern UINT8T  image_Gray[SIZE];
-extern UINT32T image_Integral[SIZE];
-extern UINT8T  image_Edge[SIZE];
-extern UINT8T  image_Gauss[SIZE];
-extern UINT8T  image_Sobel[SIZE];
-extern UINT8T	image_Canny[SIZE];
-
-#ifdef WIN32
-extern IplImage *image_1ch;
-#endif
-
-//函数声明
-#ifdef WIN32
-//windows下函数声明
-void showImage_RGB(RGBTYPE* image_RGB, const char* name);
-void showImage_1ch(UINT8T* p_1ch, const char* name);
-int filesize(FILE *fp);
-
-#else
-//ARM下函数声明
-UINT32T camera(UINT8T* buffer);
-#endif
-int yuv2rgb(UINT8T* py, UINT8T* pu, UINT8T* pv, RGBTYPE* image_RGB);
-int jpg_decode(UINT8T* iPicture, UINT8T* oY, UINT8T* oU, UINT8T* oV, UINT32T size);
-
-//以下是一些像素的运算，我只用到了pix_inter~其他的留着备用，不用可删
-RGBTYPE pix_add(RGBTYPE a, RGBTYPE b);
-RGBTYPE pix_div(RGBTYPE a, int n);
-RGBTYPE pix_mul(RGBTYPE a, float t);
-RGBTYPE pix_inter(RGBTYPE t1, RGBTYPE t2, float t);
-void calc_gray(UINT8T* Gray, RGBTYPE* RGB);
-void calc_integral(UINT32T* integral, UINT8T* image);
-void calc_gaussian_5x5(UINT8T* dst, UINT8T* src);
-void calc_sobel_3x3(UINT8T* dst, UINT8T* src);
-void canny(UINT8T* dst, UINT8T* src);
-int lineDetect(double* k, double* b);
 #endif //__HEADER_H__
 #ifdef __cplusplus
 }

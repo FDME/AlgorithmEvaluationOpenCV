@@ -3,6 +3,14 @@ extern float map1[R][C];
 extern float map2[R][C];
 extern RGBTYPE image_RGB[SIZE];
 extern RGBTYPE image_Correction[SIZE];
+
+
+//以下是一些像素的运算，我只用到了pix_inter~其他的留着备用，不用可删
+RGBTYPE pix_add(RGBTYPE a, RGBTYPE b);
+RGBTYPE pix_div(RGBTYPE a, int n);
+RGBTYPE pix_mul(RGBTYPE a, float t);
+RGBTYPE pix_inter(RGBTYPE t1, RGBTYPE t2, float t);
+
 void undistort_map(RGBTYPE*src, RGBTYPE*dst){
 	int i,j;
 	float fx,fy;//映射后的浮点坐标

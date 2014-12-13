@@ -1,4 +1,5 @@
-#include"header.h"
+#include"canny.h"
+#include"basic_functions.h" //gauss
 ////////////全局变量/////
 
 //////对非最大抑制后的图像进行边缘搜索/////////
@@ -61,13 +62,15 @@ void canny(UINT8T* dst, UINT8T* src)
 	int nThrHigh, nThrLow;
 	
 	//高斯滤波
-	calc_gaussian_5x5(image_Gauss, image_Gray);
+	UINT8T gauss[SIZE];
+
+	calc_gaussian_5x5(gauss, src);
 	//求梯度
 	for (y = 1; y<R - 1; y++)
 	{
 		for (x = 1; x<C - 1; x++)
 		{
-			Gradx[y*C + x] = (int)(image_Gauss[y*C + x + 1] - image_Gauss[y*C + x - 1]);
+			Gradx[y*C + x] = (int)(gauss[y*C + x + 1] - gauss[y*C + x - 1]);
 		}
 	}
 
@@ -77,7 +80,7 @@ void canny(UINT8T* dst, UINT8T* src)
 	{
 		for (y = 1; y<R; y++)
 		{
-			Grady[y*C + x] = (int)(image_Gauss[(y + 1)*C + x] - image_Gauss[(y - 1)*C + x]);
+			Grady[y*C + x] = (int)(gauss[(y + 1)*C + x] - gauss[(y - 1)*C + x]);
 		}
 	}
 	//求梯度
@@ -98,13 +101,13 @@ void canny(UINT8T* dst, UINT8T* src)
 	//设置图像边缘为不可能的分界点
 	for (x = 0; x<C; x++)
 	{
-		image_Canny[x] = 0;                                 //第一行
-		image_Canny[(R - 1)*C + x] = 0;   //最后一行
+		dst[x] = 0;                                 //第一行
+		dst[(R - 1)*C + x] = 0;   //最后一行
 	}
 	for (y = 0; y<R; y++)
 	{
-		image_Canny[y*C] = 0;                  //第一列
-		image_Canny[y*C + C - 1] = 0; //最后一列
+		dst[y*C] = 0;                  //第一列
+		dst[y*C + C - 1] = 0; //最后一列
 	}
 
 	for (y = 1; y<R - 1; y++)
@@ -114,7 +117,7 @@ void canny(UINT8T* dst, UINT8T* src)
 			//当前点
 			nPos = y*C + x;
 			if (Mag[nPos] == 0)         //梯度幅值为0
-				image_Canny[nPos] = 0;
+				dst[nPos] = 0;
 
 			else                      //幅值非零
 			{
@@ -179,11 +182,11 @@ void canny(UINT8T* dst, UINT8T* src)
 					//该点可能是边界点
 					if (dTemp >= dTemp1&&dTemp >= dTemp2)
 					{
-						image_Canny[nPos] = 128;
+						dst[nPos] = 128;
 					}
 					else
 					{
-						image_Canny[nPos] = 0;//不可能是边界点
+						dst[nPos] = 0;//不可能是边界点
 					}
 				}
 
@@ -202,7 +205,7 @@ void canny(UINT8T* dst, UINT8T* src)
 	{
 		for (x = 0; x<C; x++)
 		{
-			if (image_Canny[y*C + x] == 128)
+			if (dst[y*C + x] == 128)
 			{
 				nHist[Mag[y*C + x]]++;
 			}
@@ -244,11 +247,11 @@ void canny(UINT8T* dst, UINT8T* src)
 		for (x = 0; x<C; x++)
 		{
 			nPos = y*C + x;
-			if ((image_Canny[nPos] == 128) && (Mag[nPos] >= nThrHigh))
+			if ((dst[nPos] == 128) && (Mag[nPos] >= nThrHigh))
 			{
-				image_Canny[nPos] = 255;
+				dst[nPos] = 255;
 				//以该点为中心再进行跟踪 
-				TraceEdge(y, x, nThrLow, image_Canny, Mag);
+				TraceEdge(y, x, nThrLow, dst, Mag);
 			}
 		}
 	}
@@ -259,9 +262,9 @@ void canny(UINT8T* dst, UINT8T* src)
 		for (x = 0; x<C; x++)
 		{
 			nPos = y*C + x;
-			if (image_Canny[nPos] != 255)
+			if (dst[nPos] != 255)
 			{
-				image_Canny[nPos] = 0;
+				dst[nPos] = 0;
 
 			}
 		}

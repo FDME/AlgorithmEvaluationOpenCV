@@ -1,6 +1,6 @@
-#include"header.h"
+#include"test.h"
 #ifdef WIN32
-
+extern IplImage *image_1ch;
 int filesize(FILE *fp)
 {
 	long pos;
@@ -45,3 +45,12 @@ void showImage_1ch(UINT8T* p_1ch, const char* name)
 	cvWaitKey(0);
 }
 #endif
+
+void logStr(const char* str)
+{
+#ifdef WIN32
+	printf(str);
+#else
+	uart_printf(str);
+#endif
+}

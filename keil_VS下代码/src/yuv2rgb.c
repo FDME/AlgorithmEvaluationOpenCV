@@ -1,4 +1,5 @@
-#include "header.h"
+#include "yuv2rgb.h"
+
 //解码后的YUV420转为RGB
 int yuv2rgb(UINT8T* py, UINT8T* pu, UINT8T* pv, RGBTYPE*image_RGB)
 {

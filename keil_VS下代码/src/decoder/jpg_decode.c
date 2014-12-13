@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 //#include <def.h>
 #include "tinyjpeg-internal.h"
 struct jdec_private decoder;

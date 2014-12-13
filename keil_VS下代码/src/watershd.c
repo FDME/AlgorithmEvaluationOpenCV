@@ -56,7 +56,7 @@ void ForegroundSeperation(RGBTYPE* img){
 				markers[i*C+j] = WSHED;
 			else if( i > R/2 && j < C/3 )
 				markers[i*C+j] = FGND;
-			else if( i < R/8 || j > C*3/4 )
+			else if( i < R/10 || j > C*3/4 )
 				markers[i*C+j] = BGND;
 			else
 				markers[i*C+j] = 0;

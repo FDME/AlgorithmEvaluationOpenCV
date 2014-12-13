@@ -6,6 +6,10 @@
 #include "PerspectiveTransform.h"
 int muav(double a[],int m,int n,double u[],double v[],double eps,int ka);
 int ginv(double a[],int m,int n,double aa[],double eps,double u[],double v[],int ka);
+
+extern RGBTYPE image_Transform[SIZE];
+extern RGBTYPE image_RGB[SIZE]; 
+
 //ÇóÄæ¾ØÕó
   int brinv(double a[])
    { int is[3],js[3],i,j,k,l,u,v,n=3;
