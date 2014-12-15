@@ -50,7 +50,7 @@ double dis[] = { -0.44601, 0.266848, -0.00143158, 0.000143152, -0.103006 };
 
 //double cam[] = { 283.561, 0, 246, 0, 285.903, 334.103, 0, 0, 1 };
 //double dis[] = { -0.313793, 0.122695, 0.00123624, -0.000849487, -0.0250905 };
-
+Mat image;
 Mat camMat(3, 3, CV_64F, cam), distCoeffs(1, 5, CV_64F, dis);
 Mat imageOriginal, imageGray, imageCanny, imageOutput, imageLabel, imageForeground;
 Mat imageResult;
@@ -235,7 +235,7 @@ void generate_RGB_files()
 	{
 		for (int j = 0; j < C; j++)
 		{
-			s = cvGet2D(&(IplImage)imageOriginal, i, j);
+			s = cvGet2D(&(IplImage)image, i, j);
 			fprintf(fp, "%d", (int)s.val[0]);//B
 			if (j != C - 1|| i != R-1){
 				fprintf(fp, ", ");
@@ -256,7 +256,7 @@ void generate_RGB_files()
 	{
 		for (int j = 0; j < C; j++)
 		{
-			s = cvGet2D(&(IplImage)imageOriginal, i, j);
+			s = cvGet2D(&(IplImage)image, i, j);
 			fprintf(fp, "%d", (int)s.val[1]);//G
 			//fprintf(Rfp, "%d", (int)s.val[2]);//R
 			if (j != C - 1 || i != R - 1){
@@ -277,7 +277,7 @@ void generate_RGB_files()
 	{
 		for (int j = 0; j < C; j++)
 		{
-			s = cvGet2D(&(IplImage)imageOriginal, i, j);
+			s = cvGet2D(&(IplImage)image, i, j);
 			fprintf(fp, "%d", (int)s.val[2]);//R
 			if (j != C - 1 || i != R - 1){
 				fprintf(fp, ", ");
@@ -293,6 +293,7 @@ void generate_RGB_files()
 
 	fclose(fp);
 }
+
 
 bool checkLine(Point start, Point end)
 {
@@ -573,9 +574,10 @@ void ShowImage(Mat image, string windowName){
 }
 
 void LoadImage(string path = "C:\\HuaWeiImage\\华为拍照\\正常光照\\60~90.jpg"){
-	Mat image = imread(path);
+	image = imread(path);
 	ShowImage(image, "Original");
 	//Mat newCamMat = getOptimalNewCameraMatrix(camMat,distCoeffs,image.size(),-1);
+	
 	undistort(image, imageOriginal, camMat, distCoeffs);
 	h = imageOriginal.rows;
 	w = imageOriginal.cols;
@@ -1564,16 +1566,16 @@ void ShowResult(){
 
 
 int main(){
-	string user = "yzy";
+	string user = "qyz";
 
 	if (user == "yzy")
 	{
-		//LoadImage("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A-中心下移\\jpeg_20141128_154129.jpg");  // ok
+		LoadImage("E:\\科研\\验证图片\\华为拍照-20141128\\机柜A-中心下移\\jpeg_20141128_154129.jpg");  // ok
 		//LoadImage("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A--电线干扰\\jpeg_20141128_151911.jpg");  //ok
 		//LoadImage("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A-减少2个设备\\jpeg_20141128_153021.jpg");
 		//LoadImage("C:\\HuaWeiImage\\华为拍照-20141128\\机柜B-正常\\jpeg_20141128_160552.jpg");
 		//LoadImage("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A-暗场景\\jpeg_20141128_151235.jpg");  //暗区域检测失效
-		LoadImage("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A--拆了一个设备\\jpeg_20141128_152412.jpg");
+		//LoadImage("E:\\科研\\验证图片\\华为拍照-20141128\\机柜A--拆了一个设备\\jpeg_20141128_152412.jpg");
 		//DetectContours();						//边界检测，主要包括canny和findContours
 		//OutputImage();
 
@@ -1584,7 +1586,7 @@ int main(){
 		// retinex();
 		ForegroundSeparation();
 		DetectContours();						//边界检测，主要包括canny和findContours
-		OutputImage();
+		//OutputImage();
 		DetectLines();							//从contours中提取直线
 //		MultiLabelGraphCut();					//图像分割
 		Swap(3);
@@ -1617,7 +1619,7 @@ int main(){
 	else
 	if (user == "qyz"){
 		//string filename = "E:\\VS2013_pro\\2014_9_12\\正常光照\\60.jpg";
-		string filename = "..\\..\\60_1.jpg";
+		string filename = "..\\..\\jpeg_20141128_154129.jpg";
 		LoadImage(filename);
 		R = imageOriginal.rows;
 		C = imageOriginal.cols;
@@ -1633,8 +1635,8 @@ int main(){
 			ShowImage(imageOriginal, "Retinex");
 			//detectEdges(imageRetinex);
 		}
-		ForegroundSeparation();
-		detectEdges(imageForeground);
+		//ForegroundSeparation();
+		//detectEdges(imageForeground);
 		//detectLines();
 		//checkEdges();
 		waitKey();
