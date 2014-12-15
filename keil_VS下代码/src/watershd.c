@@ -38,13 +38,17 @@ struct ws_Queue{
 typedef struct ws_Queue WSQ;
 
 void ForegroundSeperation(RGBTYPE* src,RGBTYPE* dst){
-	UINT8T markers[SIZE], *m;
+	UINT8T* markers, *m;
 	UINT32T** pt;
 	UINT32T i,j,pos,en = 256, qt;
 	UINT8T active_queue;
 	UINT8T t,dr,db,dg,lab;
 	UINT16T idx;
-    WSQ q[SIZE];//储存mask和图像坐标的队列
+    //WSQ q[SIZE];//储存mask和图像坐标的队列
+    WSQ* q;
+
+    q = (WSQ*)malloc(sizeof(WSQ)*SIZE);
+    markers = (UINT8T*)malloc(sizeof(UINT8T)*SIZE);
 	for(i = 0; i != SIZE; i++)//初始化队列
 	{q[i].next = i; q[i].flag = 0;q[i].en = 0; q[i].pos = 0;}
 	//这里改marker
@@ -197,4 +201,6 @@ void ForegroundSeperation(RGBTYPE* src,RGBTYPE* dst){
 			}
 			else dst[pos] = src[pos];
 		}
+	free(markers);
+	free(q);
 }

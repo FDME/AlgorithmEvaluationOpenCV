@@ -33,9 +33,12 @@ void canny(UINT8T* dst, UINT8T* src)
 	//变量定义 
 	UINT32T x, y;
 	//方向导数，求梯度//////
-	int Gradx[SIZE];
-	int Grady[SIZE];
-	int Mag[SIZE];
+	//int Gradx[SIZE];
+	//int Grady[SIZE];
+	//int Mag[SIZE];
+	int* Gradx;
+	int* Grady;
+	int* Mag;
 //中间变量
 	double dSqt1;
 	double dSqt2;
@@ -63,6 +66,10 @@ void canny(UINT8T* dst, UINT8T* src)
 	
 	//高斯滤波
 	UINT8T gauss[SIZE];
+
+	Gradx = (int*)malloc(sizeof(int)*SIZE);
+	Grady = (int*)malloc(sizeof(int)*SIZE);
+	Mag = (int*)malloc(sizeof(int)*SIZE);
 
 	calc_gaussian_5x5(gauss, src);
 	//求梯度
@@ -269,4 +276,8 @@ void canny(UINT8T* dst, UINT8T* src)
 			}
 		}
 	}
+
+	free(Gradx);
+	free(Grady);
+	free(Mag);
 }

@@ -17,22 +17,12 @@
 #include "LabelOptimization.h"
 #include "undistort.h"
 #include"basic_functions.h"
-#include"yuv2rgb.h"
-#include"decoder\jpg_decode.h"
 #include"lineDetect.h"
 #include"canny.h"
 #include"preProcess.h"
 #include"test.h"
+#include"LoadImg.h"
 
-#ifdef WIN32
-#else
-#include"camera_control.h"
-#endif
-
-UINT8T buffer[SIZE]; //存储拍摄jpeg
-UINT8T py[SIZE];   
-UINT8T pu[SIZE/4];
-UINT8T pv[SIZE/4];
 RGBTYPE image_RGB[SIZE];// color
 
 RGBTYPE image_Transform[SIZE];  //视角变换结果
@@ -60,41 +50,14 @@ IplImage *image_1ch;
 //void lens_correct(const UINT8T* src, UINT8T* dst);  //鱼眼矫正
 int main(int argc,char **argv)
 {
-		UINT8T* picture = buffer;
 		UINT32T k = 0;
-		UINT32T jpg_size;
+		
 		int i, j, number;
 
 #ifdef WIN32
-		FILE* fp;
-
-		//fp = fopen("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A——正常光照\\jpeg_20141128_150639.jpg", "rb");
-		fp = fopen("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照-20141128\\机柜A——正常光照\\5.jpg","rb");
-		//fp = fopen("E:\\VS2013_pro\\jpeg_20141128_151235.jpg", "rb");  //暗光图片
-		jpg_size = filesize(fp);
-		printf("size=%d\n", jpg_size);
-		fread(buffer, jpg_size, 1, fp);
-		fclose(fp);
-		printf("读入图片成功！\n");
-		
-#else
-		sys_init();        /* Initial s3c2410's Clock, MMU, Interrupt,Port and UART */
-		uart_select(UART0);
-		uart_printf("Take a picture\n");
-		jpg_size = camera(buffer);
-		uart_select(UART0);
-		uart_printf("Finish transmitting\n");
+		image_1ch = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 1); //需在LineDetect之前
 #endif
-		if(jpg_decode(picture,py,pu,pv,jpg_size)<0)
-			logStr("Decoding error!\n");
-		else
-			logStr("Finish decoding\n");
-		
-		if(yuv2rgb(py, pu, pv, image_RGB) == FALSE)
-			logStr("RGB error!\n");
-		else
-			logStr("Finish RGB\n"); 
-
+		if (LoadImg(image_RGB, 2) == FALSE) return -1;//option = 0: 摄像头采集；option = 1: 图片数组； option = 2：读jpeg文件
 		undistort_map(image_RGB, image_Correction);
 		preProcess(image_Preprocess, image_Correction);
 		calc_gray(image_Gray, image_Correction);
@@ -119,7 +82,7 @@ int main(int argc,char **argv)
 			dst[3].x = R; dst[3].y = 0;
 			//no in-place 输入输出不能相同
 			PerspectiveTransform(src, dst, image_Correction,image_Transform);
-		}
+					}
 		//*********************************************************
 
 //检验结果

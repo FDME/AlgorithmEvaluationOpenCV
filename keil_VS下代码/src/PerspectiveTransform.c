@@ -65,12 +65,11 @@ extern RGBTYPE image_RGB[SIZE];
       }
     return(1);
   }
-void PerspectiveTransform(POINT* src, POINT* dst)
+void PerspectiveTransform(POINT* src, POINT* dst, RGBTYPE* simg, RGBTYPE* dimg)
 {
 	double M[9];
 	double a[64],b[8];
 	int i,j,k,x,y,px,py;
-	double sum;
 	double aa[64],u[64],v[64],eps=0.0001,s;
 	//double ta[64],taa[64],tu[64],tv[64];
 	for(i = 0; i < 4; i++)
@@ -162,7 +161,7 @@ void PerspectiveTransform(POINT* src, POINT* dst)
 		y = i%C;
 		px = (M[0]*x + M[1]*y + M[0*3+2])/(M[2*3+0]*x + M[2*3+1]*y + M[2*3+2]);
 		py = (M[1*3+0]*x + M[1*3+1]*y + M[1*3+2])/(M[2*3+0]*x + M[2*3+1]*y + M[2*3+2]);
-		image_Transform[i] = image_RGB[py+px*C];
+		dimg[i] = simg[py+px*C];
 	}
 	//return M;
 }

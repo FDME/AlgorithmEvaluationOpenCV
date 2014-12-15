@@ -3,8 +3,10 @@
 void GaussianSmooth(double* dst, double* src, double sigma, int channels)
 {
 	int ksize;
-	double tempData[SIZE * 3];
-	double result[SIZE * 3];
+	//double tempData[SIZE * 3];
+	//double result[SIZE * 3];
+	double* tempData;
+	double* result;
 	//计算一维高斯核
 	//sigma < 50
 	double kernel[301];
@@ -16,6 +18,8 @@ void GaussianSmooth(double* dst, double* src, double sigma, int channels)
 	int kcenter;
 	int i = 0, j = 0,x,y,k;
 
+	tempData = (double*)malloc(sizeof(double)*SIZE*3);
+	result = (double*)malloc(sizeof(double)*SIZE*3);
 	sigma = sigma > 0 ? sigma : -sigma;
 	//高斯核矩阵的大小为(6*sigma+1)*(6*sigma+1)
 	//ksize为奇数
@@ -123,4 +127,7 @@ void GaussianSmooth(double* dst, double* src, double sigma, int channels)
 	{
 		dst[i*C*channels + j*channels+k] = result[i*C*channels + j*channels+k];
 	}
+
+	free(tempData);
+	free(result);
 }

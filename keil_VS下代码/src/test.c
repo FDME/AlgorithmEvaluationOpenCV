@@ -46,7 +46,17 @@ void showImage_1ch(UINT8T* p_1ch, const char* name)
 }
 #endif
 
-void logStr(const char* str)
+//´ý¶¨Òå
+void delay(int i){}
+void sys_init(){}
+char uart_getch(){return 0;}
+void uart_init(int nMainClk, int nBaud, int nChannel){}
+void uart_select(int ch){}
+void uart_sendbyte(int data){}
+void uart_printf(char *fmt,...){}
+
+
+void logStr( char* str)
 {
 #ifdef WIN32
 	printf(str);
@@ -54,3 +64,5 @@ void logStr(const char* str)
 	uart_printf(str);
 #endif
 }
+
+

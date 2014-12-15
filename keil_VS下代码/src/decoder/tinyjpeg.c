@@ -28,7 +28,7 @@ enum std_markers {
 #define BLACK_U 127
 #define BLACK_V 127
 
-#define snprintf _snprintf
+//#define snprintf _snprintf
 /*
 #if DEBUG
 #define trace(fmt, args...) do { \
@@ -38,7 +38,7 @@ enum std_markers {
 #else
 #define trace(fmt, args, ...) do { } while (0)
 #endif*/
-#define trace(fmt, args, ...) do { } while (0)
+//#define trace(fmt, args, ...) do { } while (0)
 /*
 #define error(fmt, args, ...) do { \
    snprintf(error_string, sizeof(error_string), fmt, ## args); \
@@ -52,7 +52,7 @@ enum std_markers {
    return -1; \
 } while(0)
 */
-#define error(fmt, ...) do {} while(0)
+//#define error(fmt,...) do {} while(0)
 
 #if 0
 static char *print_bits(unsigned int value, char *bitstr)
@@ -77,12 +77,12 @@ static char *print_bits(unsigned int value, char *bitstr)
 
 static void print_next_16bytes(int offset, const unsigned char *stream)
 {
-  trace("%4.4x: %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x\n",
+  /*trace("%4.4x: %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x\n",
 	offset,
 	stream[0], stream[1], stream[2], stream[3], 
 	stream[4], stream[5], stream[6], stream[7],
 	stream[8], stream[9], stream[10], stream[11], 
-	stream[12], stream[13], stream[14], stream[15]);
+	stream[12], stream[13], stream[14], stream[15]);*/
 }
 
 #endif
@@ -356,7 +356,7 @@ static void process_Huffman_data_unit(struct jdec_private *priv, int component)
 	j += count_0;	/* skip count_0 zeroes */
 	if (__unlikely(j >= 64))
 	 {
-	   snprintf(error_string, sizeof(error_string), "Bad huffman data (buffer overflow)");
+	   //snprintf(error_string, sizeof(error_string), "Bad huffman data (buffer overflow)");
 	   break;
 	 }
 	get_nbits(priv->reservoir, priv->nbits_in_reservoir, priv->stream, size_val, DCT[j]);
@@ -426,7 +426,7 @@ static void build_huffman_table(const unsigned char *bits, const unsigned char *
      code = huffcode[i];
      code_size = huffsize[i];
 
-     trace("val=%2.2x code=%8.8x codesize=%2.2d\n", val, code, code_size);
+    // trace("val=%2.2x code=%8.8x codesize=%2.2d\n", val, code, code_size);
 
      table->code_size[val] = code_size;
      if (code_size <= HUFFMAN_HASH_NBITS)
@@ -1506,10 +1506,10 @@ static void print_SOF(const unsigned char *stream)
   nr_components = stream[7];
 
   //trace("> SOF marker\n");
-  trace("Size:%dx%d nr_components:%d (%s)  precision:%d\n", 
+  /*trace("Size:%dx%d nr_components:%d (%s)  precision:%d\n",
       width, height,
       nr_components, nr_components_to_string[nr_components],
-      precision);
+      precision);*/
 }
 
 /*******************************************************************************
@@ -1560,12 +1560,7 @@ static int parse_DQT(struct jdec_private *priv, const unsigned char *stream)
   while (stream < dqt_block_end)
    {
      qi = *stream++;
-#if SANITY_CHECK
-    // if (qi>>4)
-      // error("16 bits quantization table is not supported\n");
-     if (qi>4)
-       error("No more 4 quantization table is supported (got %d)\n", qi);
-#endif
+
      table = priv->Q_tables[qi];
      build_quantization_table(table, stream);
      stream += 64;
@@ -1617,8 +1612,8 @@ static int parse_SOF(struct jdec_private *priv, const unsigned char *stream)
      c->Vfactor = sampling_factor&0xf;
      c->Hfactor = sampling_factor>>4;
      c->Q_table = priv->Q_tables[Q_table];
-     trace("Component:%d  factor:%dx%d  Quantization table:%d\n",
-           cid, c->Hfactor, c->Hfactor, Q_table );
+     /*trace("Component:%d  factor:%dx%d  Quantization table:%d\n",
+           cid, c->Hfactor, c->Hfactor, Q_table );*/
 
   }
   priv->width = width;
@@ -1635,26 +1630,12 @@ static int parse_SOS(struct jdec_private *priv, const unsigned char *stream)
   unsigned int nr_components = stream[2];
 
  // trace("> SOS marker\n");
-/*
-#if SANITY_CHECK
-  if (nr_components != 3)
-    error("We only support YCbCr image\n");
-#endif
-*/
+
   stream += 3;
   for (i=0;i<nr_components;i++) {
      cid = *stream++;
      table = *stream++;
-#if SANITY_CHECK
-  //   if ((table&0xf)>=4)
-//	error("We do not support more than 2 AC Huffman table\n");
-  //   if ((table>>4)>=4)
-//	error("We do not support more than 2 DC Huffman table\n");
-     if (cid != priv->component_infos[i].cid)
-        error("SOS cid order (%d:%d) isn't compatible with the SOF marker (%d:%d)\n",
-	      i, cid, i, priv->component_infos[i].cid);
-     trace("ComponentId:%d  tableAC:%d tableDC:%d\n", cid, table&0xf, table>>4);
-#endif
+
      priv->component_infos[i].AC_table = &priv->HTAC[table&0xf];
      priv->component_infos[i].DC_table = &priv->HTDC[table>>4];
   }
@@ -1672,7 +1653,7 @@ static int parse_DHT(struct jdec_private *priv, const unsigned char *stream)
   length = be16_to_cpu(stream) - 2;
   stream += 2;	/* Skip length */
 
-  trace("> DHT marker (length=%d)\n", length);
+  //trace("> DHT marker (length=%d)\n", length);
 
   while (length>0) {
      index = *stream++;
@@ -1684,13 +1665,6 @@ static int parse_DHT(struct jdec_private *priv, const unsigned char *stream)
 	huff_bits[i] = *stream++;
 	count += huff_bits[i];
      }
-#if SANITY_CHECK
-     if (count >= HUFFMAN_BITS_SIZE)
-       error("No more than %d bytes is allowed to describe a huffman table", HUFFMAN_BITS_SIZE);
-     if ( (index &0xf) >= HUFFMAN_TABLES)
-       error("No more than %d Huffman tables is supported (got %d)\n", HUFFMAN_TABLES, index&0xf);
-     trace("Huffman table %s[%d] length=%d\n", (index&0xf0)?"AC":"DC", index&0xf, count);
-#endif
 
      if (index & 0xf0 )
        build_huffman_table(huff_bits, stream, &priv->HTAC[index&0xf]);
@@ -1722,7 +1696,7 @@ static int parse_DRI(struct jdec_private *priv, const unsigned char *stream)
   priv->restart_interval = be16_to_cpu(stream+2);
 
 #if DEBUG
-  trace("Restart interval = %d\n", priv->restart_interval);
+  //trace("Restart interval = %d\n", priv->restart_interval);
 #endif
 
  // trace("< DRI marker\n");
@@ -1775,7 +1749,7 @@ static int find_next_rst_marker(struct jdec_private *priv)
      else if (marker == EOI)
        return 0;
    }
-  trace("RST Marker %d found at offset %d\n", priv->last_rst_marker_seen, stream - priv->stream_begin);
+  //trace("RST Marker %d found at offset %d\n", priv->last_rst_marker_seen, stream - priv->stream_begin);
 
   priv->stream = stream;
   priv->last_rst_marker_seen++;
@@ -1829,7 +1803,7 @@ static int parse_JFIF(struct jdec_private *priv, const unsigned char *stream)
 	   return -1;
 	 break;
        default:
-	 trace("> Unknown marker %2.2x\n", marker);
+	// trace("> Unknown marker %2.2x\n", marker);
 	 break;
       }
 
@@ -2051,8 +2025,8 @@ int tinyjpeg_decode(struct jdec_private *priv, int pixfmt, unsigned char* py,uns
       }
    }
 
-  trace("Input file size: %d\n", priv->stream_length+2);
-  trace("Input bytes actually read: %d\n", priv->stream - priv->stream_begin + 2);
+  /*trace("Input file size: %d\n", priv->stream_length+2);
+  trace("Input bytes actually read: %d\n", priv->stream - priv->stream_begin + 2);*/
 
   return 0;
 }

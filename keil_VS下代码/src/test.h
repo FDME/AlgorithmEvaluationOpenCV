@@ -7,5 +7,5 @@ int filesize(FILE *fp);
 void showImage_RGB(RGBTYPE* image_RGB, const char* name);
 void showImage_1ch(UINT8T* p_1ch, const char* name);
 #endif
-void logStr(const char* str);
+void logStr( char* str);
 #endif

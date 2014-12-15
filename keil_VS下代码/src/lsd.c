@@ -47,6 +47,9 @@
 #include <float.h>
 #include "lsd.h"
 
+#ifndef NULL
+#define NULL 0
+#endif
 #ifndef M_LN10
 #define M_LN10 2.30258509299404568402
 #endif /* !M_LN10 */
@@ -1657,30 +1660,30 @@ ntuple_list LineSegmentDetection( image_double image, double scale,
   if( max_grad <= 0.0 ) error("'max_grad' value must be positive.");
 
 
-  /* angle tolerance */// 角度阈值  
+  /* angle tolerance */// 瑙掑害闃堝�  
   prec = M_PI * ang_th / 180.0;
-  p = ang_th / 180.0;  // contrario model中角度符合level-line角度阈值的概率  
-  rho = quant / sin(prec); // 梯度阈值 gradient magnitude threshold
+  p = ang_th / 180.0;  // contrario model涓搴︾鍚坙evel-line瑙掑害闃堝�鐨勬鐜� 
+  rho = quant / sin(prec); // 姊害闃堝� gradient magnitude threshold
   
-  // 对图像进行尺度变换  
+  // 瀵瑰浘鍍忚繘琛屽昂搴﹀彉鎹� 
   /* scale image (if necessary) and compute angle at each pixel */
   if( scale != 1.0 )
     {
       scaled_image = gaussian_sampler( image, scale, sigma_scale );
-	  // 计算每个点的方向
+	  // 璁＄畻姣忎釜鐐圭殑鏂瑰悜
 	  angles = ll_angle( scaled_image, rho, &list_p, &mem_p,
                          &modgrad, (unsigned int) n_bins, max_grad );
       free_image_double(scaled_image);
     }
   else
-	  // 计算每个点的方向
+	  // 璁＄畻姣忎釜鐐圭殑鏂瑰悜
     angles = ll_angle( image, rho, &list_p, &mem_p, &modgrad,
                        (unsigned int) n_bins, max_grad );
   xsize = angles->xsize;
   ysize = angles->ysize;
 
   /* Number of Tests - NT
-  improve rectangle step根据p的衰减看出运行11次，共(XY)^(5/2)种线段，得到Ntest
+  improve rectangle step鏍规嵁p鐨勮“鍑忕湅鍑鸿繍琛�1娆★紝鍏�XY)^(5/2)绉嶇嚎娈碉紝寰楀埌Ntest
   The theoretical number of tests is Np.(XY)^(5/2) where X and Y are number of columns and rows of the image.
   Np corresponds to the number of angle precisions considered. As the procedure 'rect_improve' tests 5 times
   to halve the angle precision, and 5 more times after improving other factors, 11 different precision values
@@ -1701,14 +1704,14 @@ ntuple_list LineSegmentDetection( image_double image, double scale,
   if( reg == NULL ) error("not enough memory!");
 
 
-  /* search for line segments */// 搜索线段  
+  /* search for line segments */// 鎼滅储绾挎  
   for(;list_p; list_p = list_p->next )
     if( used->data[ list_p->x + list_p->y * used->xsize ] == NOTUSED &&
         angles->data[ list_p->x + list_p->y * angles->xsize ] != NOTDEF )
        /* there is no risk of double comparison problem here
           because we are only interested in the exact NOTDEF value */
       {
-		/* find the region of connected point and ~equal angle */ // 找出位置相邻接且方向相近的点构成的区域
+		/* find the region of connected point and ~equal angle */ // 鎵惧嚭浣嶇疆鐩搁偦鎺ヤ笖鏂瑰悜鐩歌繎鐨勭偣鏋勬垚鐨勫尯鍩�
         region_grow( list_p->x, list_p->y, angles, reg, &reg_size,
                      &reg_angle, used, prec );
 
@@ -1726,7 +1729,7 @@ ntuple_list LineSegmentDetection( image_double image, double scale,
            "LSD: A Fast Line Segment Detector with a False Detection Control"
            by R. Grompone von Gioi, J. Jakubowicz, J.M. Morel, and G. Randall.
            The original algorithm is obtained with density_th = 0.0.
-         */// 检查矩形中点的密度，若小于阈值，则改进矩形表示。若仍旧不满足阈值条件，则清除该区域  
+         */// 妫�煡鐭╁舰涓偣鐨勫瘑搴︼紝鑻ュ皬浜庨槇鍊硷紝鍒欐敼杩涚煩褰㈣〃绀恒�鑻ヤ粛鏃т笉婊¤冻闃堝�鏉′欢锛屽垯娓呴櫎璇ュ尯鍩� 
         if( !refine( reg, &reg_size, modgrad, reg_angle, prec, p,
                      &rec, used, angles, density_th, logNT, eps ) ) continue;
 
@@ -1735,14 +1738,14 @@ ntuple_list LineSegmentDetection( image_double image, double scale,
         if( log_nfa <= eps ) continue;
 
         /* A New Line Segment was found! */
-        ++ls_count;  /* increase line segment counter */// 补偿梯度计算时的误差  
+        ++ls_count;  /* increase line segment counter */// 琛ュ伩姊害璁＄畻鏃剁殑璇樊  
 
         /*
            The gradient was computed with a 2x2 mask, its value corresponds to
            points with an offset of (0.5,0.5), that should be added to output.
            The coordinates origin is at the center of pixel (0,0).
          */
-        rec.x1 += 0.5; rec.y1 += 0.5;// 尺度变换 
+        rec.x1 += 0.5; rec.y1 += 0.5;// 灏哄害鍙樻崲 
         rec.x2 += 0.5; rec.y2 += 0.5;
 
         /* scale the result values if a subsampling was performed */

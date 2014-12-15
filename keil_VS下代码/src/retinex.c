@@ -1,5 +1,6 @@
 #include"retinex.h"
 #include"GaussianSmooth.h"
+#include<stdlib.h>
 //extern Mat imageRetinex;
 
 
@@ -37,17 +38,23 @@ void retinex(RGBTYPE* dst, RGBTYPE* src, int sigma, int scale)
 {
 	//Retinex公式，Log(R(x, y)) = Log(I(x, y)) - Log(Gauss(I(x, y)))
 
-	float a = 0.0, b = 0.0, c = 0.0;
 	int i, j,k;
-	double src_fl[SIZE * 3]; //原图，量化结果图 
-	double src_fl1[SIZE * 3];//Log(I(x, y))
-	double src_fl2[SIZE * 3];//Log(Gauss(I(x, y)))
+	//double src_fl[SIZE * 3]; //原图，量化结果图
+	//double src_fl1[SIZE * 3];//Log(I(x, y))
+	//double src_fl2[SIZE * 3];//Log(Gauss(I(x, y)))
+
+	double* src_fl;//原图，量化结果图
+	double* src_fl1;//Log(I(x, y))
+	double* src_fl2;//Log(Gauss(I(x, y)))
 	double mean[3], dev[3]; //b,g,r
 	double min[3];
 	double max[3];
 	double maxmin[3];
 	double temp1, temp2;
 
+	src_fl = (double*)malloc(sizeof(double)*SIZE*3);
+	src_fl1 = (double*)malloc(sizeof(double)*SIZE*3);
+	src_fl2 = (double*)malloc(sizeof(double)*SIZE*3);
 	//三维变一维, 并转换范围，所有图像元素增加1.0保证cvlog正常
 	for (i = 0; i < R; i++)
 	for (j = 0; j < C; j++)
@@ -125,4 +132,7 @@ void retinex(RGBTYPE* dst, RGBTYPE* src, int sigma, int scale)
 		}
 	}
 */
+	free(src_fl);
+	free(src_fl1);
+	free(src_fl2);
 }

@@ -5,4 +5,4 @@
 */
 #include "header.h"
 
-void PerspectiveTransform(POINT src[], POINT dst[]);
+void PerspectiveTransform(POINT* src, POINT* dst, RGBTYPE* simg, RGBTYPE* dimg);
