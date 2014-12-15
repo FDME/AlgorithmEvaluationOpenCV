@@ -225,52 +225,73 @@ void OptimizeCanny();
 void generate_RGB_files()
 {
 	//ȡRGBֵ�洢
-	FILE* Rfp, *Gfp, *Bfp;
-	fopen_s(&Rfp, "imageOriginal_R.c", "w+");
-	fopen_s(&Gfp, "imageOriginal_G.c", "w+");
-	fopen_s(&Bfp, "imageOriginal_B.c", "w+");
-
-	fprintf(Rfp, "#include \"2410lib.h\"\nUINT8T imageOriginal_R[%d][%d] = {\n", R, C);
-	fprintf(Gfp, "#include \"2410lib.h\"\nUINT8T imageOriginal_G[%d][%d] = {\n", R, C);
-	fprintf(Bfp, "#include \"2410lib.h\"\nUINT8T imageOriginal_B[%d][%d] = {\n", R, C);
+	FILE* fp;
 	CvScalar s;
+	fopen_s(&fp, "image.c", "w+");
+	fprintf(fp, "#include \"../header.h\"\nUINT8T image_B[SIZE] = {\n");
+	
+
 	for (int i = 0; i < R; i++)
 	{
-		fprintf(Rfp, "{ ");
-		fprintf(Gfp, "{ ");
-		fprintf(Bfp, "{ ");
 		for (int j = 0; j < C; j++)
 		{
 			s = cvGet2D(&(IplImage)imageOriginal, i, j);
-			fprintf(Bfp, "%d", (int)s.val[0]);//B
-			fprintf(Gfp, "%d", (int)s.val[1]);//G
-			fprintf(Rfp, "%d", (int)s.val[2]);//R
-			if (j != C - 1){
-				fprintf(Bfp, ", ");
-				fprintf(Gfp, ", ");
-				fprintf(Rfp, ", ");
+			fprintf(fp, "%d", (int)s.val[0]);//B
+			if (j != C - 1|| i != R-1){
+				fprintf(fp, ", ");
 			}
 
-			if (j % 20 == 0 && j != 0)
+			if (j % 20 == 0 && (i+j != 0))
 			{
-				fprintf(Bfp, "\n ");
-				fprintf(Gfp, "\n ");
-				fprintf(Rfp, "\n ");
+				fprintf(fp, "\n ");
 			}
 		}
-		fprintf(Rfp, "},\n");
-		fprintf(Gfp, "},\n");
-		fprintf(Bfp, "},\n");
 	}
-	fseek(Rfp, -3, SEEK_CUR);
-	fseek(Gfp, -3, SEEK_CUR);
-	fseek(Bfp, -3, SEEK_CUR);
-	fprintf(Rfp, "};");
-	fprintf(Gfp, "};");
-	fprintf(Bfp, "};");
-	fclose(Rfp);
-	fclose(Gfp);
-	fclose(Bfp);
+	//fseek(fp, -3, SEEK_CUR);
+	fprintf(fp, "};\n"); 
+
+
+	fprintf(fp, "\nUINT8T image_G[SIZE] = {\n");
+	for (int i = 0; i < R; i++)
+	{
+		for (int j = 0; j < C; j++)
+		{
+			s = cvGet2D(&(IplImage)imageOriginal, i, j);
+			fprintf(fp, "%d", (int)s.val[1]);//G
+			//fprintf(Rfp, "%d", (int)s.val[2]);//R
+			if (j != C - 1 || i != R - 1){
+				fprintf(fp, ", ");
+			}
+
+			if (j % 20 == 0 && (i + j != 0))
+			{
+				fprintf(fp, "\n ");
+			}
+		}
+	}
+	fprintf(fp, "};\n");
+
+
+	fprintf(fp, "\nUINT8T image_R[SIZE] = {\n");
+	for (int i = 0; i < R; i++)
+	{
+		for (int j = 0; j < C; j++)
+		{
+			s = cvGet2D(&(IplImage)imageOriginal, i, j);
+			fprintf(fp, "%d", (int)s.val[2]);//R
+			if (j != C - 1 || i != R - 1){
+				fprintf(fp, ", ");
+			}
+			if (j % 20 == 0 && (i + j != 0))
+			{
+				fprintf(fp, "\n ");
+			}
+		}
+	}
+	fprintf(fp, "};\n");
+
+
+	fclose(fp);
 }
 
 bool checkLine(Point start, Point end)
@@ -1600,7 +1621,7 @@ int main(){
 		LoadImage(filename);
 		R = imageOriginal.rows;
 		C = imageOriginal.cols;
-		
+		generate_RGB_files();
 		//ShowImage(imageOriginal, "imageOriginal");
 		cvtColor(imageOriginal, imageGray, CV_BGR2GRAY);
 		double avgGray = cvAvg(&(IplImage)imageGray).val[0];
