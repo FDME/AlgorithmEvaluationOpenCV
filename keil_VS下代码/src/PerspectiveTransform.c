@@ -86,7 +86,7 @@ void PerspectiveTransform(POINT* src, POINT* dst, RGBTYPE* simg, RGBTYPE* dimg)
         b[i] = dst[i].x;
         b[i+4] = dst[i].y;
 	}
-	for(i = 0; i != 8; i++)
+	/*for(i = 0; i != 8; i++)
 	{
 		for(j = 0; j != 8; j++)
 			printf("%lf ",a[i*8+j]);
@@ -95,12 +95,12 @@ void PerspectiveTransform(POINT* src, POINT* dst, RGBTYPE* simg, RGBTYPE* dimg)
 	printf("\n");
 	for(i = 0; i != 8; i++)
 		printf("%lf ",b[i]);
-	printf("\n\n");
+	printf("\n\n");*/
 
 	/*************************SVD求解方程组**************************/
 
 	i=ginv(a,8,8,aa,eps,u,v,9);
-	printf("MAT U(%d*%d) IS:\n",8,8);
+/*	printf("MAT U(%d*%d) IS:\n",8,8);
 	printf("MAT A+(%d*%d) is:\n",8,8);
 	if(i>0)
 	{
@@ -133,7 +133,7 @@ void PerspectiveTransform(POINT* src, POINT* dst, RGBTYPE* simg, RGBTYPE* dimg)
 		   printf("%13.4e",a[i*8+j]);
 		printf("\n");
 	}
-    printf("\n");
+    printf("\n");*/
 
 	for(i=0;i<8;i++)
 	{
@@ -142,19 +142,19 @@ void PerspectiveTransform(POINT* src, POINT* dst, RGBTYPE* simg, RGBTYPE* dimg)
 		{ s=s+aa[i*8+j]*b[j];}
 		M[i]=s;
 	}
-	printf("方程组AX=b的解向量X为:\n\n");
+	/*printf("方程组AX=b的解向量X为:\n\n");
 	for(i=0;i<8;i++)
 	{
 		printf("%13.4f",M[i]);
 	}
-	printf("\n");
+	printf("\n");*/
 	M[8] = 1;
-		for(i = 0; i != 3; i++)
+		/*for(i = 0; i != 3; i++)
 	{
 		for(j = 0; j != 3; j++)
 			printf("%lf ",M[i*3+j]);
 		printf("\n");
-	}
+	}*/
 	i = brinv(M);
 	for(i = 0; i != SIZE; i++){
 		x = i/C;

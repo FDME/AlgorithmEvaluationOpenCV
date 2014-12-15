@@ -23,7 +23,7 @@ int LoadImg(RGBTYPE* dst, int option)
 #ifdef WIN32
 	FILE* fp;
 #endif
-	if (option = 1)
+	if (option == 1)
 	{
 		//结果转换
 		for (i = 0; i < R;i++)
@@ -37,7 +37,7 @@ int LoadImg(RGBTYPE* dst, int option)
 	}
 	else //需解码
 	{
-		if (option = 0)
+		if (option == 0)
 		{
 #ifdef WIN32
 			logStr("LoadImg: option设置错误\n");
@@ -51,12 +51,12 @@ int LoadImg(RGBTYPE* dst, int option)
 			logStr("Finish transmitting\n");
 #endif
 		}
-		else if (option = 2)
+		else if (option == 2)
 		{
 #ifdef WIN32
 			//fp = fopen("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A——正常光照\\jpeg_20141128_150639.jpg", "rb");
 			//fp = fopen("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照-20141128\\机柜A——正常光照\\5.jpg","rb");
-			if (!(fp = fopen("E:\\VS2013_pro\\jpeg_20141128_151235.jpg", "rb")))
+			if (!(fp = fopen("E:\\VS2013_pro\\华为拍照-20141128\\机柜A--拆了一个设备\\jpeg_20141128_152454.jpg", "rb")))
 			{
 				printf("无法打开文件！\n");  //暗光图片
 				return FALSE;
@@ -82,12 +82,11 @@ int LoadImg(RGBTYPE* dst, int option)
 			logStr("Decoding error!\n");
 		else
 			logStr("Finish decoding\n");
-
+		
 		if (yuv2rgb(py, pu, pv, dst) == FALSE)
 			logStr("RGB error!\n");
 		else
 			logStr("Finish RGB\n");
-
 		return TRUE;
 	}
 }

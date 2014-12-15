@@ -53,20 +53,19 @@ int main(int argc,char **argv)
 		UINT32T k = 0;
 		
 		int i, j, number;
-
 #ifdef WIN32
 		image_1ch = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 1); //需在LineDetect之前
 #endif
 		if (LoadImg(image_RGB, 2) == FALSE) return -1;//option = 0: 摄像头采集；option = 1: 图片数组； option = 2：读jpeg文件
 		undistort_map(image_RGB, image_Correction);
-		preProcess(image_Preprocess, image_Correction);
+		if (preProcess(image_Correction, image_Correction) == FALSE) return -1;
 		calc_gray(image_Gray, image_Correction);
-		canny(image_Canny,image_Gray);
+		//canny(image_Canny,image_Gray);
 		//ImageSegment(label);
 		//LabelOptimize(label);
 		//numLines = lineDetect(Line_k,Line_b);
 		//numLines = LineSort(numLines, Line_k, Line_b);
-		ForegroundSeperation(image_Preprocess,image_Preprocess);
+		ForegroundSeperation(image_Correction,image_Correction);
 
 		//**********PerspectiveTransform测试代码如下：************
 		if (1){
@@ -92,7 +91,7 @@ int main(int argc,char **argv)
 		
 		//输出鱼眼矫正结果
 		showImage_RGB(image_Correction, "Correction");
-		showImage_RGB(image_Preprocess, "preprocess");
+		//showImage_RGB(image_Preprocess, "preprocess");
 		
 		showImage_RGB(image_Transform,"Transform");
 		//showImage_1ch(image_Gray, "Gray");

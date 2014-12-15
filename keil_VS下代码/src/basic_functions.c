@@ -210,7 +210,27 @@ void calc_sobel_3x3(UINT8T* dst, UINT8T* src)
     
 }
 
+//计算均值
+UINT32T Mean(UINT8T* image, UINT32T x_start, UINT32T y_start, UINT32T width, UINT32T height)
+{
+	int i = 0, j = 0;
+	UINT32T sum = 0;
+	for (i = y_start; i < height; i++)
+	for (j = x_start; j < width; j++)
+		sum += image[i*width + j];
+	return (sum / (width*height));
+}
 
+//计算方差
+UINT32T Variance(UINT8T* image, UINT32T x_start, UINT32T y_start, UINT32T width, UINT32T height, UINT32T mean)
+{
+	int i = 0, j = 0;
+	UINT32T temp = 0;
+	for (i = y_start; i < height; i++)
+	for (j = x_start; j < width; j++)
+		temp += (image[i*width + j] - mean)*(image[i*width + j] - mean);
+	return temp / (width*height);
+}
 
 
 
