@@ -1,6 +1,7 @@
 #include"canny.h"
 #include"basic_functions.h" //gauss
-////////////全局变量/////
+#include"Otsu.h"
+#include"test.h"
 
 //////对非最大抑制后的图像进行边缘搜索/////////
 void TraceEdge(int y, int x, int nThrLow, UINT8T* pimage_Gauss, int *pMag)
@@ -27,8 +28,7 @@ void TraceEdge(int y, int x, int nThrLow, UINT8T* pimage_Gauss, int *pMag)
 	}
 }
 
-
-void canny(UINT8T* dst, UINT8T* src)
+int canny(UINT8T* dst, UINT8T* src, int option) // option = 0: Otsu，忽略细小边缘。option = 1 : 统计细小边缘
 {
 	//变量定义 
 	UINT32T x, y;
@@ -66,6 +66,12 @@ void canny(UINT8T* dst, UINT8T* src)
 	
 	//高斯滤波
 	UINT8T gauss[SIZE];
+
+	if (option != 0 && option != 1)
+	{
+		logStr("Canny: Option error!\n");
+		return FALSE;
+	}
 
 	Gradx = (int*)malloc(sizeof(int)*SIZE);
 	Grady = (int*)malloc(sizeof(int)*SIZE);
@@ -200,54 +206,65 @@ void canny(UINT8T* dst, UINT8T* src)
 			}
 		}
 	}
-	///////统计pMag的直方图，判定阈值//////////待调整
 	
-	//初始化
-	for (k = 0; k<256; k++)
+	//计算自适应阈值
+	if (option == 0)
 	{
-		nHist[k] = 0;
+		nThrHigh = (int)Otsu(src);
+		nThrLow = nThrHigh / 2;
 	}
-	//统计直方图，利用直方图计算阈值
-	for (y = 0; y<R; y++)
+
+	else
 	{
-		for (x = 0; x<C; x++)
+		///////统计pMag的直方图，判定阈值//////////
+
+		//初始化
+		for (k = 0; k<256; k++)
 		{
-			if (dst[y*C + x] == 128)
+			nHist[k] = 0;
+		}
+		//统计直方图，利用直方图计算阈值
+		for (y = 0; y<R; y++)
+		{
+			for (x = 0; x<C; x++)
 			{
-				nHist[Mag[y*C + x]]++;
+				if (dst[y*C + x] == 128)
+				{
+					nHist[Mag[y*C + x]]++;
+				}
 			}
 		}
-	}
 
-	nEdgeNum = nHist[0];
-	nMaxMag = 0;
-	//统计经过“非最大值抑制”后有多少像素
-	for (k = 1; k<256; k++)
-	{
-		if (nHist[k] != 0)
+		nEdgeNum = nHist[0];
+		nMaxMag = 0;
+		//统计经过“非最大值抑制”后有多少像素
+		for (k = 1; k<256; k++)
 		{
-			nMaxMag = k;
+			if (nHist[k] != 0)
+			{
+				nMaxMag = k;
+			}
+			nEdgeNum += nHist[k];
 		}
-		nEdgeNum += nHist[k];
-	}
-	//梯度比高阈值小的像素点总数目
-	nHighCount = (int)(dRatHigh*nEdgeNum + 0.5);
+		//梯度比高阈值小的像素点总数目
+		nHighCount = (int)(dRatHigh*nEdgeNum + 0.5);
 
-	k = 1;
-	nEdgeNum = nHist[1];
-	//计算高阈值
-	while ((k<(nMaxMag - 1)) && (nEdgeNum<nHighCount))
-	{
-		k++;
-		nEdgeNum += nHist[k];
+		k = 1;
+		nEdgeNum = nHist[1];
+		//计算高阈值
+		while ((k<(nMaxMag - 1)) && (nEdgeNum<nHighCount))
+		{
+			k++;
+			nEdgeNum += nHist[k];
+		}
+
+		nThrHigh = k;
+		nThrLow = (int)((nThrHigh)*dRatLow + 0.5);
 	}
-	
-	nThrHigh = k;
-	nThrLow = (int)((nThrHigh)*dRatLow + 0.5);
-	#ifdef WIN32
+#ifdef WIN32
 	printf("Canny: nThrHigh = %d, nThrLow = %d\n", nThrHigh, nThrLow);
-	#endif
-	
+#endif
+
 	//利用函数寻找边界起点
 	for (y = 0; y<R; y++)
 	{
@@ -280,4 +297,5 @@ void canny(UINT8T* dst, UINT8T* src)
 	free(Gradx);
 	free(Grady);
 	free(Mag);
+	return TRUE;
 }

@@ -60,7 +60,7 @@ int main(int argc,char **argv)
 		undistort_map(image_RGB, image_Correction);
 		if (preProcess(image_Correction, image_Correction) == FALSE) return -1;
 		calc_gray(image_Gray, image_Correction);
-		//canny(image_Canny,image_Gray);
+		if(canny(image_Canny,image_Gray, 1)== FALSE) return -1;//option设置错误
 		//ImageSegment(label);
 		//LabelOptimize(label);
 		//numLines = lineDetect(Line_k,Line_b);
@@ -95,7 +95,7 @@ int main(int argc,char **argv)
 		
 		showImage_RGB(image_Transform,"Transform");
 		//showImage_1ch(image_Gray, "Gray");
-
+		showImage_1ch(image_Canny, "CANNY");
 		//UINT8T pGray[SIZE];
 		//for (i = 0; i < R; i++)  //int�������������ѭ��
 			//for (j = 0; j < C; j++)
