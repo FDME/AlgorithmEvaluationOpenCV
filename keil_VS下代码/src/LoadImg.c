@@ -56,7 +56,8 @@ int LoadImg(RGBTYPE* dst, int option)
 #ifdef WIN32
 			//fp = fopen("C:\\HuaWeiImage\\华为拍照-20141128\\机柜A——正常光照\\jpeg_20141128_150639.jpg", "rb");
 			//fp = fopen("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照-20141128\\机柜A——正常光照\\5.jpg","rb");
-			if (!(fp = fopen("E:\\VS2013_pro\\华为拍照-20141128\\机柜A--拆了一个设备\\jpeg_20141128_152454.jpg", "rb")))
+			//fp = fopen("E:\\VS2013_pro\\华为拍照-20141128\\机柜A--拆了一个设备\\jpeg_20141128_152454.jpg", "rb");
+			if (!(fp = fopen("C:\\Users\\ZoeQIAN\\Pictures\\华为拍照-20141128\\机柜A——正常光照\\5.jpg","rb")))
 			{
 				printf("无法打开文件！\n");  //暗光图片
 				return FALSE;

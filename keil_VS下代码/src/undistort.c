@@ -11,7 +11,7 @@ RGBTYPE pix_div(RGBTYPE a, int n);
 RGBTYPE pix_mul(RGBTYPE a, float t);
 RGBTYPE pix_inter(RGBTYPE t1, RGBTYPE t2, float t);
 
-void undistort_map(RGBTYPE*src, RGBTYPE*dst){
+void undistort_rgb(RGBTYPE*src, RGBTYPE*dst){
 	int i,j;
 	float fx,fy;//映射后的浮点坐标
 	int x,y;
@@ -27,5 +27,24 @@ void undistort_map(RGBTYPE*src, RGBTYPE*dst){
 			inter1 = pix_inter(src[y*C+x],src[y*C+x+1],t);
 			inter2 = pix_inter(src[(y+1)*C+x],src[(y+1)*C+x+1],t);
 			dst[i*C+j] = pix_inter(inter1,inter2,u);
+		}
+}
+
+void undistort_gray(UINT8T*src, UINT8T*dst){
+	int i,j;
+	float fx,fy;//映射后的浮点坐标
+	int x,y;
+	float t,u;
+	UINT8T inter1,inter2;//双线性插值
+	for(i = 0; i != R; i++)
+		for(j = 0; j != C; j++){
+			fx = map1[i][j];
+			fy = map2[i][j];
+			x = (int)fx; y = (int)fy; //向下取整
+			t = fx -x; u = fy-y;
+			//printf("%f,%f",t,u);
+			inter1 = src[y*C+x]*(1.0-t)+src[y*C+x+1]*t;
+			inter2 = src[(y+1)*C+x]*(1.0-t)+src[(y+1)*C+x+1]*t;
+			dst[i*C+j] = inter1*(1.0-u)+inter2*u;
 		}
 }

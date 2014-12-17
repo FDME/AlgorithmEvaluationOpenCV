@@ -35,6 +35,8 @@ UINT8T  image_Gauss[SIZE];
 UINT8T  image_Sobel[SIZE];
 UINT8T	image_Canny[SIZE];
 UINT8T	label[SIZE];
+POINT up_st,up_en,down_st,down_en;  //上边界起始点，下边界起始点。目前仅上边界有效
+UINT16T right;//右边界坐标值（垂直）
 
 //检测到的直线参数，个数待优化
 
@@ -57,7 +59,7 @@ int main(int argc,char **argv)
 		image_1ch = cvCreateImageHeader(cvSize(C, R), IPL_DEPTH_8U, 1); //需在LineDetect之前
 #endif
 		if (LoadImg(image_RGB, 2) == FALSE) return -1;//option = 0: 摄像头采集；option = 1: 图片数组； option = 2：读jpeg文件
-		undistort_map(image_RGB, image_Correction);
+		undistort_rgb(image_RGB, image_Correction);
 		if (preProcess(image_Correction, image_Correction) == FALSE) return -1;
 		calc_gray(image_Gray, image_Correction);
 		if(canny(image_Canny,image_Gray, 1)== FALSE) return -1;//option设置错误
