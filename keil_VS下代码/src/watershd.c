@@ -74,7 +74,7 @@ void ForegroundSeperation(RGBTYPE* src,RGBTYPE* dst){
 			else
 				markers[i*C+j] = 0;
 		}
-		showImage_1ch(markers,"marker");
+		//showImage_1ch(markers,"marker");
 	//draw a pixel-wide border of dummy "watershed" (i.e. boundary) pixels
 	//for( j = 0; j < C; j++)
 		//markers[j] = markers[j+(R-1)*C] = WSHED;
